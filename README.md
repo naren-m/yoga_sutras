@@ -80,3 +80,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 python run.py
 ```
+
+
+## Resource
+
+- Dictionanries
+  https://github.com/ambuda-org/dictionaries/blob/main/src/dictionaries.yaml
