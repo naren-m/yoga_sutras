@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+flask-cors
+sqlalchemy
+requests
+beautifulsoup4
+unidecode
+vidyut
+rapidfuzz
+python-dotenv
