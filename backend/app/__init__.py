@@ -8,13 +8,20 @@ from app.models.base import Base
 # Pass the custom Base to Flask-SQLAlchemy so models are registered
 db = SQLAlchemy(model_class=Base)
 
+# Project root is two levels up from app/__init__.py (backend/app -> backend -> yoga_sutras)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
+
 def create_app():
     app = Flask(__name__)
+
+    # Ensure data directory exists
+    os.makedirs(DATA_DIR, exist_ok=True)
 
     # Config
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
         'DATABASE_URL',
-        'sqlite:///' + os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'yoga_sutras.db')
+        'sqlite:///' + os.path.join(DATA_DIR, 'yoga_sutras.db')
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
