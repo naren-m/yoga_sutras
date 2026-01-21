@@ -5,6 +5,8 @@ import DictionaryPanel from './DictionaryPanel';
 import SearchInput from './SearchInput';
 import SearchResults from './SearchResults';
 import ScriptToggle from './ScriptToggle';
+import OfflineIndicator from './OfflineIndicator';
+import PWAUpdatePrompt from './PWAUpdatePrompt';
 import { useSearch } from '../hooks/useSearch';
 import { useBookmarks } from '../hooks/useBookmarks';
 
@@ -45,6 +47,9 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-amber-50">
+      {/* Offline indicator banner */}
+      <OfflineIndicator />
+
       {/* Header */}
       <header className="bg-gradient-to-r from-amber-800 to-amber-900 text-amber-50 shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4">
@@ -163,6 +168,9 @@ export default function Layout() {
 
       {/* Dictionary panel - slides in when a word is selected */}
       <DictionaryPanel />
+
+      {/* PWA update prompt */}
+      <PWAUpdatePrompt />
     </div>
   );
 }
