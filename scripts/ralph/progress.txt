@@ -1,0 +1,125 @@
+## Codebase Patterns
+- Database path: Use `PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))` from `backend/app/__init__.py` to get project root
+- Data directory: All data files (db, dictionaries, vidyut-data) should go in `data/` at project root
+- Model helpers: Use `pk()` and `foreign_key()` from `app.models.base` for consistent column definitions
+- Dictionary keys: Use SLP1 encoding internally for standardized Sanskrit lookup
+- Text hierarchy: Text → TextSection → TextBlock (generic structure supports any Sanskrit text)
+- Script imports: Use `sys.path.insert(0, BACKEND_DIR)` to import from `app` module in scripts
+- Querying models: Use `db.session.query(Model).filter_by()` not `Model.query.filter_by()` (Flask-SQLAlchemy v3 style)
+- Sanskrit transliteration: Use `indic-transliteration` library for ITRANS↔IAST↔Devanagari conversion
+- Idempotent scripts: Clear existing data before re-inserting to allow safe re-runs
+- Backend port: Default is 5001 (port 5000 blocked by macOS AirPlay), configurable via PORT env var
+- API response format: Always return `{"success": true/false, "data": ...}` or `{"success": false, "error": "..."}`
+- Flask URL special chars: Use `<path:param>` converter when route params may contain special characters (e.g., Sanskrit words)
+- Script detection: Devanagari = `[\u0900-\u097F]` Unicode range, IAST = diacritics (āīūṛṃḥ etc.), SLP1 = ASCII fallback
+- Vidyut usage: Import as `from vidyut.vidyut import cheda`, init as `cheda.Chedaka(data_path)` where data_path is parent vidyut-data directory
+- Vidyut input: Chedaka.run() accepts SLP1 only - convert other scripts first
+- Frontend API config: Use `import.meta.env.VITE_API_URL || 'http://localhost:5001/api'` for backend URL
+- Tailwind v4: Use `@import "tailwindcss"` instead of `@tailwind` directives, and `@tailwindcss/postcss` plugin
+- React Query: Initialize QueryClient in main.tsx, use custom hooks in `src/hooks/` for data fetching
+- Route structure: `/pada/:padaSlug` for section view, `/pada/:padaSlug/sutra/:sutraNumber` for block view
+- Sanskrit fonts: Import Noto Sans/Serif Devanagari from Google Fonts, apply via `.font-serif` class
+
+---
+
+# Progress Log
+
+<!-- Ralph will append progress entries below this line -->
+
+## 2026-01-20 21:05 - US-001
+- **What was implemented**: Fixed database path configuration to use project root `data/` directory
+- **Files changed**:
+  - `backend/app/__init__.py` - Fixed database URI to point to `data/yoga_sutras.db` at project root
+  - `.gitignore` - Created comprehensive gitignore for Python, Node, and generated files
+- **Learnings for future iterations:**
+  - The models (Text, TextSection, TextBlock, Dictionary, DictionaryEntry) were already implemented correctly
+  - Database path used incorrect relative path - needed 3 levels of `os.path.dirname()` from `backend/app/__init__.py`
+  - Always ensure `data/` directory exists before database operations (added `os.makedirs(DATA_DIR, exist_ok=True)`)
+  - Virtual environment at `backend/venv/` is excluded from git
+---
+
+## 2026-01-21 05:15 - US-002
+- **What was implemented**: Data scraping and seeding pipeline with three scripts
+- **Files changed**:
+  - `scripts/scrape_text.py` - Complete rewrite to fetch from sanskritdocuments.org (Sanskrit) and swamij.com (translations), includes fallback translations for all 196 sutras
+  - `scripts/seed_dictionaries.py` - Enhanced to parse CDSL XML and populate DictionaryEntry table
+  - `scripts/populate_db.py` - New script to load yoga_sutras.json into database
+  - `backend/requirements.txt` - Added `indic-transliteration` dependency
+  - `data/yoga_sutras.json` - Generated data file with 196 sutras
+- **Learnings for future iterations:**
+  - shlokam.org blocks scraping requests and redirects to MP3 files - use alternative sources
+  - sanskritdocuments.org provides ITX format files that need ITRANS→IAST conversion
+  - Use `indic-transliteration` library's `sanscript.transliterate()` for reliable script conversion
+  - CDSL XML uses `<H1>/<H2>/<key1>` structure for dictionary entries
+  - Flask-SQLAlchemy v3+ uses `db.session.query(Model)` instead of `Model.query`
+  - All scripts should be idempotent: check for existing data, clear and re-insert
+---
+
+## 2026-01-20 - US-003
+- **What was implemented**: Backend text API service with 4 REST endpoints
+- **Files changed**:
+  - `backend/app/routes/text_routes.py` - Rewrote routes to match PRD spec: `/api/texts`, `/api/texts/{slug}`, `/api/texts/{slug}/section/{section_slug}`, `/api/texts/{slug}/block/{block_id}`
+  - `backend/app/services/text_service.py` - Updated to Flask-SQLAlchemy v3 query style, added `get_section_by_slug()` and `get_block_by_id()` methods
+  - `backend/app/__init__.py` - Added CORS support for Vite default port (5173)
+  - `backend/run.py` - Changed default port to 5001 (macOS AirPlay blocks 5000), made port configurable via PORT env var
+  - `CLAUDE.md` - Updated API documentation with all routes and new port info
+- **Learnings for future iterations:**
+  - macOS AirPlay Receiver blocks port 5000 - use 5001 as default
+  - API routes should follow resource hierarchy: `/texts/{slug}/section/{section_slug}` not `/sections/{id}`
+  - For performance, `/api/texts/{slug}` returns sections but NOT blocks (196 sutras is too much)
+  - All 404 errors should return `{"success": false, "error": "..."}` with HTTP 404 status
+  - CORS origins should include common dev server ports: 3000 (CRA), 5173 (Vite)
+---
+
+## 2026-01-21 - US-004
+- **What was implemented**: Backend dictionary lookup service with multi-script support and fuzzy matching
+- **Files changed**:
+  - `backend/app/services/dictionary_service.py` - Complete rewrite with script detection, transliteration, and rapidfuzz integration
+  - `backend/app/routes/dictionary_routes.py` - Updated to use path converter and handle fuzzy query param
+  - `scripts/seed_dictionaries.py` - Fixed Flask-SQLAlchemy v3 query style
+- **Learnings for future iterations:**
+  - Use `<path:word>` in Flask routes to handle special characters in Sanskrit words
+  - Script detection: Devanagari uses Unicode range `[\u0900-\u097F]`, IAST uses diacritics (āīūṛṃḥ etc.)
+  - Cache dictionary keys for fuzzy matching performance (avoid repeated DB queries)
+  - rapidfuzz `process.extract()` returns tuples of (match, score, index) - extract just the match
+  - Always return `data: []` for not-found cases, not an error - let frontend handle empty state
+  - Use `indic_transliteration.sanscript` constants for script names (DEVANAGARI, SLP1, IAST)
+---
+
+## 2026-01-21 09:45 - US-005
+- **What was implemented**: Backend sandhi splitting service using Vidyut Cheda
+- **Files changed**:
+  - `backend/app/services/sandhi_service.py` - Complete rewrite with multi-script support, proper Vidyut Cheda integration, graceful error handling
+  - `backend/app/routes/dictionary_routes.py` - Updated route from `/api/sandhi/split/` to `/api/split/`, added status endpoint
+- **Learnings for future iterations:**
+  - Vidyut package import: `from vidyut.vidyut import cheda` (not `from vidyut.cheda import Cheda`)
+  - Chedaka initialization: `cheda.Chedaka(data_path)` where data_path is the parent vidyut-data directory (not the cheda subdirectory)
+  - Chedaka.run() accepts SLP1 only - must convert Devanagari/IAST to SLP1 first
+  - Token objects have `text` (inflected form) and `lemma` (base form for dictionary lookup)
+  - Vidyut doesn't deeply split tatpuruṣa compounds like "cittavṛttinirodhaḥ" - returns them as-is with lemma=None
+  - Download vidyut data: `import vidyut; vidyut.download_data('data/vidyut-data')`
+  - Data directory contains subdirs: cheda/, sandhi/, kosha/, prakriya/, chandas/
+---
+
+## 2026-01-21 - US-006
+- **What was implemented**: React frontend project setup with full navigation
+- **Files changed**:
+  - `frontend/src/types/index.ts` - TypeScript types for API responses, Text/Section/Block models, Pada metadata
+  - `frontend/src/services/api.ts` - Axios-based API client with all endpoints (texts, dictionary, split)
+  - `frontend/src/hooks/useTexts.ts` - React Query hooks for data fetching with caching
+  - `frontend/src/components/Layout.tsx` - App layout with header, tab navigation for Padas, footer
+  - `frontend/src/pages/HomePage.tsx` - Welcome page with Pada grid and featured sutra preview
+  - `frontend/src/pages/PadaPage.tsx` - Section view showing all sutras with previews
+  - `frontend/src/pages/SutraPage.tsx` - Full sutra view with Devanagari, IAST, meaning, and prev/next navigation
+  - `frontend/src/App.tsx` - React Router setup with nested routes
+  - `frontend/src/main.tsx` - QueryClientProvider setup
+  - `frontend/src/index.css` - Tailwind v4 CSS with Noto Devanagari fonts
+  - `frontend/postcss.config.js` - Updated for Tailwind v4 (`@tailwindcss/postcss`)
+  - `frontend/package.json` - Added react-router-dom and @tailwindcss/postcss dependencies
+- **Learnings for future iterations:**
+  - Tailwind v4 requires `@tailwindcss/postcss` instead of direct `tailwindcss` plugin in postcss.config.js
+  - Use `@import "tailwindcss"` in CSS instead of `@tailwind base/components/utilities` directives
+  - PADAS array in types/index.ts provides metadata for navigation without API call
+  - Keyboard navigation (← →) enhances sutra browsing UX
+  - React 19 + TypeScript verbatimModuleSyntax requires proper import types
+---
