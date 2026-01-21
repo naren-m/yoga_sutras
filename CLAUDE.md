@@ -16,7 +16,7 @@ docker-compose up --build
 # Backend only (local)
 cd backend && python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python run.py  # Runs on localhost:5000
+python run.py  # Runs on localhost:5001 (port 5000 blocked by macOS AirPlay)
 
 # Data population (run from project root)
 pip install requests beautifulsoup4
@@ -25,7 +25,7 @@ python scripts/seed_dictionaries.py # Downloads MW and Apte dictionaries to data
 ```
 
 ### URLs
-- Backend API: http://localhost:5000
+- Backend API: http://localhost:5001 (configurable via PORT env var)
 - Frontend: http://localhost:3000
 
 ## Architecture
@@ -59,8 +59,10 @@ This generic structure supports any Sanskrit text (Ramayana slokas, Bhagavad Git
 ### API Routes
 | Route | Description |
 |-------|-------------|
-| `/api/texts/<slug>` | Get full text with sections |
-| `/api/texts/<slug>/section/<section_slug>` | Get section with blocks |
+| `/api/texts` | List all texts (metadata only) |
+| `/api/texts/<slug>` | Get text with sections (no blocks for performance) |
+| `/api/texts/<slug>/section/<section_slug>` | Get section with all blocks |
+| `/api/texts/<slug>/block/<block_id>` | Get single block by ID |
 | `/api/dictionary/<word>` | Dictionary lookup |
 | `/api/split/<compound>` | Sandhi splitting |
 

@@ -27,7 +27,11 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
-    CORS(app, origins=['http://localhost:3000', 'http://127.0.0.1:3000'])
+    CORS(app, origins=[
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:5173',  # Vite default port
+    ])
 
     # Register blueprints
     from app.routes.text_routes import text_bp
