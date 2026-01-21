@@ -6,15 +6,34 @@ dict_bp = Blueprint('dictionary', __name__, url_prefix='/api')
 dict_service = DictionaryService()
 sandhi_service = SandhiService()
 
-@dict_bp.route('/dictionary/<word>', methods=['GET'])
+
+@dict_bp.route('/dictionary/<path:word>', methods=['GET'])
 def lookup_word(word):
     """
-    Lookup a word in all dictionaries. 
-    Word should be provided in SLP1 or handled via transliteration service (todo).
-    For now assuming SLP1 or matching key.
+    Lookup a word in all dictionaries.
+
+    Accepts word in Devanagari, IAST, or SLP1 encoding.
+    Returns definitions from all dictionaries (MW, Apte).
+
+    Query params:
+        fuzzy (bool): Enable fuzzy matching (default: true)
+
+    Returns empty array (not error) when word not found.
     """
-    definitions = dict_service.get_definitions(word)
-    return jsonify({"success": True, "data": definitions})
+    # Parse query params
+    fuzzy = request.args.get('fuzzy', 'true').lower() != 'false'
+
+    # Get definitions (returns empty list if not found)
+    definitions = dict_service.get_definitions(word, fuzzy=fuzzy)
+
+    return jsonify({
+        "success": True,
+        "data": definitions,
+        "query": {
+            "word": word,
+            "fuzzy_enabled": fuzzy
+        }
+    })
 
 @dict_bp.route('/sandhi/split/<path:text>', methods=['GET'])
 def split_sandhi(text):

@@ -206,7 +206,7 @@ def populate_database(dictionary_config: dict, entries: list):
 
     with app.app_context():
         # Get or create dictionary record
-        dictionary = Dictionary.query.filter_by(slug=dictionary_config["slug"]).first()
+        dictionary = db.session.query(Dictionary).filter_by(slug=dictionary_config["slug"]).first()
         if not dictionary:
             dictionary = Dictionary(
                 slug=dictionary_config["slug"],
@@ -218,7 +218,7 @@ def populate_database(dictionary_config: dict, entries: list):
         else:
             print(f"  Using existing dictionary: {dictionary_config['title']}")
             # Clear existing entries for fresh load
-            DictionaryEntry.query.filter_by(dictionary_id=dictionary.id).delete()
+            db.session.query(DictionaryEntry).filter_by(dictionary_id=dictionary.id).delete()
             db.session.commit()
             print(f"  Cleared existing entries")
 
