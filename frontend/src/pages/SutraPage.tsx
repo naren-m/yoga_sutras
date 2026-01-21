@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSection } from '../hooks/useTexts';
 import { PADAS } from '../types';
+import ClickableText from '../components/ClickableText';
 
 export default function SutraPage() {
   const { padaSlug, sutraNumber } = useParams<{ padaSlug: string; sutraNumber: string }>();
   const navigate = useNavigate();
   const { data: section, isLoading, error } = useSection('yoga-sutras', padaSlug || '');
+  const [commentaryOpen, setCommentaryOpen] = useState(false);
 
   const padaIndex = PADAS.findIndex((p) => p.slug === padaSlug);
   const sutraNum = parseInt(sutraNumber || '1', 10);
@@ -77,10 +80,13 @@ export default function SutraPage() {
 
         {/* Sanskrit text */}
         <div className="p-6 space-y-6">
-          {/* Devanagari */}
+          {/* Devanagari - with clickable words */}
           <div>
             <p className="text-3xl md:text-4xl font-serif text-amber-900 leading-relaxed">
-              {currentSutra.content}
+              <ClickableText text={currentSutra.content} />
+            </p>
+            <p className="text-xs text-gray-400 mt-2">
+              Click any word to look it up in the dictionary
             </p>
           </div>
 
@@ -101,15 +107,28 @@ export default function SutraPage() {
             </p>
           </div>
 
-          {/* Commentary (if available) */}
+          {/* Commentary (collapsible) */}
           {currentSutra.commentary && (
             <div className="pt-4 border-t border-amber-100">
-              <h3 className="text-sm font-medium text-amber-600 uppercase tracking-wide mb-2">
+              <button
+                onClick={() => setCommentaryOpen(!commentaryOpen)}
+                className="flex items-center gap-2 text-sm font-medium text-amber-600 uppercase tracking-wide hover:text-amber-800 transition-colors w-full text-left"
+              >
+                <svg
+                  className={`w-4 h-4 transition-transform ${commentaryOpen ? 'rotate-90' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
                 Commentary
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                {currentSutra.commentary}
-              </p>
+              </button>
+              {commentaryOpen && (
+                <p className="text-gray-600 leading-relaxed mt-3 pl-6">
+                  {currentSutra.commentary}
+                </p>
+              )}
             </div>
           )}
         </div>
