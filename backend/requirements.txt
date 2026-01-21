@@ -8,3 +8,4 @@ unidecode
 vidyut
 rapidfuzz
 python-dotenv
+indic-transliteration
