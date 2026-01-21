@@ -5,10 +5,12 @@ import DictionaryPanel from './DictionaryPanel';
 import SearchInput from './SearchInput';
 import SearchResults from './SearchResults';
 import { useSearch } from '../hooks/useSearch';
+import { useBookmarks } from '../hooks/useBookmarks';
 
 export default function Layout() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { query, setQuery, results, isLoading, isEmpty } = useSearch();
+  const { bookmarkCount } = useBookmarks();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   // Close search dropdown when clicking outside
@@ -110,6 +112,32 @@ export default function Layout() {
                 </NavLink>
               </li>
             ))}
+            <li>
+              <NavLink
+                to="/bookmarks"
+                className={({ isActive }) =>
+                  `flex items-center gap-1 px-4 py-2 rounded-t-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                    isActive
+                      ? 'bg-amber-50 text-amber-900'
+                      : 'text-amber-200 hover:text-amber-50 hover:bg-amber-700/50'
+                  }`
+                }
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                  />
+                </svg>
+                {bookmarkCount > 0 && (
+                  <span className="bg-amber-600 text-amber-50 text-xs rounded-full px-1.5 py-0.5 min-w-[1.25rem] text-center">
+                    {bookmarkCount}
+                  </span>
+                )}
+              </NavLink>
+            </li>
           </ul>
         </nav>
       </header>

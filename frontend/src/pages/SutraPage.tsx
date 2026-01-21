@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSection } from '../hooks/useTexts';
 import { PADAS } from '../types';
 import ClickableText from '../components/ClickableText';
+import BookmarkButton from '../components/BookmarkButton';
 
 export default function SutraPage() {
   const { padaSlug, sutraNumber } = useParams<{ padaSlug: string; sutraNumber: string }>();
@@ -71,11 +72,21 @@ export default function SutraPage() {
       {/* Sutra content */}
       <article className="bg-white rounded-xl shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="bg-amber-100 px-6 py-4">
-          <h2 className="text-lg font-medium text-amber-900">
-            Sutra {padaIndex + 1}.{sutraNum}
-          </h2>
-          <p className="text-amber-700 text-sm">{section.title}</p>
+        <div className="bg-amber-100 px-6 py-4 flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-medium text-amber-900">
+              Sutra {padaIndex + 1}.{sutraNum}
+            </h2>
+            <p className="text-amber-700 text-sm">{section.title}</p>
+          </div>
+          <BookmarkButton
+            blockId={currentSutra.id}
+            sectionSlug={padaSlug || ''}
+            sectionTitle={section.title}
+            sutraNumber={sutraNum}
+            padaIndex={padaIndex}
+            content={currentSutra.content}
+          />
         </div>
 
         {/* Sanskrit text */}
