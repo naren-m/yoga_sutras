@@ -35,9 +35,42 @@ def lookup_word(word):
         }
     })
 
-@dict_bp.route('/sandhi/split/<path:text>', methods=['GET'])
-def split_sandhi(text):
-    result = sandhi_service.split(text)
-    if "error" in result:
-         return jsonify({"success": False, "error": result["error"]}), 500
-    return jsonify({"success": True, "data": result})
+
+@dict_bp.route('/split/<path:compound>', methods=['GET'])
+def split_compound(compound):
+    """
+    Split a Sanskrit compound word into components using Vidyut Cheda.
+
+    Accepts input in Devanagari, IAST, or SLP1 encoding.
+    Returns splits with both Devanagari and IAST representations.
+
+    Args:
+        compound: Sanskrit compound word or phrase
+
+    Returns:
+        JSON with:
+            - splits: List of token objects with text and lemma in multiple scripts
+            - original: Original input with converted forms
+            - engine_available: Whether Vidyut engine is initialized
+    """
+    result = sandhi_service.split(compound)
+
+    return jsonify({
+        "success": True,
+        "data": result
+    })
+
+
+@dict_bp.route('/split/status', methods=['GET'])
+def split_status():
+    """
+    Get status of the sandhi splitting service.
+
+    Returns availability and any initialization errors.
+    """
+    status = sandhi_service.get_status()
+
+    return jsonify({
+        "success": True,
+        "data": status
+    })
