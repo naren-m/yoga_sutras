@@ -4,12 +4,14 @@ import { useSection } from '../hooks/useTexts';
 import { PADAS } from '../types';
 import ClickableText from '../components/ClickableText';
 import BookmarkButton from '../components/BookmarkButton';
+import { useScriptPreference } from '../hooks/useScriptPreference';
 
 export default function SutraPage() {
   const { padaSlug, sutraNumber } = useParams<{ padaSlug: string; sutraNumber: string }>();
   const navigate = useNavigate();
   const { data: section, isLoading, error } = useSection('yoga-sutras', padaSlug || '');
   const [commentaryOpen, setCommentaryOpen] = useState(false);
+  const { showDevanagari, showIast } = useScriptPreference();
 
   const padaIndex = PADAS.findIndex((p) => p.slug === padaSlug);
   const sutraNum = parseInt(sutraNumber || '1', 10);
@@ -92,21 +94,25 @@ export default function SutraPage() {
         {/* Sanskrit text */}
         <div className="p-6 space-y-6">
           {/* Devanagari - with clickable words */}
-          <div>
-            <p className="text-3xl md:text-4xl font-serif text-amber-900 leading-relaxed">
-              <ClickableText text={currentSutra.content} />
-            </p>
-            <p className="text-xs text-gray-400 mt-2">
-              Click any word to look it up in the dictionary
-            </p>
-          </div>
+          {showDevanagari && (
+            <div>
+              <p className="text-3xl md:text-4xl font-serif text-amber-900 leading-relaxed">
+                <ClickableText text={currentSutra.content} />
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                Click any word to look it up in the dictionary
+              </p>
+            </div>
+          )}
 
-          {/* Transliteration */}
-          <div>
-            <p className="text-xl text-amber-700 italic">
-              {currentSutra.content_transliteration}
-            </p>
-          </div>
+          {/* Transliteration (IAST) */}
+          {showIast && (
+            <div>
+              <p className={`text-amber-700 italic ${showDevanagari ? 'text-xl' : 'text-2xl md:text-3xl'}`}>
+                {currentSutra.content_transliteration}
+              </p>
+            </div>
+          )}
 
           {/* Meaning */}
           <div className="pt-4 border-t border-amber-100">

@@ -4,6 +4,7 @@ import { PADAS } from '../types';
 import DictionaryPanel from './DictionaryPanel';
 import SearchInput from './SearchInput';
 import SearchResults from './SearchResults';
+import ScriptToggle from './ScriptToggle';
 import { useSearch } from '../hooks/useSearch';
 import { useBookmarks } from '../hooks/useBookmarks';
 
@@ -53,27 +54,32 @@ export default function Layout() {
               <p className="text-amber-200 text-sm mt-1">Sanskrit Reading Platform</p>
             </Link>
 
-            {/* Search input */}
-            <div ref={searchContainerRef} className="relative w-full md:w-72">
-              <SearchInput
-                value={query}
-                onChange={setQuery}
-                onFocus={() => setIsSearchOpen(true)}
-                placeholder="Search sutras..."
-              />
+            {/* Search and settings */}
+            <div className="flex items-center gap-3">
+              <div ref={searchContainerRef} className="relative w-full md:w-72">
+                <SearchInput
+                  value={query}
+                  onChange={setQuery}
+                  onFocus={() => setIsSearchOpen(true)}
+                  placeholder="Search sutras..."
+                />
 
-              {/* Search results dropdown */}
-              {isSearchOpen && (query.length > 0 || isLoading) && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-amber-200 max-h-96 overflow-y-auto z-50">
-                  <SearchResults
-                    results={results}
-                    query={query}
-                    isLoading={isLoading}
-                    isEmpty={isEmpty}
-                    onResultClick={handleResultClick}
-                  />
-                </div>
-              )}
+                {/* Search results dropdown */}
+                {isSearchOpen && (query.length > 0 || isLoading) && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-amber-200 max-h-96 overflow-y-auto z-50">
+                    <SearchResults
+                      results={results}
+                      query={query}
+                      isLoading={isLoading}
+                      isEmpty={isEmpty}
+                      onResultClick={handleResultClick}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Script preference toggle */}
+              <ScriptToggle />
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWordSelection } from '../hooks/useWordSelection';
 import { useDictionary } from '../hooks/useDictionary';
 import { useSandhiSplit } from '../hooks/useSandhiSplit';
+import { useScriptPreference } from '../hooks/useScriptPreference';
 import SandhiSplitView from './SandhiSplitView';
 import type { DictionaryEntry } from '../types';
 
@@ -17,6 +18,7 @@ import type { DictionaryEntry } from '../types';
  */
 export default function DictionaryPanel() {
   const { selectedWord, clearSelection } = useWordSelection();
+  const { showDevanagari, showIast } = useScriptPreference();
   const currentWord = selectedWord?.word ?? null;
 
   // Track the previous word to detect changes
@@ -247,6 +249,8 @@ export default function DictionaryPanel() {
                           title="Monier-Williams"
                           subtitle="Sanskrit-English Dictionary"
                           entries={mwEntries}
+                          showDevanagari={showDevanagari}
+                          showIast={showIast}
                         />
                       )}
 
@@ -256,6 +260,8 @@ export default function DictionaryPanel() {
                           title="Apte"
                           subtitle="Practical Sanskrit-English Dictionary"
                           entries={apteEntries}
+                          showDevanagari={showDevanagari}
+                          showIast={showIast}
                         />
                       )}
                     </div>
@@ -287,10 +293,14 @@ function DictionarySection({
   title,
   subtitle,
   entries,
+  showDevanagari,
+  showIast,
 }: {
   title: string;
   subtitle: string;
   entries: DictionaryEntry[];
+  showDevanagari: boolean;
+  showIast: boolean;
 }) {
   return (
     <section>
@@ -302,7 +312,12 @@ function DictionarySection({
       </div>
       <div className="space-y-3">
         {entries.map((entry, index) => (
-          <DefinitionEntry key={`${entry.dictionary_code}-${entry.key}-${index}`} entry={entry} />
+          <DefinitionEntry
+            key={`${entry.dictionary_code}-${entry.key}-${index}`}
+            entry={entry}
+            showDevanagari={showDevanagari}
+            showIast={showIast}
+          />
         ))}
       </div>
     </section>
@@ -311,14 +326,28 @@ function DictionarySection({
 
 /**
  * Individual definition entry with formatted content.
- * Shows key in IAST and definition as plain text.
+ * Respects script preference settings for displaying keys.
  */
-function DefinitionEntry({ entry }: { entry: DictionaryEntry }) {
+function DefinitionEntry({
+  entry,
+  showDevanagari,
+  showIast,
+}: {
+  entry: DictionaryEntry;
+  showDevanagari: boolean;
+  showIast: boolean;
+}) {
   return (
     <div className="bg-amber-50/50 rounded-lg p-3 border border-amber-100">
-      <div className="flex items-baseline gap-2 mb-1">
-        <span className="text-sm font-serif text-amber-800">{entry.key_devanagari}</span>
-        <span className="text-xs text-gray-400 font-mono">{entry.key_iast}</span>
+      <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+        {showDevanagari && (
+          <span className="text-sm font-serif text-amber-800">{entry.key_devanagari}</span>
+        )}
+        {showIast && (
+          <span className={`text-gray-400 font-mono ${showDevanagari ? 'text-xs' : 'text-sm'}`}>
+            {entry.key_iast}
+          </span>
+        )}
         {entry.is_fuzzy_match && (
           <span className="text-xs bg-amber-200 text-amber-700 px-1.5 rounded">fuzzy</span>
         )}

@@ -1,3 +1,4 @@
+import { useScriptPreference } from '../hooks/useScriptPreference';
 import type { SandhiSplitToken } from '../types';
 
 interface SandhiSplitViewProps {
@@ -18,6 +19,7 @@ interface SandhiSplitViewProps {
 /**
  * Displays sandhi split results with clickable components.
  * Shows the original compound above the split visualization.
+ * Respects script preference settings.
  */
 export default function SandhiSplitView({
   originalDevanagari,
@@ -27,6 +29,8 @@ export default function SandhiSplitView({
   onViewFullCompound,
   isCompound,
 }: SandhiSplitViewProps) {
+  const { showDevanagari, showIast } = useScriptPreference();
+
   if (!isCompound) {
     // Not a compound - just show the word directly
     return null;
@@ -39,9 +43,15 @@ export default function SandhiSplitView({
         <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">
           Compound Word
         </p>
-        <div className="flex items-baseline gap-2">
-          <span className="text-xl font-serif text-amber-900">{originalDevanagari}</span>
-          <span className="text-sm text-gray-500 font-mono">{originalIast}</span>
+        <div className="flex items-baseline gap-2 flex-wrap">
+          {showDevanagari && (
+            <span className="text-xl font-serif text-amber-900">{originalDevanagari}</span>
+          )}
+          {showIast && (
+            <span className={`text-gray-500 font-mono ${showDevanagari ? 'text-sm' : 'text-lg'}`}>
+              {originalIast}
+            </span>
+          )}
         </div>
       </div>
 
@@ -65,13 +75,17 @@ export default function SandhiSplitView({
                 className="group px-2 py-1 bg-white rounded border border-amber-200 hover:border-amber-400 hover:bg-amber-100 transition-colors"
                 title={`Look up "${token.lemma_iast || token.text_iast}" in dictionary`}
               >
-                <span className="font-serif text-amber-800 group-hover:text-amber-900">
-                  {token.text_devanagari}
-                </span>
-                <span className="text-xs text-gray-400 ml-1 font-mono">
-                  {token.text_iast}
-                </span>
-                {token.lemma_iast && token.lemma_iast !== token.text_iast && (
+                {showDevanagari && (
+                  <span className="font-serif text-amber-800 group-hover:text-amber-900">
+                    {token.text_devanagari}
+                  </span>
+                )}
+                {showIast && (
+                  <span className={`text-gray-400 font-mono ${showDevanagari ? 'text-xs ml-1' : 'text-sm'}`}>
+                    {token.text_iast}
+                  </span>
+                )}
+                {showIast && token.lemma_iast && token.lemma_iast !== token.text_iast && (
                   <span className="text-xs text-amber-600 ml-1">
                     ({token.lemma_iast})
                   </span>
