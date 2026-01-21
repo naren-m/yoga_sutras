@@ -1,16 +1,90 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWordSelection } from '../hooks/useWordSelection';
 import { useDictionary } from '../hooks/useDictionary';
+import { useSandhiSplit } from '../hooks/useSandhiSplit';
+import SandhiSplitView from './SandhiSplitView';
 import type { DictionaryEntry } from '../types';
 
 /**
  * Dictionary panel that slides in from the right on desktop,
  * and appears as a bottom sheet on mobile.
- * Shows definitions from Monier-Williams and Apte dictionaries.
+ *
+ * Flow:
+ * 1. When a word is clicked, first fetch sandhi split
+ * 2. If compound (>1 components), show split view with clickable components
+ * 3. User can click a component to look it up, or view full compound
+ * 4. Dictionary entries shown below the split (or directly if not a compound)
  */
 export default function DictionaryPanel() {
   const { selectedWord, clearSelection } = useWordSelection();
-  const { data: entries, isLoading, error } = useDictionary(selectedWord?.word ?? null);
+  const currentWord = selectedWord?.word ?? null;
+
+  // Track the previous word to detect changes
+  const prevWordRef = useRef<string | null>(null);
+
+  // User-selected component from the split (when clicking a component)
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+
+  // Track if user wants to see the full compound entry (skip split view)
+  const [showFullCompound, setShowFullCompound] = useState(false);
+
+  // Reset state when word changes using ref comparison
+  if (prevWordRef.current !== currentWord) {
+    prevWordRef.current = currentWord;
+    // Reset state on word change - this runs during render, not in effect
+    if (selectedComponent !== null) setSelectedComponent(null);
+    if (showFullCompound !== false) setShowFullCompound(false);
+  }
+
+  // Fetch sandhi split for the originally clicked word
+  const {
+    data: splitData,
+    isLoading: isSplitLoading,
+    error: splitError,
+  } = useSandhiSplit(currentWord);
+
+  // Determine if this is a compound (has multiple split components)
+  const isCompound = splitData && splitData.splits.length > 1;
+
+  // Derive the dictionary lookup word from state
+  const dictionaryLookupWord = useMemo(() => {
+    if (!currentWord) return null;
+
+    // If user selected a specific component, look that up
+    if (selectedComponent) return selectedComponent;
+
+    // If user wants full compound, or it's not a compound, look up original word
+    if (showFullCompound) return currentWord;
+
+    // If split data is loaded and it's not a compound, look up original word
+    if (splitData && splitData.splits.length <= 1) return currentWord;
+
+    // Otherwise, wait for user to select a component (compound case)
+    return null;
+  }, [currentWord, selectedComponent, showFullCompound, splitData]);
+
+  // Fetch dictionary entries for the current lookup word
+  const {
+    data: entries,
+    isLoading: isDictLoading,
+    error: dictError,
+  } = useDictionary(dictionaryLookupWord);
+
+  // Handle clicking a split component
+  const handleComponentClick = (word: string) => {
+    setSelectedComponent(word);
+  };
+
+  // Handle viewing full compound
+  const handleViewFullCompound = () => {
+    setShowFullCompound(true);
+    setSelectedComponent(null);
+  };
+
+  // Handle going back to split view
+  const handleBackToSplit = () => {
+    setSelectedComponent(null);
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -34,6 +108,10 @@ export default function DictionaryPanel() {
   // Group entries by dictionary
   const mwEntries = entries?.filter((e) => e.dictionary_code === 'mw') ?? [];
   const apteEntries = entries?.filter((e) => e.dictionary_code === 'apte') ?? [];
+
+  // Loading state combines both split and dictionary loading
+  const isLoading = isSplitLoading || (dictionaryLookupWord && isDictLoading);
+  const error = splitError || dictError;
 
   return (
     <>
@@ -68,7 +146,9 @@ export default function DictionaryPanel() {
             <h2 className="text-2xl font-serif text-amber-900">
               {selectedWord.word}
             </h2>
-            <p className="text-sm text-amber-600">Dictionary Lookup</p>
+            <p className="text-sm text-amber-600">
+              {isCompound && !showFullCompound && !selectedComponent ? 'Compound Analysis' : 'Dictionary Lookup'}
+            </p>
           </div>
           <button
             onClick={clearSelection}
@@ -91,7 +171,7 @@ export default function DictionaryPanel() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                <span>Looking up word...</span>
+                <span>{isSplitLoading ? 'Analyzing word...' : 'Looking up word...'}</span>
               </div>
             </div>
           )}
@@ -99,45 +179,97 @@ export default function DictionaryPanel() {
           {/* Error state */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-              <p>Failed to look up word. Please try again.</p>
+              <p>Failed to analyze word. Please try again.</p>
             </div>
           )}
 
-          {/* Not found state */}
-          {!isLoading && !error && entries && entries.length === 0 && (
-            <div className="text-center py-12">
-              <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              <p className="text-gray-500 mb-2">No definition found for</p>
-              <p className="text-xl font-serif text-gray-700">{selectedWord.word}</p>
-              <p className="text-sm text-gray-400 mt-4">
-                Try clicking on a different word or the word may be a compound.
-              </p>
-            </div>
-          )}
-
-          {/* Dictionary entries */}
-          {!isLoading && !error && entries && entries.length > 0 && (
-            <div className="space-y-6">
-              {/* Monier-Williams */}
-              {mwEntries.length > 0 && (
-                <DictionarySection
-                  title="Monier-Williams"
-                  subtitle="Sanskrit-English Dictionary"
-                  entries={mwEntries}
+          {/* Content when loaded */}
+          {!isLoading && !error && splitData && (
+            <>
+              {/* Sandhi split view for compounds */}
+              {isCompound && !showFullCompound && !selectedComponent && (
+                <SandhiSplitView
+                  originalDevanagari={splitData.original_devanagari}
+                  originalIast={splitData.original_iast}
+                  splits={splitData.splits}
+                  onComponentClick={handleComponentClick}
+                  onViewFullCompound={handleViewFullCompound}
+                  isCompound={true}
                 />
               )}
 
-              {/* Apte */}
-              {apteEntries.length > 0 && (
-                <DictionarySection
-                  title="Apte"
-                  subtitle="Practical Sanskrit-English Dictionary"
-                  entries={apteEntries}
-                />
+              {/* Dictionary entries */}
+              {dictionaryLookupWord && (
+                <>
+                  {/* Show which word we're looking up if it's a component */}
+                  {isCompound && selectedComponent && (
+                    <div className="mb-4 pb-3 border-b border-gray-200">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Looking up component
+                      </p>
+                      <p className="text-lg font-serif text-gray-800">
+                        {dictionaryLookupWord}
+                      </p>
+                      <button
+                        onClick={handleBackToSplit}
+                        className="text-sm text-amber-600 hover:text-amber-800 mt-1"
+                      >
+                        ← Back to split view
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Not found state */}
+                  {!isDictLoading && entries && entries.length === 0 && (
+                    <div className="text-center py-8">
+                      <svg className="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <p className="text-gray-500 mb-2">No definition found for</p>
+                      <p className="text-xl font-serif text-gray-700">{dictionaryLookupWord}</p>
+                      {isCompound && selectedComponent && (
+                        <button
+                          onClick={handleBackToSplit}
+                          className="text-sm text-amber-600 hover:text-amber-800 mt-4 block mx-auto"
+                        >
+                          ← Try another component
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Dictionary entries */}
+                  {!isDictLoading && entries && entries.length > 0 && (
+                    <div className="space-y-6">
+                      {/* Monier-Williams */}
+                      {mwEntries.length > 0 && (
+                        <DictionarySection
+                          title="Monier-Williams"
+                          subtitle="Sanskrit-English Dictionary"
+                          entries={mwEntries}
+                        />
+                      )}
+
+                      {/* Apte */}
+                      {apteEntries.length > 0 && (
+                        <DictionarySection
+                          title="Apte"
+                          subtitle="Practical Sanskrit-English Dictionary"
+                          entries={apteEntries}
+                        />
+                      )}
+                    </div>
+                  )}
+                </>
               )}
-            </div>
+
+              {/* Prompt to click a component when compound and no lookup word */}
+              {isCompound && !showFullCompound && !selectedComponent && (
+                <p className="text-center text-gray-500 py-4">
+                  Click a component above to see its dictionary entry
+                </p>
+              )}
+            </>
           )}
         </div>
 

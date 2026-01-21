@@ -56,9 +56,23 @@ export interface DictionaryEntry {
 }
 
 // Sandhi split types
-export interface SandhiSplit {
+export interface SandhiSplitToken {
   text: string;
+  text_devanagari: string;
+  text_iast: string;
   lemma: string | null;
+  lemma_devanagari: string | null;
+  lemma_iast: string | null;
+}
+
+export interface SandhiSplitResponse {
+  original: string;
+  original_devanagari: string;
+  original_iast: string;
+  original_slp1: string;
+  splits: SandhiSplitToken[];
+  engine_available: boolean;
+  engine_error: string | null;
 }
 
 // Navigation types

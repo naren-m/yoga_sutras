@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplit } from '../types';
+import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplitResponse } from '../types';
 
 // Backend API base URL - configurable via environment variable
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
@@ -54,8 +54,8 @@ export async function lookupWord(word: string, fuzzy: boolean = false): Promise<
 }
 
 // Sandhi splitting APIs
-export async function splitWord(compound: string): Promise<SandhiSplit[]> {
-  const response = await api.get<ApiResponse<SandhiSplit[]>>(`/split/${encodeURIComponent(compound)}`);
+export async function splitWord(compound: string): Promise<SandhiSplitResponse> {
+  const response = await api.get<ApiResponse<SandhiSplitResponse>>(`/split/${encodeURIComponent(compound)}`);
   if (!response.data.success) {
     throw new Error(response.data.error || 'Failed to split word');
   }
