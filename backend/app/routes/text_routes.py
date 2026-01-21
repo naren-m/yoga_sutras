@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from app.services.text_service import TextService
+from app.services.search_service import get_search_service
 
 text_bp = Blueprint('texts', __name__, url_prefix='/api')
 service = TextService()
@@ -80,4 +81,34 @@ def get_block(slug, block_id):
     return jsonify({
         "success": True,
         "data": block.to_dict()
+    })
+
+
+@text_bp.route('/search', methods=['GET'])
+def search():
+    """GET /api/search?q={query} - Full-text search across all sutras.
+
+    Query params:
+        q: Search query string (required)
+        limit: Maximum results (default 20)
+    """
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify({
+            "success": True,
+            "data": [],
+            "query": ""
+        })
+
+    limit = request.args.get('limit', 20, type=int)
+    limit = min(max(1, limit), 50)  # Clamp between 1 and 50
+
+    search_service = get_search_service()
+    results = search_service.search(query, limit=limit)
+
+    return jsonify({
+        "success": True,
+        "data": results,
+        "query": query,
+        "count": len(results)
     })

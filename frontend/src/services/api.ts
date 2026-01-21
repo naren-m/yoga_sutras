@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplitResponse } from '../types';
+import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplitResponse, SearchResult } from '../types';
 
 // Backend API base URL - configurable via environment variable
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
@@ -60,6 +60,21 @@ export async function splitWord(compound: string): Promise<SandhiSplitResponse> 
     throw new Error(response.data.error || 'Failed to split word');
   }
   return response.data.data;
+}
+
+// Search API
+export async function searchSutras(query: string, limit?: number): Promise<{ data: SearchResult[]; query: string; count: number }> {
+  const response = await api.get<ApiResponse<SearchResult[]> & { query: string; count: number }>('/search', {
+    params: { q: query, ...(limit ? { limit } : {}) },
+  });
+  if (!response.data.success) {
+    throw new Error(response.data.error || 'Search failed');
+  }
+  return {
+    data: response.data.data,
+    query: response.data.query,
+    count: response.data.count,
+  };
 }
 
 export default api;

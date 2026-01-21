@@ -75,6 +75,26 @@ export interface SandhiSplitResponse {
   engine_error: string | null;
 }
 
+// Search types
+export interface SearchResult {
+  block_id: number;
+  sutra_number: string;
+  section_slug: string;
+  section_title: string;
+  match_field: 'devanagari' | 'iast' | 'english';
+  match_text: string;
+  match_score: number;
+  content: string;
+  transliteration: string;
+  meaning: string;
+}
+
+export interface SearchResponse {
+  data: SearchResult[];
+  query: string;
+  count: number;
+}
+
 // Navigation types
 export interface PadaInfo {
   slug: string;
