@@ -46,9 +46,13 @@ export interface WordInfo {
 
 // Dictionary types
 export interface DictionaryEntry {
-  dictionary: string;
+  dictionary_code: string;
+  dictionary_name: string;
   key: string;
-  value: string;
+  key_devanagari: string;
+  key_iast: string;
+  definition: string;
+  is_fuzzy_match: boolean;
 }
 
 // Sandhi split types

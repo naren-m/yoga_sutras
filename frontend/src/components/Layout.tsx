@@ -1,5 +1,6 @@
 import { Outlet, NavLink, Link } from 'react-router-dom';
 import { PADAS } from '../types';
+import DictionaryPanel from './DictionaryPanel';
 
 export default function Layout() {
   return (
@@ -63,6 +64,9 @@ export default function Layout() {
           <p className="mt-1 text-amber-400">Yoga is the cessation of the fluctuations of the mind</p>
         </div>
       </footer>
+
+      {/* Dictionary panel - slides in when a word is selected */}
+      <DictionaryPanel />
     </div>
   );
 }
