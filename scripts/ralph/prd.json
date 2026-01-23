@@ -124,7 +124,7 @@
         "Sutra number and Pada clearly indicated"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Word boundaries may need sandhi analysis to determine"
     },
     {
@@ -143,7 +143,7 @@
         "Not found state when word has no dictionary entry"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "Panel should not block sutra text on desktop"
     },
     {
@@ -160,7 +160,7 @@
         "Graceful handling when split fails (show original word)"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Pre-compute splits for known sutras in word_analysis JSON field"
     },
     {
@@ -178,7 +178,7 @@
         "Backend endpoint: GET /api/search?q={query}"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Use rapidfuzz on backend for fuzzy matching"
     },
     {
@@ -196,7 +196,7 @@
         "Export bookmarks as JSON (optional)"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "No backend storage needed - client-side only for MVP"
     },
     {
@@ -213,7 +213,7 @@
         "Default to Both (Devanagari + IAST)"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Use indic-transliteration for conversions if needed client-side"
     },
     {
@@ -231,7 +231,7 @@
         "Offline mode gracefully handles failed API calls"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Total offline footprint ~250MB (sutras + dictionaries)"
     },
     {
@@ -249,8 +249,8 @@
         "Images build successfully and containers start"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": "Deploy to homelab K8s after Docker setup verified"
+      "passes": true,
+      "notes": "Deploy to homelab K8s after Docker setup verified. Build verified - Docker daemon must be running."
     }
   ]
 }
