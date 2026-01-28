@@ -7,6 +7,7 @@ import { useScriptPreference } from '../hooks/useScriptPreference';
 import SandhiSplitView from './SandhiSplitView';
 import MorphologySection from './MorphologySection';
 import DhatuSection from './DhatuSection';
+import CollapsibleSection from './CollapsibleSection';
 import type { DictionaryEntry } from '../types';
 
 /**
@@ -268,29 +269,40 @@ export default function DictionaryPanel() {
 
                   {/* Dictionary entries */}
                   {!isDictLoading && entries && entries.length > 0 && (
-                    <div className="space-y-6">
-                      {/* Monier-Williams */}
-                      {mwEntries.length > 0 && (
-                        <DictionarySection
-                          title="Monier-Williams"
-                          subtitle="Sanskrit-English Dictionary"
-                          entries={mwEntries}
-                          showDevanagari={showDevanagari}
-                          showIast={showIast}
-                        />
-                      )}
+                    <CollapsibleSection
+                      title="Dictionary"
+                      subtitle="Sanskrit-English Definitions"
+                      icon={
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      }
+                      defaultOpen={true}
+                    >
+                      <div className="space-y-6">
+                        {/* Monier-Williams */}
+                        {mwEntries.length > 0 && (
+                          <DictionarySection
+                            title="Monier-Williams"
+                            subtitle="Sanskrit-English Dictionary"
+                            entries={mwEntries}
+                            showDevanagari={showDevanagari}
+                            showIast={showIast}
+                          />
+                        )}
 
-                      {/* Apte */}
-                      {apteEntries.length > 0 && (
-                        <DictionarySection
-                          title="Apte"
-                          subtitle="Practical Sanskrit-English Dictionary"
-                          entries={apteEntries}
-                          showDevanagari={showDevanagari}
-                          showIast={showIast}
-                        />
-                      )}
-                    </div>
+                        {/* Apte */}
+                        {apteEntries.length > 0 && (
+                          <DictionarySection
+                            title="Apte"
+                            subtitle="Practical Sanskrit-English Dictionary"
+                            entries={apteEntries}
+                            showDevanagari={showDevanagari}
+                            showIast={showIast}
+                          />
+                        )}
+                      </div>
+                    </CollapsibleSection>
                   )}
                 </>
               )}

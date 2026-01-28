@@ -92,7 +92,7 @@
         "Smooth transitions when sections appear/disappear"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Progressive disclosure - users can focus on what they need"
     },
     {

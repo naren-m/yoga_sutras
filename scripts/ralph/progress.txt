@@ -77,3 +77,16 @@
   - Reuse selectedComponent state for dhatu lookup (same as sandhi component)
   - Blue color scheme for verb-specific sections (vs amber for general)
 ---
+
+## 2026-01-27 - US-106
+- Created CollapsibleSection component with smooth height animation
+- Uses ResizeObserver for dynamic content height tracking
+- Wrapped dictionary entries in CollapsibleSection
+- Section order: Sandhi Split → Morphology → Dhatu → Dictionary
+- Empty sections return null (hidden)
+- Files changed: components/CollapsibleSection.tsx, components/DictionaryPanel.tsx
+- **Learnings for future iterations:**
+  - Use ResizeObserver for dynamic height in collapsible sections
+  - TypeScript verbatimModuleSyntax requires `import type` for type-only imports
+  - Chevron rotation on toggle: `rotate-180` transform
+---
