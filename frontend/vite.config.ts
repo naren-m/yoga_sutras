@@ -140,6 +140,21 @@ export default defineConfig({
             }
           },
           {
+            // Cache morphology analysis - grammar data
+            urlPattern: /\/api\/morphology\/.+$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'morphology-data',
+              expiration: {
+                maxEntries: 2000,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
             // Cache search results with NetworkFirst for freshness
             urlPattern: /\/api\/search\?.+$/,
             handler: 'NetworkFirst',

@@ -16,7 +16,30 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Dict, List, Optional
 
+from indic_transliteration import sanscript
+from indic_transliteration.sanscript import transliterate
+
 logger = logging.getLogger(__name__)
+
+
+def detect_script(text: str) -> str:
+    """Detect the script of Sanskrit text (Devanagari, IAST, or SLP1)."""
+    # Check for Devanagari characters
+    if re.search(r'[\u0900-\u097F]', text):
+        return sanscript.DEVANAGARI
+    # Check for IAST diacritics
+    if re.search(r'[āīūṛṝḷḹēōṃḥṅñṭḍṇśṣĀĪŪṚṜḶḸĒŌṂḤṄÑṬḌṆŚṢ]', text):
+        return sanscript.IAST
+    # Default to SLP1 (ASCII-only)
+    return sanscript.SLP1
+
+
+def normalize_to_slp1(text: str) -> str:
+    """Normalize Sanskrit text to SLP1 for cache key consistency."""
+    script = detect_script(text)
+    if script == sanscript.SLP1:
+        return text.strip().lower()
+    return transliterate(text.strip(), script, sanscript.SLP1).lower()
 
 
 # Common Sanskrit dhatus (verb roots) with their gana (verb class 1-10)
@@ -141,13 +164,16 @@ class DharmamitraMorphologyService:
 
     Features:
     - Lazy initialization (processor loaded on first use)
-    - LRU caching for repeated lookups
+    - LRU caching with SLP1 normalization for consistent keys
+    - Cache statistics tracking
     - Graceful fallback when model unavailable
     """
 
     _instance = None
     _processor = None
     _initialized = False
+    _cache_hits = 0
+    _cache_misses = 0
 
     def __new__(cls):
         """Singleton pattern - only one instance of the service"""
@@ -158,6 +184,16 @@ class DharmamitraMorphologyService:
     def __init__(self):
         """Initialize service (lazy - processor loaded on first use)"""
         pass
+
+    def get_cache_stats(self) -> Dict[str, int]:
+        """Get cache hit/miss statistics."""
+        cache_info = self._analyze_word_cached.cache_info()
+        return {
+            "hits": cache_info.hits,
+            "misses": cache_info.misses,
+            "size": cache_info.currsize,
+            "maxsize": cache_info.maxsize,
+        }
 
     def _ensure_initialized(self) -> bool:
         """Initialize processor on first use"""
@@ -191,7 +227,6 @@ class DharmamitraMorphologyService:
         """Check if Dharmamitra service is available"""
         return self._ensure_initialized()
 
-    @lru_cache(maxsize=1000)
     def analyze_word(
         self,
         word: str,
@@ -216,15 +251,40 @@ class DharmamitraMorphologyService:
         if not self._ensure_initialized():
             return None
 
+        # Normalize to SLP1 for consistent cache keys
+        normalized_word = normalize_to_slp1(word)
+        original_word = word.strip()
+
+        # Use cached analysis with normalized key
+        result = self._analyze_word_cached(normalized_word, mode)
+
+        # Restore original surface form in result
+        if result is not None:
+            result.surface_form = original_word
+
+        return result
+
+    @lru_cache(maxsize=1000)
+    def _analyze_word_cached(
+        self,
+        normalized_word: str,
+        mode: str
+    ) -> Optional[MorphologicalAnalysis]:
+        """
+        Internal cached analysis method. Uses SLP1-normalized word as cache key.
+        """
         try:
+            # Log cache miss (this method only runs on cache miss)
+            logger.debug(f"Cache miss for word: {normalized_word}")
+
             results = self._processor.process_batch(
-                [word.strip()],
+                [normalized_word],
                 mode=mode,
                 human_readable_tags=True
             )
 
             if not results or len(results) == 0:
-                logger.debug(f"No Dharmamitra results for word: {word}")
+                logger.debug(f"No Dharmamitra results for word: {normalized_word}")
                 return None
 
             result_data = results[0]
@@ -238,8 +298,8 @@ class DharmamitraMorphologyService:
 
             analysis = MorphologicalAnalysis(
                 lemma=word_data.get("lemma", ""),
-                unsandhied=word_data.get("unsandhied", word),
-                surface_form=word,
+                unsandhied=word_data.get("unsandhied", normalized_word),
+                surface_form=normalized_word,  # Will be overwritten by caller
                 tag=word_data.get("tag", ""),
                 meanings=word_data.get("meanings", []),
             )
@@ -247,7 +307,7 @@ class DharmamitraMorphologyService:
             return analysis
 
         except Exception as e:
-            logger.error(f"Error analyzing word '{word}' with Dharmamitra: {e}")
+            logger.error(f"Error analyzing word '{normalized_word}' with Dharmamitra: {e}")
             return None
 
     def analyze_text(

@@ -7,6 +7,7 @@
 - Frontend context pattern: types in .ts file, provider in .tsx, hook in hooks/
 - Dharmamitra: Use `dharmamitra-sanskrit-grammar` package, lazy init to avoid startup delay
 - Dhatu identification: lemma = dhatu for verbs, gana from DHATU_GANA_MAP lookup
+- Cache normalization: normalize_to_slp1() for consistent cache keys across scripts
 
 ---
 
@@ -102,4 +103,17 @@
   - Gender abbreviations: Masculine→m., Feminine→f., Neuter→n.
   - Word class detection: has gender = noun, is_verb = verb
   - Color coding: blue for verbs, amber for nouns, purple for gender
+---
+
+## 2026-01-27 - US-108
+- Added SLP1 normalization for cache keys (detect_script + normalize_to_slp1)
+- Refactored to _analyze_word_cached with @lru_cache for normalized keys
+- Added get_cache_stats() method returning hits, misses, size, maxsize
+- Cache logs debug messages on miss
+- Added PWA runtime caching for /api/morphology/ (CacheFirst, 30 days, 2000 entries)
+- Files changed: backend/app/services/dharmamitra_service.py, frontend/vite.config.ts
+- **Learnings for future iterations:**
+  - Script detection: Devanagari=[\u0900-\u097F], IAST=diacritics, SLP1=ASCII
+  - LRU cache stats via cache_info(): hits, misses, currsize, maxsize
+  - PWA CacheFirst strategy best for stable API data (dictionary, morphology)
 ---
