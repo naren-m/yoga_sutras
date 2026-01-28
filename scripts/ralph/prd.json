@@ -1,256 +1,130 @@
 {
-  "project": "Yoga Sutras Sanskrit Reading Platform",
-  "branchName": "ralph/phase-1-core",
-  "description": "A Sanskrit reading platform for Patanjali's Yoga Sutras with sandhi splitting, dictionary lookup, and offline-first architecture. Phase 1 MVP + Phase 2 enhancements.",
+  "project": "Yoga Sutras - Dharmamitra Morphology Integration",
+  "branchName": "ralph/dharmamitra-integration",
+  "description": "Integrate Dharmamitra ByT5 Sanskrit Grammar model for morphological analysis, verb root identification, and enhanced dictionary lookups. Display results in stacked sections in the dictionary panel.",
   "userStories": [
     {
-      "id": "US-001",
-      "title": "Database schema and models",
-      "description": "As a developer, I need the database schema to store texts, sections, blocks, and dictionary entries so data persists correctly.",
+      "id": "US-101",
+      "title": "Backend Dharmamitra service integration",
+      "description": "As a developer, I need a Dharmamitra service that provides morphological analysis for Sanskrit words.",
       "acceptanceCriteria": [
-        "Create SQLAlchemy models: Text, TextSection, TextBlock, Dictionary, DictionaryEntry",
-        "Text has slug, title, description fields",
-        "TextSection has slug, title, order, foreign key to Text",
-        "TextBlock has content (Devanagari), content_transliteration (IAST), content_meaning (English), word_analysis (JSON), commentary, order, foreign key to TextSection",
-        "Dictionary has name, code (e.g., 'mw', 'apte')",
-        "DictionaryEntry has key (SLP1), value (definition), foreign key to Dictionary",
-        "SQLite database created at data/yoga_sutras.db",
-        "All models have proper relationships and indexes"
+        "Install dharmamitra-sanskrit-grammar package in requirements.txt",
+        "Create DharmamitraMorphologyService class in backend/app/services/dharmamitra_service.py",
+        "Service provides analyze_word() returning lemma, unsandhied form, morphological tags, and meanings",
+        "Service provides analyze_text() for full sentence/verse analysis",
+        "Graceful fallback when Dharmamitra unavailable (return None, log warning)",
+        "Service is initialized lazily on first use (avoid startup delay)"
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Generic text hierarchy supports future texts (Bhagavad Gita, Ramayana)"
+      "notes": "Reference implementation at ../ramayanam/api/services/dharmamitra_service.py"
     },
     {
-      "id": "US-002",
-      "title": "Data scraping and seeding pipeline",
-      "description": "As a developer, I need scripts to scrape Yoga Sutras from shlokam.org and seed dictionary data from Cologne (CDSL) so the database is populated.",
+      "id": "US-102",
+      "title": "Backend morphology API endpoint",
+      "description": "As a frontend developer, I need an API endpoint to get morphological analysis for a word.",
       "acceptanceCriteria": [
-        "Create scripts/scrape_text.py that scrapes all 196 sutras from shlokam.org",
-        "Output saved to data/yoga_sutras.json with Devanagari, IAST, and English translation",
-        "Create scripts/seed_dictionaries.py that downloads MW and Apte XML from CDSL",
-        "Parse XML and populate DictionaryEntry table with SLP1 keys",
-        "Create scripts/populate_db.py that loads yoga_sutras.json into Text/Section/Block tables",
-        "All 4 Padas created as TextSections (Samadhi, Sadhana, Vibhuti, Kaivalya)",
-        "All 196 sutras created as TextBlocks with correct ordering",
-        "Scripts are idempotent (can run multiple times safely)"
+        "GET /api/morphology/{word} returns morphological analysis",
+        "Response includes: lemma, unsandhied, tag (Case/Gender/Number), meanings list",
+        "Accepts word in Devanagari or IAST",
+        "Returns 200 with empty analysis if word not recognized",
+        "Response time under 1 second for single word",
+        "Endpoint documented in CLAUDE.md"
       ],
       "priority": 2,
       "passes": true,
-      "notes": "URL pattern: shlokam.org/yogasutra/{pada}-{sutra}/"
+      "notes": "Tag format: Case=Nominative|Gender=Masculine|Number=Singular"
     },
     {
-      "id": "US-003",
-      "title": "Backend text API service",
-      "description": "As a frontend developer, I need REST APIs to fetch texts, sections, and blocks so I can display them in the UI.",
+      "id": "US-103",
+      "title": "Backend dhatu (verb root) identification",
+      "description": "As a reader, I need to see the verb root (dhatu) when looking up a verb form.",
       "acceptanceCriteria": [
-        "GET /api/texts returns list of all texts with metadata",
-        "GET /api/texts/{slug} returns full text with sections (without blocks for performance)",
-        "GET /api/texts/{slug}/section/{section_slug} returns section with all blocks",
-        "GET /api/texts/{slug}/block/{block_id} returns single block with full details",
-        "All endpoints return proper JSON with consistent structure",
-        "Error handling for 404 (not found) cases",
-        "Flask app runs on localhost:5000",
-        "CORS enabled for frontend development"
+        "Dharmamitra returns dhatu/root for verb forms",
+        "API response includes dhatu field when word is a verb",
+        "Link dhatu to dictionary entry for the root",
+        "Include verb class (gana) if available from analysis",
+        "Handle cases where dhatu cannot be determined (return null)"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Use Flask-SQLAlchemy and Flask-CORS"
+      "passes": false,
+      "notes": "Example: gacchati -> dhatu: gam (to go), gana: 1"
     },
     {
-      "id": "US-004",
-      "title": "Backend dictionary lookup service",
-      "description": "As a reader, I need an API to look up Sanskrit words so I can understand their meanings from authoritative sources.",
+      "id": "US-104",
+      "title": "Frontend morphology display component",
+      "description": "As a reader, I want to see grammatical analysis when I click a word.",
       "acceptanceCriteria": [
-        "GET /api/dictionary/{word} returns definitions from all dictionaries",
-        "Accepts word in Devanagari, IAST, or SLP1 encoding",
-        "Uses indic-transliteration library for script conversion",
-        "Returns structured response with dictionary name, key, and definition",
-        "Supports fuzzy matching using rapidfuzz for typo tolerance",
-        "Response time under 200ms for dictionary lookups",
-        "Returns empty array (not error) when word not found"
+        "Create MorphologySection component showing grammatical tags",
+        "Display: Lemma (base form), Case, Gender, Number, Person (for verbs)",
+        "Use readable labels (e.g., 'Nominative' not 'Case=Nominative')",
+        "Loading state while fetching morphology",
+        "Graceful handling when no analysis available"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Dictionary keys stored in SLP1 internally"
+      "passes": false,
+      "notes": "Display in stacked sections below sandhi split"
     },
     {
-      "id": "US-005",
-      "title": "Backend sandhi splitting service",
-      "description": "As a reader, I need compound Sanskrit words split into components so I can understand each part individually.",
+      "id": "US-105",
+      "title": "Frontend dhatu display with dictionary link",
+      "description": "As a reader, I want to see the verb root and click it for dictionary lookup.",
       "acceptanceCriteria": [
-        "GET /api/split/{compound} returns list of possible splits",
-        "Integrates Vidyut Cheda for sandhi splitting via vidyut-py",
-        "Accepts input in Devanagari or IAST",
-        "Returns splits with both Devanagari and IAST representations",
-        "Graceful fallback when Vidyut cannot split (return original word)",
-        "Vidyut data directory configured at data/vidyut-data/",
-        "Each split component is individually lookupable in dictionary"
+        "Show dhatu section for verb forms",
+        "Display: Root (dhatu), Verb class (gana), Meaning",
+        "Dhatu is clickable - triggers dictionary lookup for root",
+        "Visual indicator showing it's a clickable link",
+        "Hide dhatu section for non-verb words"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Example: yogashchittavrittinirodhah -> yogah + chitta + vritti + nirodhah"
+      "passes": false,
+      "notes": "Helps users understand verb conjugations"
     },
     {
-      "id": "US-006",
-      "title": "Frontend project setup and navigation",
-      "description": "As a user, I need a React frontend with navigation so I can browse the Yoga Sutras by Pada and Sutra number.",
+      "id": "US-106",
+      "title": "Frontend stacked panel layout",
+      "description": "As a reader, I want all word analysis in organized stacked sections.",
       "acceptanceCriteria": [
-        "Create React + TypeScript + Tailwind project in frontend/ directory",
-        "Home page shows welcome message and quick navigation to any Pada",
-        "Sidebar or tab navigation for 4 Padas (Samadhi, Sadhana, Vibhuti, Kaivalya)",
-        "Each Pada page shows list of sutras with numbers and first line preview",
-        "Clicking a sutra navigates to full sutra view",
-        "Previous/Next navigation between sutras within a Pada",
-        "Responsive design works on desktop and mobile",
-        "API calls configured to backend at localhost:5000"
+        "Dictionary panel shows sections in order: Sandhi Split, Morphology, Dhatu, Dictionary",
+        "Each section has clear heading with icon",
+        "Sections collapse/expand independently",
+        "Empty sections are hidden (not shown as 'No data')",
+        "Smooth transitions when sections appear/disappear"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Use React Router for navigation"
+      "passes": false,
+      "notes": "Progressive disclosure - users can focus on what they need"
     },
     {
-      "id": "US-007",
-      "title": "Frontend sutra display with word interaction",
-      "description": "As a reader, I want to see each sutra with Devanagari, transliteration, and translation, with clickable words for lookup.",
+      "id": "US-107",
+      "title": "Enhanced dictionary with grammar info",
+      "description": "As a reader, I want dictionary entries to show grammatical information.",
       "acceptanceCriteria": [
-        "Sutra view shows Devanagari text in large, readable Noto Sans Devanagari font",
-        "IAST transliteration displayed below Devanagari",
-        "English translation displayed below transliteration",
-        "Each word in Devanagari text is individually clickable",
-        "Clicking a word triggers dictionary lookup",
-        "Visual hover state indicates words are clickable",
-        "Commentary section is collapsible (hidden by default)",
-        "Sutra number and Pada clearly indicated"
+        "Dictionary entries show gender for nouns (m./f./n.)",
+        "Show word class (noun, verb, adjective, etc.) when available",
+        "Highlight the current inflected form vs. base form",
+        "Show both Dharmamitra meanings and dictionary definitions",
+        "De-duplicate meanings if they appear in both sources"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Word boundaries may need sandhi analysis to determine"
+      "passes": false,
+      "notes": "Combine Dharmamitra 60K meanings with MW/Apte definitions"
     },
     {
-      "id": "US-008",
-      "title": "Frontend dictionary panel",
-      "description": "As a reader, I want a dictionary panel that shows word definitions when I click a word so I can understand meanings in context.",
+      "id": "US-108",
+      "title": "Caching for morphology results",
+      "description": "As a developer, I need caching to improve performance for repeated lookups.",
       "acceptanceCriteria": [
-        "Dictionary panel slides in from right side on desktop",
-        "Dictionary panel shows as bottom sheet on mobile",
-        "Displays clicked word in Devanagari and IAST",
-        "Shows Monier-Williams definition with formatting preserved",
-        "Shows Apte definition in separate section",
-        "Indicates grammar info (gender, case) when available",
-        "Close button to dismiss panel",
-        "Loading state while fetching definition",
-        "Not found state when word has no dictionary entry"
+        "Cache morphology results in memory (LRU cache)",
+        "Cache key: word + script normalized to SLP1",
+        "Cache size configurable (default: 1000 entries)",
+        "Cache expires after 1 hour (configurable)",
+        "Log cache hit/miss statistics",
+        "PWA caches morphology API responses for offline use"
       ],
       "priority": 8,
-      "passes": true,
-      "notes": "Panel should not block sutra text on desktop"
-    },
-    {
-      "id": "US-009",
-      "title": "Frontend sandhi splitting integration",
-      "description": "As a reader, I want compound words automatically split so I can look up each component separately.",
-      "acceptanceCriteria": [
-        "When clicking a compound word, show split options before dictionary",
-        "Display split components with visual separators (+ sign)",
-        "Each component is clickable for individual dictionary lookup",
-        "Show original compound above the split",
-        "Option to view dictionary for full compound (unsplit)",
-        "Visual indication when a word is compound vs simple",
-        "Graceful handling when split fails (show original word)"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "Pre-compute splits for known sutras in word_analysis JSON field"
-    },
-    {
-      "id": "US-010",
-      "title": "Full-text search across sutras",
-      "description": "As a reader, I want to search across all sutras in both Sanskrit and English so I can find relevant passages.",
-      "acceptanceCriteria": [
-        "Search input in header/navigation area",
-        "Searches across Devanagari, IAST, and English translation",
-        "Uses fuzzy matching for typo tolerance",
-        "Results show sutra number, matching text highlighted, and context",
-        "Clicking result navigates to full sutra view",
-        "Search as you type with debouncing (300ms)",
-        "Empty state when no results found",
-        "Backend endpoint: GET /api/search?q={query}"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "Use rapidfuzz on backend for fuzzy matching"
-    },
-    {
-      "id": "US-011",
-      "title": "Bookmarks and favorites",
-      "description": "As a reader, I want to bookmark sutras so I can quickly return to important passages.",
-      "acceptanceCriteria": [
-        "Bookmark icon on each sutra view",
-        "Clicking bookmark toggles saved state (filled/unfilled icon)",
-        "Bookmarks page shows all saved sutras",
-        "Bookmarks stored in browser localStorage",
-        "Bookmarks persist across sessions",
-        "Can remove bookmark from bookmarks page",
-        "Show count of bookmarks in navigation",
-        "Export bookmarks as JSON (optional)"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "No backend storage needed - client-side only for MVP"
-    },
-    {
-      "id": "US-012",
-      "title": "Transliteration toggle",
-      "description": "As a reader, I want to toggle between different script displays so I can read in my preferred format.",
-      "acceptanceCriteria": [
-        "Settings toggle for script preference: Devanagari, IAST, or Both",
-        "Toggle persists in localStorage",
-        "Sutra display respects script preference",
-        "Dictionary panel respects script preference",
-        "Search works regardless of script preference",
-        "Toggle accessible from header or settings menu",
-        "Default to Both (Devanagari + IAST)"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Use indic-transliteration for conversions if needed client-side"
-    },
-    {
-      "id": "US-013",
-      "title": "PWA offline support",
-      "description": "As a reader, I want the app to work offline so I can study without internet connection.",
-      "acceptanceCriteria": [
-        "Service worker registered and caches app shell",
-        "All 196 sutras available offline after initial load",
-        "Dictionary data cached for offline lookup",
-        "Offline indicator shown when disconnected",
-        "App installable as PWA on mobile devices",
-        "manifest.json with proper icons and metadata",
-        "Cache invalidation strategy for updates",
-        "Offline mode gracefully handles failed API calls"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "Total offline footprint ~250MB (sutras + dictionaries)"
-    },
-    {
-      "id": "US-014",
-      "title": "Docker deployment configuration",
-      "description": "As a developer, I need Docker configuration so the app can be deployed to the homelab Kubernetes cluster.",
-      "acceptanceCriteria": [
-        "Dockerfile for backend (Python/Flask)",
-        "Dockerfile for frontend (Node build + nginx serve)",
-        "docker-compose.yml for local development",
-        "Environment variables for configuration",
-        "Health check endpoints for both services",
-        "Production-ready nginx configuration",
-        "Database and data files mounted as volumes",
-        "Images build successfully and containers start"
-      ],
-      "priority": 14,
-      "passes": true,
-      "notes": "Deploy to homelab K8s after Docker setup verified. Build verified - Docker daemon must be running."
+      "passes": false,
+      "notes": "Dharmamitra model inference is expensive - cache aggressively"
     }
   ]
 }

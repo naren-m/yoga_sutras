@@ -1,32 +1,11 @@
 ## Codebase Patterns
-- Database path: Use `PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))` from `backend/app/__init__.py` to get project root
-- Data directory: All data files (db, dictionaries, vidyut-data) should go in `data/` at project root
-- Model helpers: Use `pk()` and `foreign_key()` from `app.models.base` for consistent column definitions
+- Database path: Use `DATA_DIR` env var in Docker, calculate from file path for local dev
 - Dictionary keys: Use SLP1 encoding internally for standardized Sanskrit lookup
-- Text hierarchy: Text → TextSection → TextBlock (generic structure supports any Sanskrit text)
-- Script imports: Use `sys.path.insert(0, BACKEND_DIR)` to import from `app` module in scripts
-- Querying models: Use `db.session.query(Model).filter_by()` not `Model.query.filter_by()` (Flask-SQLAlchemy v3 style)
-- Sanskrit transliteration: Use `indic-transliteration` library for ITRANS↔IAST↔Devanagari conversion
-- Idempotent scripts: Clear existing data before re-inserting to allow safe re-runs
-- Backend port: Default is 5001 (port 5000 blocked by macOS AirPlay), configurable via PORT env var
-- API response format: Always return `{"success": true/false, "data": ...}` or `{"success": false, "error": "..."}`
-- Flask URL special chars: Use `<path:param>` converter when route params may contain special characters (e.g., Sanskrit words)
-- Script detection: Devanagari = `[\u0900-\u097F]` Unicode range, IAST = diacritics (āīūṛṃḥ etc.), SLP1 = ASCII fallback
-- Vidyut usage: Import as `from vidyut.vidyut import cheda`, init as `cheda.Chedaka(data_path)` where data_path is parent vidyut-data directory
-- Vidyut input: Chedaka.run() accepts SLP1 only - convert other scripts first
-- Frontend API config: Use `import.meta.env.VITE_API_URL || 'http://localhost:5001/api'` for backend URL
-- Tailwind v4: Use `@import "tailwindcss"` instead of `@tailwind` directives, and `@tailwindcss/postcss` plugin
-- React Query: Initialize QueryClient in main.tsx, use custom hooks in `src/hooks/` for data fetching
-- Route structure: `/pada/:padaSlug` for section view, `/pada/:padaSlug/sutra/:sutraNumber` for block view
-- Sanskrit fonts: Import Noto Sans/Serif Devanagari from Google Fonts, apply via `.font-serif` class
-- React context separation: Due to ESLint react-refresh rule, keep context types/createContext in separate `.ts` file from Provider component
-- Word selection: Use `WordSelectionContext` + `useWordSelection()` hook for word click → dictionary lookup flow
-- State reset on prop change: Use `useRef` to track previous value, compare during render, conditionally setState (avoids ESLint react-hooks/set-state-in-effect error)
-- Compound detection: Backend split API returns `splits` array - length > 1 indicates compound word
-- Sandhi split flow: DictionaryPanel → useSandhiSplit → SandhiSplitView → component click → useDictionary
-- PWA setup: Use `vite-plugin-pwa` with `registerType: 'autoUpdate'` for automatic service worker updates
-- Caching strategies: CacheFirst (dictionary), StaleWhileRevalidate (sutras), NetworkFirst (search)
-- ESLint refs rule: Access refs only in event callbacks, not during render - use refs for tracking previous state
+- API response format: Always return `{"success": true/false, "data": ...}`
+- Flask URL special chars: Use `<path:param>` converter for Sanskrit words
+- Script detection: Devanagari = `[\u0900-\u097F]`, IAST = diacritics, SLP1 = ASCII
+- Frontend context pattern: types in .ts file, provider in .tsx, hook in hooks/
+- Dharmamitra: Use `dharmamitra-sanskrit-grammar` package, lazy init to avoid startup delay
 
 ---
 
@@ -34,255 +13,27 @@
 
 <!-- Ralph will append progress entries below this line -->
 
-## 2026-01-20 21:05 - US-001
-- **What was implemented**: Fixed database path configuration to use project root `data/` directory
-- **Files changed**:
-  - `backend/app/__init__.py` - Fixed database URI to point to `data/yoga_sutras.db` at project root
-  - `.gitignore` - Created comprehensive gitignore for Python, Node, and generated files
+## 2026-01-27 - US-101
+- Implemented DharmamitraMorphologyService with lazy initialization
+- Created MorphologicalAnalysis and SentenceAnalysis dataclasses
+- Added analyze_word() with LRU caching (1000 entries)
+- Added analyze_text() for sentence/verse analysis
+- Graceful fallback when Dharmamitra unavailable
+- Files changed: backend/app/services/dharmamitra_service.py, backend/requirements.txt
 - **Learnings for future iterations:**
-  - The models (Text, TextSection, TextBlock, Dictionary, DictionaryEntry) were already implemented correctly
-  - Database path used incorrect relative path - needed 3 levels of `os.path.dirname()` from `backend/app/__init__.py`
-  - Always ensure `data/` directory exists before database operations (added `os.makedirs(DATA_DIR, exist_ok=True)`)
-  - Virtual environment at `backend/venv/` is excluded from git
+  - Use lazy initialization for expensive model loading (avoid startup delay)
+  - Dharmamitra processor loaded via `dharmamitra_sanskrit_grammar.DharmamitraSanskritProcessor`
+  - Mode "unsandhied-lemma-morphosyntax" gives full analysis
 ---
 
-## 2026-01-21 05:15 - US-002
-- **What was implemented**: Data scraping and seeding pipeline with three scripts
-- **Files changed**:
-  - `scripts/scrape_text.py` - Complete rewrite to fetch from sanskritdocuments.org (Sanskrit) and swamij.com (translations), includes fallback translations for all 196 sutras
-  - `scripts/seed_dictionaries.py` - Enhanced to parse CDSL XML and populate DictionaryEntry table
-  - `scripts/populate_db.py` - New script to load yoga_sutras.json into database
-  - `backend/requirements.txt` - Added `indic-transliteration` dependency
-  - `data/yoga_sutras.json` - Generated data file with 196 sutras
+## 2026-01-27 - US-102
+- Added GET /api/morphology/{word} endpoint to dictionary_routes.py
+- Added GET /api/morphology/status for service health check
+- Response includes all morphological fields (lemma, case, gender, number, meanings, verb info)
+- Returns 200 with null data if word not recognized
+- Updated CLAUDE.md with new endpoint documentation
+- Files changed: backend/app/routes/dictionary_routes.py, CLAUDE.md
 - **Learnings for future iterations:**
-  - shlokam.org blocks scraping requests and redirects to MP3 files - use alternative sources
-  - sanskritdocuments.org provides ITX format files that need ITRANS→IAST conversion
-  - Use `indic-transliteration` library's `sanscript.transliterate()` for reliable script conversion
-  - CDSL XML uses `<H1>/<H2>/<key1>` structure for dictionary entries
-  - Flask-SQLAlchemy v3+ uses `db.session.query(Model)` instead of `Model.query`
-  - All scripts should be idempotent: check for existing data, clear and re-insert
----
-
-## 2026-01-20 - US-003
-- **What was implemented**: Backend text API service with 4 REST endpoints
-- **Files changed**:
-  - `backend/app/routes/text_routes.py` - Rewrote routes to match PRD spec: `/api/texts`, `/api/texts/{slug}`, `/api/texts/{slug}/section/{section_slug}`, `/api/texts/{slug}/block/{block_id}`
-  - `backend/app/services/text_service.py` - Updated to Flask-SQLAlchemy v3 query style, added `get_section_by_slug()` and `get_block_by_id()` methods
-  - `backend/app/__init__.py` - Added CORS support for Vite default port (5173)
-  - `backend/run.py` - Changed default port to 5001 (macOS AirPlay blocks 5000), made port configurable via PORT env var
-  - `CLAUDE.md` - Updated API documentation with all routes and new port info
-- **Learnings for future iterations:**
-  - macOS AirPlay Receiver blocks port 5000 - use 5001 as default
-  - API routes should follow resource hierarchy: `/texts/{slug}/section/{section_slug}` not `/sections/{id}`
-  - For performance, `/api/texts/{slug}` returns sections but NOT blocks (196 sutras is too much)
-  - All 404 errors should return `{"success": false, "error": "..."}` with HTTP 404 status
-  - CORS origins should include common dev server ports: 3000 (CRA), 5173 (Vite)
----
-
-## 2026-01-21 - US-004
-- **What was implemented**: Backend dictionary lookup service with multi-script support and fuzzy matching
-- **Files changed**:
-  - `backend/app/services/dictionary_service.py` - Complete rewrite with script detection, transliteration, and rapidfuzz integration
-  - `backend/app/routes/dictionary_routes.py` - Updated to use path converter and handle fuzzy query param
-  - `scripts/seed_dictionaries.py` - Fixed Flask-SQLAlchemy v3 query style
-- **Learnings for future iterations:**
-  - Use `<path:word>` in Flask routes to handle special characters in Sanskrit words
-  - Script detection: Devanagari uses Unicode range `[\u0900-\u097F]`, IAST uses diacritics (āīūṛṃḥ etc.)
-  - Cache dictionary keys for fuzzy matching performance (avoid repeated DB queries)
-  - rapidfuzz `process.extract()` returns tuples of (match, score, index) - extract just the match
-  - Always return `data: []` for not-found cases, not an error - let frontend handle empty state
-  - Use `indic_transliteration.sanscript` constants for script names (DEVANAGARI, SLP1, IAST)
----
-
-## 2026-01-21 09:45 - US-005
-- **What was implemented**: Backend sandhi splitting service using Vidyut Cheda
-- **Files changed**:
-  - `backend/app/services/sandhi_service.py` - Complete rewrite with multi-script support, proper Vidyut Cheda integration, graceful error handling
-  - `backend/app/routes/dictionary_routes.py` - Updated route from `/api/sandhi/split/` to `/api/split/`, added status endpoint
-- **Learnings for future iterations:**
-  - Vidyut package import: `from vidyut.vidyut import cheda` (not `from vidyut.cheda import Cheda`)
-  - Chedaka initialization: `cheda.Chedaka(data_path)` where data_path is the parent vidyut-data directory (not the cheda subdirectory)
-  - Chedaka.run() accepts SLP1 only - must convert Devanagari/IAST to SLP1 first
-  - Token objects have `text` (inflected form) and `lemma` (base form for dictionary lookup)
-  - Vidyut doesn't deeply split tatpuruṣa compounds like "cittavṛttinirodhaḥ" - returns them as-is with lemma=None
-  - Download vidyut data: `import vidyut; vidyut.download_data('data/vidyut-data')`
-  - Data directory contains subdirs: cheda/, sandhi/, kosha/, prakriya/, chandas/
----
-
-## 2026-01-21 - US-006
-- **What was implemented**: React frontend project setup with full navigation
-- **Files changed**:
-  - `frontend/src/types/index.ts` - TypeScript types for API responses, Text/Section/Block models, Pada metadata
-  - `frontend/src/services/api.ts` - Axios-based API client with all endpoints (texts, dictionary, split)
-  - `frontend/src/hooks/useTexts.ts` - React Query hooks for data fetching with caching
-  - `frontend/src/components/Layout.tsx` - App layout with header, tab navigation for Padas, footer
-  - `frontend/src/pages/HomePage.tsx` - Welcome page with Pada grid and featured sutra preview
-  - `frontend/src/pages/PadaPage.tsx` - Section view showing all sutras with previews
-  - `frontend/src/pages/SutraPage.tsx` - Full sutra view with Devanagari, IAST, meaning, and prev/next navigation
-  - `frontend/src/App.tsx` - React Router setup with nested routes
-  - `frontend/src/main.tsx` - QueryClientProvider setup
-  - `frontend/src/index.css` - Tailwind v4 CSS with Noto Devanagari fonts
-  - `frontend/postcss.config.js` - Updated for Tailwind v4 (`@tailwindcss/postcss`)
-  - `frontend/package.json` - Added react-router-dom and @tailwindcss/postcss dependencies
-- **Learnings for future iterations:**
-  - Tailwind v4 requires `@tailwindcss/postcss` instead of direct `tailwindcss` plugin in postcss.config.js
-  - Use `@import "tailwindcss"` in CSS instead of `@tailwind base/components/utilities` directives
-  - PADAS array in types/index.ts provides metadata for navigation without API call
-  - Keyboard navigation (← →) enhances sutra browsing UX
-  - React 19 + TypeScript verbatimModuleSyntax requires proper import types
----
-
-## 2026-01-21 17:58 - US-007
-- **What was implemented**: Frontend sutra display with clickable words for dictionary lookup
-- **Files changed**:
-  - `frontend/src/components/ClickableWord.tsx` - New component for individual clickable Sanskrit words with hover state
-  - `frontend/src/components/ClickableText.tsx` - Parser that tokenizes Devanagari text and renders each word as ClickableWord
-  - `frontend/src/contexts/wordSelectionTypes.ts` - Context type definitions (separated for ESLint react-refresh rule)
-  - `frontend/src/contexts/WordSelectionContext.tsx` - Provider component for word selection state
-  - `frontend/src/hooks/useWordSelection.ts` - Custom hook to access word selection context
-  - `frontend/src/pages/SutraPage.tsx` - Updated to use ClickableText for Devanagari, added collapsible commentary
-  - `frontend/src/main.tsx` - Added WordSelectionProvider wrapper
-- **Learnings for future iterations:**
-  - ESLint `react-refresh/only-export-components` requires separating context definitions from provider components
-  - Devanagari word tokenization uses Unicode range `[\u0900-\u097F]+` regex
-  - Word click position (x, y) can be captured for positioning tooltip/panel in future stories
-  - Commentary toggle uses simple useState - no need for context since it's local to SutraPage
-  - ClickableWord supports both mouse click and keyboard (Enter/Space) for accessibility
----
-
-## 2026-01-21 - US-008
-- **What was implemented**: Frontend dictionary panel with desktop sidebar and mobile bottom sheet
-- **Files changed**:
-  - `frontend/src/components/DictionaryPanel.tsx` - New component with slide-in animation, loading/error/not-found states, MW and Apte sections
-  - `frontend/src/hooks/useDictionary.ts` - React Query hook for dictionary lookups
-  - `frontend/src/types/index.ts` - Updated DictionaryEntry type to match actual API response (dictionary_code, key_devanagari, key_iast, definition, is_fuzzy_match)
-  - `frontend/src/components/Layout.tsx` - Added DictionaryPanel to global layout
-- **Learnings for future iterations:**
-  - API response structure must be verified against frontend types before implementing - the dictionary endpoint returns different field names than originally typed
-  - Tailwind v4 responsive classes work the same way (md: prefix) but check compiled output for complex transform-based animations
-  - Using `fixed` positioning for the panel means it's naturally outside the document flow and doesn't push content
-  - Escape key handler needs to be added/removed based on panel visibility to avoid memory leaks
-  - Fuzzy match indicator helps users understand why a result may not exactly match their input
----
-
-## 2026-01-21 - US-009
-- **What was implemented**: Frontend sandhi splitting integration with compound word analysis
-- **Files changed**:
-  - `frontend/src/components/SandhiSplitView.tsx` - New component displaying split compound words with visual separators (+), clickable components
-  - `frontend/src/hooks/useSandhiSplit.ts` - React Query hook for sandhi split API integration
-  - `frontend/src/components/DictionaryPanel.tsx` - Refactored to show split analysis before dictionary, state management using ref pattern
-  - `frontend/src/services/api.ts` - Updated splitWord function return type to SandhiSplitResponse
-  - `frontend/src/types/index.ts` - Added SandhiSplitToken and SandhiSplitResponse types with full Devanagari/IAST representations
-- **Learnings for future iterations:**
-  - ESLint `react-hooks/set-state-in-effect` rule prohibits setState inside useEffect - use ref comparison pattern instead
-  - Backend split API returns richer response with `original_devanagari`, `original_iast`, and `splits` array containing both text and lemma forms
-  - Use lemma (base form) for dictionary lookup when available, fall back to text (inflected form) otherwise
-  - Compound detection: `splitData.splits.length > 1` indicates a compound word
-  - useMemo for derived state avoids cascading renders from multiple setState calls
-  - State reset on prop change: use ref to track previous value and conditionally reset during render (not in effect)
----
-
-## 2026-01-21 - US-010
-- **What was implemented**: Full-text search across sutras with backend endpoint and frontend UI
-- **Files changed**:
-  - `backend/app/services/search_service.py` - New search service using rapidfuzz for fuzzy matching across Devanagari, IAST, and English
-  - `backend/app/routes/text_routes.py` - Added GET /api/search?q={query} endpoint
-  - `frontend/src/hooks/useSearch.ts` - React Query hook with 300ms debouncing
-  - `frontend/src/components/SearchInput.tsx` - Search input with clear button and icons
-  - `frontend/src/components/SearchResults.tsx` - Dropdown showing results with highlighting and navigation
-  - `frontend/src/components/Layout.tsx` - Integrated search into header with dropdown behavior
-  - `frontend/src/types/index.ts` - Added SearchResult and SearchResponse types
-  - `frontend/src/services/api.ts` - Added searchSutras API function
-- **Learnings for future iterations:**
-  - rapidfuzz `fuzz.partial_ratio` is better than `fuzz.ratio` for substring matching (finding query within longer text)
-  - Search corpus caching: build once at first query, store in service instance for performance
-  - Click-outside detection: use `useRef` + `mousedown` event listener checking `contains()` method
-  - Escape key handler should be added at document level for global behavior
-  - Search results should show which field matched (Devanagari/IAST/English) to help users understand results
----
-
-## 2026-01-21 - US-011
-- **What was implemented**: Bookmarks and favorites feature with localStorage persistence
-- **Files changed**:
-  - `frontend/src/contexts/bookmarksTypes.ts` - Bookmark type definition and context type (separated for ESLint react-refresh rule)
-  - `frontend/src/contexts/BookmarksContext.tsx` - BookmarksProvider with localStorage persistence
-  - `frontend/src/hooks/useBookmarks.ts` - Custom hook to access bookmarks context
-  - `frontend/src/components/BookmarkButton.tsx` - Toggle button with filled/unfilled bookmark icon
-  - `frontend/src/pages/BookmarksPage.tsx` - Bookmarks list page with export and remove functionality
-  - `frontend/src/components/Layout.tsx` - Added bookmark link in navigation with count badge
-  - `frontend/src/pages/SutraPage.tsx` - Integrated BookmarkButton in sutra header
-  - `frontend/src/App.tsx` - Added /bookmarks route
-  - `frontend/src/main.tsx` - Added BookmarksProvider wrapper
-- **Learnings for future iterations:**
-  - Use `useState(() => loadFromStorage())` for lazy initialization from localStorage (runs only once)
-  - Persist to localStorage via `useEffect` watching the state array
-  - Bookmark data structure should store enough info for display without additional API calls (blockId, sectionSlug, sectionTitle, sutraNumber, padaIndex, content)
-  - Export feature uses Blob + URL.createObjectURL + programmatic anchor click pattern
-  - Navigation badge shows count only when > 0 to avoid visual clutter
----
-
-## 2026-01-21 - US-012
-- **What was implemented**: Transliteration toggle for script display preference
-- **Files changed**:
-  - `frontend/src/contexts/scriptPreferenceTypes.ts` - ScriptPreference type and context type (separated for ESLint react-refresh rule)
-  - `frontend/src/contexts/ScriptPreferenceContext.tsx` - ScriptPreferenceProvider with localStorage persistence
-  - `frontend/src/hooks/useScriptPreference.ts` - Custom hook to access script preference
-  - `frontend/src/components/ScriptToggle.tsx` - Header dropdown for selecting Devanagari/IAST/Both
-  - `frontend/src/components/Layout.tsx` - Added ScriptToggle to header
-  - `frontend/src/pages/SutraPage.tsx` - Respects script preference for Devanagari/IAST display
-  - `frontend/src/components/DictionaryPanel.tsx` - Passes script preference to dictionary sections/entries
-  - `frontend/src/components/SandhiSplitView.tsx` - Respects script preference for compound word display
-  - `frontend/src/main.tsx` - Added ScriptPreferenceProvider wrapper
-- **Learnings for future iterations:**
-  - Follow the established context pattern: types in separate .ts file, provider in .tsx, hook in hooks/
-  - ScriptPreferenceProvider wraps BookmarksProvider in the component tree (order: QueryClient > ScriptPreference > Bookmarks > WordSelection)
-  - Convenience booleans (`showDevanagari`, `showIast`) computed from preference in context avoid repeated checks
-  - When hiding Devanagari, make IAST text larger for readability (`text-2xl md:text-3xl` instead of `text-xl`)
-  - Dropdown menu pattern: containerRef + click-outside + Escape key handling (reused from search)
----
-
-## 2026-01-21 - US-013
-- **What was implemented**: PWA offline support with service worker caching
-- **Files changed**:
-  - `frontend/vite.config.ts` - Added vite-plugin-pwa with comprehensive caching strategies
-  - `frontend/index.html` - Updated with PWA meta tags, Apple iOS support, Open Graph tags
-  - `frontend/package.json` - Added vite-plugin-pwa and sharp dependencies
-  - `frontend/src/vite-env.d.ts` - Added TypeScript types for virtual PWA modules
-  - `frontend/src/hooks/useOnlineStatus.ts` - Hook for tracking online/offline status with "back online" transition
-  - `frontend/src/components/OfflineIndicator.tsx` - Banner component showing offline status
-  - `frontend/src/components/PWAUpdatePrompt.tsx` - Prompt for app updates when new version available
-  - `frontend/src/components/Layout.tsx` - Integrated OfflineIndicator and PWAUpdatePrompt
-  - `frontend/public/icon.svg` - SVG icon with Om symbol
-  - `frontend/public/pwa-*.png` - PNG icons for various sizes (64, 192, 512)
-  - `frontend/public/maskable-icon-512x512.png` - Maskable icon for Android
-  - `frontend/public/apple-touch-icon.png` - iOS home screen icon
-  - `frontend/public/favicon.png` - Browser favicon
-  - `frontend/scripts/generate-icons.mjs` - Script to generate PNG icons from SVG
-- **Learnings for future iterations:**
-  - vite-plugin-pwa generates service worker via Workbox automatically
-  - Use `registerType: 'autoUpdate'` for automatic SW updates (vs prompt-based)
-  - Caching strategies: CacheFirst for rarely-changing data (dictionary), StaleWhileRevalidate for sutras, NetworkFirst for search
-  - ESLint `react-hooks/set-state-in-effect` rule prohibits setState inside useEffect - move state updates to event callbacks
-  - ESLint `react-hooks/refs` rule prohibits ref access during render - use refs only in callbacks
-  - Use `useRef` for tracking previous values when you need to detect state transitions in callbacks
-  - Sharp library can convert SVG to PNG for icon generation
-  - manifest.webmanifest is auto-generated by vite-plugin-pwa from config
----
-
-## 2026-01-22 - US-014
-- **What was implemented**: Docker deployment configuration for homelab K8s
-- **Files changed**:
-  - `docker/Dockerfile.backend` - Python 3.11-slim with gunicorn, health check, non-root user
-  - `docker/Dockerfile.frontend` - Multi-stage build (Node 20 → nginx:alpine), PWA-ready caching
-  - `docker/nginx.conf` - Production nginx with gzip, security headers, SPA routing, health endpoint
-  - `docker-compose.yml` - Full stack with volume mounts, health checks, depends_on
-  - `backend/app/routes/text_routes.py` - Added /api/health endpoint with database check
-- **Learnings for future iterations:**
-  - Multi-stage Docker builds significantly reduce image size (Node build stage discarded, only nginx serves dist/)
-  - Use `HEALTHCHECK` in Dockerfile for container orchestration (K8s readiness/liveness probes)
-  - Mount data directory as volume (`./data:/app/data`) to persist database across container restarts
-  - nginx `try_files $uri $uri/ /index.html` handles SPA client-side routing
-  - Service worker caching headers: `no-cache` for sw.js, short cache for manifest.webmanifest
-  - Security headers: X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
-  - gunicorn workers: 2 is reasonable for small deployments, use `2 * CPU_cores + 1` formula for production
+  - Use `<path:word>` in Flask for Sanskrit words (handles special chars)
+  - Return `{"success": true, "data": null}` for unrecognized words, not 404
 ---

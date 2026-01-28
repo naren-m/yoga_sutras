@@ -26,7 +26,7 @@ python scripts/seed_dictionaries.py # Downloads MW and Apte dictionaries to data
 
 ### URLs
 - Backend API: http://localhost:5001 (configurable via PORT env var)
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:3002 (Docker), http://localhost:3000 (local dev)
 
 ## Architecture
 
@@ -54,6 +54,7 @@ This generic structure supports any Sanskrit text (Ramayana slokas, Bhagavad Git
 ### Key Services
 - `SandhiService`: Wraps Vidyut Cheda for compound word splitting
 - `DictionaryService`: Lookup in MW/Apte dictionaries (SLP1-keyed)
+- `DharmamitraMorphologyService`: Sanskrit morphological analysis (lemma, case, gender, number, verb roots)
 - `TextService`: CRUD for Text/Section/Block entities
 
 ### API Routes
@@ -65,6 +66,8 @@ This generic structure supports any Sanskrit text (Ramayana slokas, Bhagavad Git
 | `/api/texts/<slug>/block/<block_id>` | Get single block by ID |
 | `/api/dictionary/<word>` | Dictionary lookup |
 | `/api/split/<compound>` | Sandhi splitting |
+| `/api/morphology/<word>` | Morphological analysis (lemma, case, gender, number, meanings) |
+| `/api/morphology/status` | Check Dharmamitra service availability |
 
 ## Data Sources
 - **Sutras**: Scraped from shlokam.org (URL pattern: `shlokam.org/yogasutra/{pada}-{sutra}/`)
