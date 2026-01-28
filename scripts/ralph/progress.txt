@@ -64,3 +64,16 @@
   - React Query caches API responses - set staleTime for stable data
   - Hide sections with no data (return null) rather than showing "No data"
 ---
+
+## 2026-01-27 - US-105
+- Created DhatuSection component for verb root display
+- Shows dhatu with GANA_NAMES lookup (Sanskrit verb class names)
+- Clickable dhatu triggers dictionary lookup via handleDhatuClick
+- External link icon indicates clickability
+- Hidden for non-verb words
+- Files changed: components/DhatuSection.tsx, components/DictionaryPanel.tsx
+- **Learnings for future iterations:**
+  - Gana names: Bhvādi (1st), Adādi (2nd), etc. for verb classes
+  - Reuse selectedComponent state for dhatu lookup (same as sandhi component)
+  - Blue color scheme for verb-specific sections (vs amber for general)
+---

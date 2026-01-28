@@ -6,6 +6,7 @@ import { useMorphology } from '../hooks/useMorphology';
 import { useScriptPreference } from '../hooks/useScriptPreference';
 import SandhiSplitView from './SandhiSplitView';
 import MorphologySection from './MorphologySection';
+import DhatuSection from './DhatuSection';
 import type { DictionaryEntry } from '../types';
 
 /**
@@ -94,6 +95,11 @@ export default function DictionaryPanel() {
   // Handle going back to split view
   const handleBackToSplit = () => {
     setSelectedComponent(null);
+  };
+
+  // Handle clicking dhatu to look up verb root
+  const handleDhatuClick = (dhatu: string) => {
+    setSelectedComponent(dhatu);
   };
 
   // Close on Escape key
@@ -233,6 +239,12 @@ export default function DictionaryPanel() {
                   <MorphologySection
                     morphology={morphology ?? null}
                     isLoading={isMorphLoading}
+                  />
+
+                  {/* Dhatu section for verbs */}
+                  <DhatuSection
+                    morphology={morphology ?? null}
+                    onDhatuClick={handleDhatuClick}
                   />
 
                   {/* Not found state */}
