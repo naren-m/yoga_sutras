@@ -9,3 +9,4 @@ vidyut
 rapidfuzz
 python-dotenv
 indic-transliteration
+dharmamitra-sanskrit-grammar
