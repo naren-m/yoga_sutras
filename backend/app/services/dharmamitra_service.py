@@ -19,6 +19,57 @@ from typing import Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 
+# Common Sanskrit dhatus (verb roots) with their gana (verb class 1-10)
+# This is a subset - a complete list would have 2000+ roots
+DHATU_GANA_MAP: Dict[str, int] = {
+    # Gana 1 (Bhvādi) - most common
+    "bhū": 1, "gam": 1, "sthā": 1, "dā": 1, "pā": 1, "ji": 1, "nī": 1,
+    "kṛ": 1, "hṛ": 1, "vad": 1, "pat": 1, "sad": 1, "jan": 1, "man": 1,
+    "yuj": 1, "kram": 1, "ram": 1, "nam": 1, "labh": 1, "vṛt": 1, "śak": 1,
+    "vas": 1, "has": 1, "paś": 1, "dṛś": 1, "spṛś": 1, "tyaj": 1, "bhaj": 1,
+    # Gana 2 (Adādi)
+    "as": 2, "i": 2, "vid": 2, "śī": 2, "han": 2, "vac": 2, "brū": 2,
+    "ad": 2, "svap": 2, "śvas": 2, "rudh": 2, "dviṣ": 2, "duḥ": 2,
+    # Gana 3 (Juhotyādi)
+    "hu": 3, "dā": 3, "dhā": 3, "mā": 3, "hā": 3, "bibh": 3,
+    # Gana 4 (Divādi)
+    "div": 4, "nṛt": 4, "mad": 4, "kup": 4, "tṛp": 4, "muh": 4, "lubh": 4,
+    "kliś": 4, "puṣ": 4, "tuṣ": 4, "kruś": 4, "śam": 4, "dam": 4, "jan": 4,
+    # Gana 5 (Svādi)
+    "su": 5, "śru": 5, "āp": 5, "ṛ": 5, "śak": 5, "kṣi": 5,
+    # Gana 6 (Tudādi)
+    "tud": 6, "viś": 6, "muc": 6, "lup": 6, "ric": 6, "sic": 6, "kṛṣ": 6,
+    "liś": 6, "pṛc": 6, "spṛś": 6, "kir": 6, "gir": 6, "mil": 6, "pis": 6,
+    # Gana 7 (Rudhādi)
+    "rudh": 7, "bhid": 7, "chid": 7, "yuj": 7, "bhuj": 7, "añj": 7,
+    "hiṃs": 7, "piṣ": 7, "ric": 7, "vic": 7,
+    # Gana 8 (Tanādi)
+    "tan": 8, "san": 8, "man": 8, "van": 8, "kṛ": 8,
+    # Gana 9 (Kryādi)
+    "krī": 9, "graha": 9, "jñā": 9, "pū": 9, "lū": 9, "stṛ": 9,
+    "prī": 9, "math": 9, "puṣ": 9, "bandh": 9, "aś": 9,
+    # Gana 10 (Curādi) - causatives and denominatives
+    "cur": 10, "cint": 10, "kath": 10, "pāl": 10, "mantr": 10,
+    "gup": 10, "dhūp": 10, "vic": 10, "pan": 10, "spardh": 10,
+}
+
+
+def lookup_gana(lemma: str) -> Optional[int]:
+    """Look up the verb class (gana) for a dhatu/lemma."""
+    if not lemma:
+        return None
+    # Normalize: try both as-is and without final 'a' (common lemma form)
+    clean_lemma = lemma.strip().lower()
+    if clean_lemma in DHATU_GANA_MAP:
+        return DHATU_GANA_MAP[clean_lemma]
+    # Try removing trailing 'a' (e.g., "gaccha" -> "gacch")
+    if clean_lemma.endswith('a') and len(clean_lemma) > 1:
+        base = clean_lemma[:-1]
+        if base in DHATU_GANA_MAP:
+            return DHATU_GANA_MAP[base]
+    return None
+
+
 @dataclass
 class MorphologicalAnalysis:
     """Structured morphological analysis result for a single word"""
@@ -68,6 +119,11 @@ class MorphologicalAnalysis:
                 elif key_lower == 'voice':
                     self.voice = value
                     self.is_verb = True
+
+        # For verb forms, set dhatu (root) and look up gana (verb class)
+        if self.is_verb and self.lemma:
+            self.dhatu = self.lemma
+            self.gana = lookup_gana(self.lemma)
 
 
 @dataclass

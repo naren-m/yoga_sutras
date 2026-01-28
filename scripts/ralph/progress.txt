@@ -6,6 +6,7 @@
 - Script detection: Devanagari = `[\u0900-\u097F]`, IAST = diacritics, SLP1 = ASCII
 - Frontend context pattern: types in .ts file, provider in .tsx, hook in hooks/
 - Dharmamitra: Use `dharmamitra-sanskrit-grammar` package, lazy init to avoid startup delay
+- Dhatu identification: lemma = dhatu for verbs, gana from DHATU_GANA_MAP lookup
 
 ---
 
@@ -36,4 +37,16 @@
 - **Learnings for future iterations:**
   - Use `<path:word>` in Flask for Sanskrit words (handles special chars)
   - Return `{"success": true, "data": null}` for unrecognized words, not 404
+---
+
+## 2026-01-27 - US-103
+- Added dhatu (verb root) identification for verb forms
+- Created DHATU_GANA_MAP with 80+ common Sanskrit verb roots and their gana (verb class)
+- Verbs identified by Person/Tense/Voice tags in morphological analysis
+- For verbs: dhatu = lemma (the root form), gana looked up from map
+- Files changed: backend/app/services/dharmamitra_service.py
+- **Learnings for future iterations:**
+  - Dharmamitra's lemma IS the verb root (dhatu) for verb forms
+  - Gana (verb class 1-10) requires a separate lookup table - Dharmamitra doesn't provide it
+  - Common dhatus: gam (go), bhū (be), kṛ (do), dṛś (see), śru (hear)
 ---

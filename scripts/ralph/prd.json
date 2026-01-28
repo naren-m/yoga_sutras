@@ -47,7 +47,7 @@
         "Handle cases where dhatu cannot be determined (return null)"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Example: gacchati -> dhatu: gam (to go), gana: 1"
     },
     {
