@@ -75,6 +75,32 @@ export interface SandhiSplitResponse {
   engine_error: string | null;
 }
 
+// Morphology types
+export interface MorphologyAnalysis {
+  lemma: string;
+  unsandhied: string;
+  surface_form: string;
+  tag: string;
+  case: string | null;
+  gender: string | null;
+  number: string | null;
+  person: string | null;
+  tense: string | null;
+  voice: string | null;
+  meanings: string[];
+  is_verb: boolean;
+  dhatu: string | null;
+  gana: number | null;
+}
+
+export interface MorphologyResponse {
+  data: MorphologyAnalysis | null;
+  query: {
+    word: string;
+    service_available: boolean;
+  };
+}
+
 // Search types
 export interface SearchResult {
   block_id: number;

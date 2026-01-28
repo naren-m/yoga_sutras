@@ -62,7 +62,7 @@
         "Graceful handling when no analysis available"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Display in stacked sections below sandhi split"
     },
     {

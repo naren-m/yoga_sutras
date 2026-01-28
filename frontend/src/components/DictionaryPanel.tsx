@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWordSelection } from '../hooks/useWordSelection';
 import { useDictionary } from '../hooks/useDictionary';
 import { useSandhiSplit } from '../hooks/useSandhiSplit';
+import { useMorphology } from '../hooks/useMorphology';
 import { useScriptPreference } from '../hooks/useScriptPreference';
 import SandhiSplitView from './SandhiSplitView';
+import MorphologySection from './MorphologySection';
 import type { DictionaryEntry } from '../types';
 
 /**
@@ -71,6 +73,12 @@ export default function DictionaryPanel() {
     isLoading: isDictLoading,
     error: dictError,
   } = useDictionary(dictionaryLookupWord);
+
+  // Fetch morphological analysis for the lookup word
+  const {
+    data: morphology,
+    isLoading: isMorphLoading,
+  } = useMorphology(dictionaryLookupWord);
 
   // Handle clicking a split component
   const handleComponentClick = (word: string) => {
@@ -220,6 +228,12 @@ export default function DictionaryPanel() {
                       </button>
                     </div>
                   )}
+
+                  {/* Morphology section */}
+                  <MorphologySection
+                    morphology={morphology ?? null}
+                    isLoading={isMorphLoading}
+                  />
 
                   {/* Not found state */}
                   {!isDictLoading && entries && entries.length === 0 && (

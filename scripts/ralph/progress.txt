@@ -50,3 +50,17 @@
   - Gana (verb class 1-10) requires a separate lookup table - Dharmamitra doesn't provide it
   - Common dhatus: gam (go), bhū (be), kṛ (do), dṛś (see), śru (hear)
 ---
+
+## 2026-01-27 - US-104
+- Created MorphologySection component for grammar display
+- Added MorphologyAnalysis type and useMorphology hook
+- Added fetchMorphology API function
+- Integrated into DictionaryPanel after sandhi split
+- Shows: Root Form, Case, Gender, Number, Person, Tense, Voice, Meanings
+- Loading spinner while fetching, hidden when no data
+- Files changed: types/index.ts, services/api.ts, hooks/useMorphology.ts, components/MorphologySection.tsx, components/DictionaryPanel.tsx
+- **Learnings for future iterations:**
+  - Frontend pattern: types → api.ts → useHook.ts → Component.tsx
+  - React Query caches API responses - set staleTime for stable data
+  - Hide sections with no data (return null) rather than showing "No data"
+---

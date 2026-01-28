@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplitResponse, SearchResult } from '../types';
+import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplitResponse, SearchResult, MorphologyAnalysis, MorphologyResponse } from '../types';
 
 // Backend API base URL - configurable via environment variable
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
@@ -59,6 +59,12 @@ export async function splitWord(compound: string): Promise<SandhiSplitResponse> 
   if (!response.data.success) {
     throw new Error(response.data.error || 'Failed to split word');
   }
+  return response.data.data;
+}
+
+// Morphology APIs
+export async function fetchMorphology(word: string): Promise<MorphologyAnalysis | null> {
+  const response = await api.get<MorphologyResponse>(`/morphology/${encodeURIComponent(word)}`);
   return response.data.data;
 }
 
