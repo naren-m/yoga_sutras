@@ -90,3 +90,16 @@
   - TypeScript verbatimModuleSyntax requires `import type` for type-only imports
   - Chevron rotation on toggle: `rotate-180` transform
 ---
+
+## 2026-01-27 - US-107
+- Created GrammarSummary component at top of dictionary section
+- Shows word class badge (noun/verb) with color coding
+- Displays gender abbreviation (m./f./n.) for nouns
+- Shows inflected form note when lemma differs from surface form
+- Displays Dharmamitra "Quick meaning" (first 3 meanings)
+- Files changed: components/DictionaryPanel.tsx
+- **Learnings for future iterations:**
+  - Gender abbreviations: Masculine→m., Feminine→f., Neuter→n.
+  - Word class detection: has gender = noun, is_verb = verb
+  - Color coding: blue for verbs, amber for nouns, purple for gender
+---

@@ -8,7 +8,7 @@ import SandhiSplitView from './SandhiSplitView';
 import MorphologySection from './MorphologySection';
 import DhatuSection from './DhatuSection';
 import CollapsibleSection from './CollapsibleSection';
-import type { DictionaryEntry } from '../types';
+import type { DictionaryEntry, MorphologyAnalysis } from '../types';
 
 /**
  * Dictionary panel that slides in from the right on desktop,
@@ -280,6 +280,11 @@ export default function DictionaryPanel() {
                       defaultOpen={true}
                     >
                       <div className="space-y-6">
+                        {/* Grammar summary from morphology */}
+                        {morphology && (
+                          <GrammarSummary morphology={morphology} />
+                        )}
+
                         {/* Monier-Williams */}
                         {mwEntries.length > 0 && (
                           <DictionarySection
@@ -393,6 +398,71 @@ function DefinitionEntry({
       <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
         {entry.definition}
       </p>
+    </div>
+  );
+}
+
+/**
+ * Grammar summary showing word class, gender, and form info.
+ * Appears at the top of dictionary section when morphology is available.
+ */
+function GrammarSummary({
+  morphology,
+}: {
+  morphology: MorphologyAnalysis;
+}) {
+  // Determine word class
+  const wordClass = morphology.is_verb ? 'verb' : (morphology.gender ? 'noun' : null);
+
+  // Gender abbreviation
+  const genderAbbrev: Record<string, string> = {
+    'Masculine': 'm.',
+    'Feminine': 'f.',
+    'Neuter': 'n.',
+  };
+  const gender = morphology.gender ? genderAbbrev[morphology.gender] || morphology.gender.charAt(0).toLowerCase() + '.' : null;
+
+  // Check if inflected form differs from lemma
+  const isInflected = morphology.lemma && morphology.lemma !== morphology.surface_form;
+
+  // Get unique Dharmamitra meanings (first 3)
+  const meanings = morphology.meanings?.slice(0, 3) || [];
+
+  // Don't show if nothing to display
+  if (!wordClass && !gender && !isInflected && meanings.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-200">
+      {/* Word class and gender badges */}
+      <div className="flex items-center gap-2 flex-wrap mb-2">
+        {wordClass && (
+          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+            wordClass === 'verb' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+          }`}>
+            {wordClass}
+          </span>
+        )}
+        {gender && (
+          <span className="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
+            {gender}
+          </span>
+        )}
+        {isInflected && (
+          <span className="text-xs text-gray-500">
+            inflected form of <span className="font-medium text-gray-700">{morphology.lemma}</span>
+          </span>
+        )}
+      </div>
+
+      {/* Dharmamitra meanings */}
+      {meanings.length > 0 && (
+        <div className="text-sm text-gray-700">
+          <span className="text-xs text-gray-500 uppercase tracking-wide">Quick meaning: </span>
+          {meanings.join('; ')}
+        </div>
+      )}
     </div>
   );
 }

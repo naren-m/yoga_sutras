@@ -107,7 +107,7 @@
         "De-duplicate meanings if they appear in both sources"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Combine Dharmamitra 60K meanings with MW/Apte definitions"
     },
     {
