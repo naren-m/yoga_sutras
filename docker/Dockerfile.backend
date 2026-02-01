@@ -1,31 +1,39 @@
-# Use official Python runtime as a parent image
+# Backend Dockerfile for Yoga Sutras Flask API
 FROM python:3.11-slim
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=run.py
+ENV PORT=5001
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
-# Note: This assumes the context is the project root
+# Copy requirements and install dependencies
 COPY backend/requirements.txt .
-
-# Install python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir gunicorn
 
 # Copy the backend application code
 COPY backend/ .
 
-# Expose port 5000
-EXPOSE 5000
+# Create non-root user for security
+RUN useradd -m appuser && chown -R appuser:appuser /app
+USER appuser
 
-# Run the application
-CMD ["python", "run.py"]
+# Expose port 5001
+EXPOSE 5001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5001/api/health || exit 1
+
+# Run with gunicorn for production
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "2", "--timeout", "120", "run:app"]

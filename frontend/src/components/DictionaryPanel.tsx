@@ -49,8 +49,17 @@ export default function DictionaryPanel() {
     error: splitError,
   } = useSandhiSplit(currentWord);
 
+  // Fetch sandhi split for the selected component (for sub-splitting)
+  const {
+    data: componentSplitData,
+    isLoading: isComponentSplitLoading,
+  } = useSandhiSplit(selectedComponent);
+
   // Determine if this is a compound (has multiple split components)
   const isCompound = splitData && splitData.splits.length > 1;
+
+  // Determine if the selected component is also a compound
+  const isComponentCompound = componentSplitData && componentSplitData.splits.length > 1;
 
   // Derive the dictionary lookup word from state
   const dictionaryLookupWord = useMemo(() => {
@@ -127,7 +136,7 @@ export default function DictionaryPanel() {
   const apteEntries = entries?.filter((e) => e.dictionary_code === 'apte') ?? [];
 
   // Loading state combines both split and dictionary loading
-  const isLoading = isSplitLoading || (dictionaryLookupWord && isDictLoading);
+  const isLoading = isSplitLoading || isComponentSplitLoading || (dictionaryLookupWord && isDictLoading);
   const error = splitError || dictError;
 
   return (
@@ -215,11 +224,36 @@ export default function DictionaryPanel() {
                 />
               )}
 
+              {/* Sub-split view when selected component is also a compound */}
+              {isCompound && selectedComponent && isComponentCompound && componentSplitData && (
+                <div className="mb-4">
+                  <div className="mb-2 pb-2 border-b border-gray-200">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                      Sub-component Analysis
+                    </p>
+                    <button
+                      onClick={handleBackToSplit}
+                      className="text-sm text-amber-600 hover:text-amber-800"
+                    >
+                      ← Back to main split
+                    </button>
+                  </div>
+                  <SandhiSplitView
+                    originalDevanagari={componentSplitData.original_devanagari}
+                    originalIast={componentSplitData.original_iast}
+                    splits={componentSplitData.splits}
+                    onComponentClick={handleComponentClick}
+                    onViewFullCompound={() => {/* Stay on current component */}}
+                    isCompound={true}
+                  />
+                </div>
+              )}
+
               {/* Dictionary entries */}
               {dictionaryLookupWord && (
                 <>
-                  {/* Show which word we're looking up if it's a component */}
-                  {isCompound && selectedComponent && (
+                  {/* Show which word we're looking up if it's a component (but not a sub-compound) */}
+                  {isCompound && selectedComponent && !isComponentCompound && (
                     <div className="mb-4 pb-3 border-b border-gray-200">
                       <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                         Looking up component

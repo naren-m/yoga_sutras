@@ -8,9 +8,12 @@ from app.models.base import Base
 # Pass the custom Base to Flask-SQLAlchemy so models are registered
 db = SQLAlchemy(model_class=Base)
 
-# Project root is two levels up from app/__init__.py (backend/app -> backend -> yoga_sutras)
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
+# Data directory - use env var in Docker, or calculate from file path for local dev
+# In Docker: /app/data (mounted volume)
+# Locally: ../../data relative to backend/app/__init__.py
+DATA_DIR = os.environ.get('DATA_DIR', os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data'
+))
 
 def create_app():
     app = Flask(__name__)
@@ -30,7 +33,9 @@ def create_app():
     CORS(app, origins=[
         'http://localhost:3000',
         'http://127.0.0.1:3000',
-        'http://localhost:5173',  # Vite default port
+        'http://localhost:3002',   # Docker frontend port
+        'http://127.0.0.1:3002',
+        'http://localhost:5173',   # Vite default port
     ])
 
     # Register blueprints

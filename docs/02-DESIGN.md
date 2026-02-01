@@ -47,7 +47,6 @@ This document provides the technical design and implementation details for build
 | **DevOps**   | Docker                | latest  | Containerization  |
 | **DevOps**   | Docker                | latest  | Containerization  |
 
-
 ### 1.3 System Context Diagram
 
 ```
@@ -233,6 +232,7 @@ yoga-sutras/
 #### 2.3.1 Sutra Display Flow
 
 ```
+
 User clicks Sutra 1.2
         │
         ▼
@@ -274,11 +274,13 @@ User clicks Sutra 1.2
                          │ SutraDisplay    │
                          │ component       │
                          └─────────────────┘
+
 ```
 
 #### 2.3.2 Word Click → Dictionary Lookup Flow
 
 ```
+
 User clicks word "योगश्चित्तवृत्तिनिरोधः"
         │
         ▼
@@ -320,6 +322,7 @@ User clicks word "योगश्चित्तवृत्तिनिरो�
                          │ Dictionary Lookup│
                          │ (Vidyut Kosha)   │
                          └─────────────────┘
+
 ```
 
 ---
@@ -411,6 +414,7 @@ INSERT INTO padas VALUES
 ```
 
 ### 3.2 SQLAlchemy Models
+
 (Generic Architecture for any Text)
 
 ```python
@@ -513,16 +517,16 @@ class DictionaryEntry(Base):
 
 ### 3.3 Generic Data Interaction
 
-By abstracting `Sutra` into `TextBlock`, the system can support any Sanskrit text. 
+By abstracting `Sutra` into `TextBlock`, the system can support any Sanskrit text.
 
-- **Yoga Sutras**: 
-    - `Text`: "Yoga Sutras"
-    - `Section`: "Samadhi Pada"
-    - `Block`: Sutra 1.1 "atha yoganushasanam"
+- **Yoga Sutras**:
+  - `Text`: "Yoga Sutras"
+  - `Section`: "Samadhi Pada"
+  - `Block`: Sutra 1.1 "atha yoganushasanam"
 - **Ramayana**:
-    - `Text`: "Ramayana"
-    - `Section`: "Bala Kanda"
-    - `Block`: Sloka 1.1
+  - `Text`: "Ramayana"
+  - `Section`: "Bala Kanda"
+  - `Block`: Sloka 1.1
 
 ### 3.4 Word Analysis JSON Structure
 

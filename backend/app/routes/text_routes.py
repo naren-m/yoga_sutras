@@ -1,9 +1,34 @@
 from flask import Blueprint, jsonify, request
 from app.services.text_service import TextService
 from app.services.search_service import get_search_service
+from app import db
 
 text_bp = Blueprint('texts', __name__, url_prefix='/api')
 service = TextService()
+
+
+@text_bp.route('/health', methods=['GET'])
+def health_check():
+    """GET /api/health - Health check endpoint for container orchestration.
+
+    Returns:
+        200: Service is healthy
+        503: Service is unhealthy
+    """
+    try:
+        # Check database connectivity
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({
+            "success": True,
+            "status": "healthy",
+            "service": "yoga-sutras-backend"
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "status": "unhealthy",
+            "error": str(e)
+        }), 503
 
 
 @text_bp.route('/texts', methods=['GET'])
