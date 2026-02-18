@@ -1,0 +1,1603 @@
+{
+  "slug": "yoga-sutras",
+  "title": "Yoga Sutras of Patanjali",
+  "description": "The foundational text of Yoga philosophy, consisting of 196 sutras organized into four chapters (padas).",
+  "sections": [
+    {
+      "slug": "samadhi-pada",
+      "title": "Samadhi Pada",
+      "order": 1,
+      "blocks": [
+        {
+          "slug": "1.1",
+          "order": 1,
+          "content": "अथ योगानुशासनम्",
+          "transliteration": "atha yogānuśāsanam",
+          "meaning": "Now, after having done prior preparation through life and other practices, the study and practice of Yoga begins.",
+          "url": "https://swamij.com/yoga-sutras-101.htm"
+        },
+        {
+          "slug": "1.2",
+          "order": 2,
+          "content": "योगश्चित्तवृत्तिनिरोधः",
+          "transliteration": "yogaścittavṛttinirodhaḥ",
+          "meaning": "Yoga is the cessation of the modifications of the mind.",
+          "url": "https://swamij.com/yoga-sutras-102.htm"
+        },
+        {
+          "slug": "1.3",
+          "order": 3,
+          "content": "तदा द्रष्टुः स्वरूपेऽवस्थानम्",
+          "transliteration": "tadā draṣṭuḥ svarūpe'vasthānam",
+          "meaning": "Then the Seer abides in Itself,",
+          "url": "https://swamij.com/yoga-sutras-103.htm"
+        },
+        {
+          "slug": "1.4",
+          "order": 4,
+          "content": "वृत्तिसारूप्यमितरत्र",
+          "transliteration": "vṛttisārūpyamitaratra",
+          "meaning": "At other times, when one is not in",
+          "url": "https://swamij.com/yoga-sutras-104.htm"
+        },
+        {
+          "slug": "1.5",
+          "order": 5,
+          "content": "वृत्तयः पञ्चतय्यः क्लिष्टाऽक्लिष्टाः",
+          "transliteration": "vṛttayaḥ pañcatayyaḥ kliṣṭā'kliṣṭāḥ",
+          "meaning": "Those gross and subtle thought",
+          "url": "https://swamij.com/yoga-sutras-105.htm"
+        },
+        {
+          "slug": "1.6",
+          "order": 6,
+          "content": "प्रमाणविपर्ययविकल्पनिद्रास्मृतयः",
+          "transliteration": "pramāṇaviparyayavikalpanidrāsmṛtayaḥ",
+          "meaning": "They are: right knowledge, wrong knowledge, imagination, sleep, and memory.",
+          "url": "https://swamij.com/yoga-sutras-106.htm"
+        },
+        {
+          "slug": "1.7",
+          "order": 7,
+          "content": "प्रत्यक्षानुमानागमाः प्रमाणानि",
+          "transliteration": "pratyakṣānumānāgamāḥ pramāṇāni",
+          "meaning": "Of these five, there are three ways",
+          "url": "https://swamij.com/yoga-sutras-107.htm"
+        },
+        {
+          "slug": "1.8",
+          "order": 8,
+          "content": "विपर्ययो मिथ्याज्ञानमतद्रूपप्रतिष्ठम्",
+          "transliteration": "viparyayo mithyājñānamatadrūpapratiṣṭham",
+          "meaning": "Incorrect knowledge or illusion (viparyaya) is false knowledge",
+          "url": "https://swamij.com/yoga-sutras-108.htm"
+        },
+        {
+          "slug": "1.9",
+          "order": 9,
+          "content": "शब्दज्ञानानुपाती वस्तुशून्यो विकल्पः",
+          "transliteration": "śabdajñānānupātī vastuśūnyo vikalpaḥ",
+          "meaning": "Fantasy or imagination (vikalpa) is",
+          "url": "https://swamij.com/yoga-sutras-109.htm"
+        },
+        {
+          "slug": "1.10",
+          "order": 10,
+          "content": "अभावप्रत्ययालम्बना वृत्तिर्निद्रा",
+          "transliteration": "abhāvapratyayālambanā vṛttirnidrā",
+          "meaning": "Dreamless sleep (nidra) is the",
+          "url": "https://swamij.com/yoga-sutras-110.htm"
+        },
+        {
+          "slug": "1.11",
+          "order": 11,
+          "content": "अनुभूतविषयासम्प्रमोषः स्मृतिः",
+          "transliteration": "anubhūtaviṣayāsampramoṣaḥ smṛtiḥ",
+          "meaning": "Recollection or memory (smriti) is mental modification",
+          "url": "https://swamij.com/yoga-sutras-111.htm"
+        },
+        {
+          "slug": "1.12",
+          "order": 12,
+          "content": "अभ्यासवैराग्याभ्यां तन्निरोधः",
+          "transliteration": "abhyāsavairāgyābhyāṃ tannirodhaḥ",
+          "meaning": "These thought patterns (vrittis)",
+          "url": "https://swamij.com/yoga-sutras-112.htm"
+        },
+        {
+          "slug": "1.13",
+          "order": 13,
+          "content": "तत्र स्थितौ यत्नोऽभ्यासः",
+          "transliteration": "tatra sthitau yatno'bhyāsaḥ",
+          "meaning": "Practice (abhyasa) means choosing,",
+          "url": "https://swamij.com/yoga-sutras-113.htm"
+        },
+        {
+          "slug": "1.14",
+          "order": 14,
+          "content": "स तु दीर्घकालनैरन्तर्यसत्कारासेवितो दृढभूमिः",
+          "transliteration": "sa tu dīrghakālanairantaryasatkārāsevito dṛḍhabhūmiḥ",
+          "meaning": "When that practice is done for a",
+          "url": "https://swamij.com/yoga-sutras-114.htm"
+        },
+        {
+          "slug": "1.15",
+          "order": 15,
+          "content": "दृष्टानुश्रविकविषयवितृष्णस्य वशीकारसंज्ञा वैराग्यम्",
+          "transliteration": "dṛṣṭānuśravikaviṣayavitṛṣṇasya vaśīkārasaṃjñā vairāgyam",
+          "meaning": "When the mind loses desire even for",
+          "url": "https://swamij.com/yoga-sutras-115.htm"
+        },
+        {
+          "slug": "1.16",
+          "order": 16,
+          "content": "तत्परं पुरुषख्यातेर्गुणवैतृष्ण्यम्",
+          "transliteration": "tatparaṃ puruṣakhyāterguṇavaitṛṣṇyam",
+          "meaning": "Indifference to the subtlest",
+          "url": "https://swamij.com/yoga-sutras-116.htm"
+        },
+        {
+          "slug": "1.17",
+          "order": 17,
+          "content": "वितर्कविचारानन्दास्मितारूपानुगमात् सम्प्रज्ञातः",
+          "transliteration": "vitarkavicārānandāsmitārūpānugamāt samprajñātaḥ",
+          "meaning": "The deep absorption of attention on an",
+          "url": "https://swamij.com/yoga-sutras-117.htm"
+        },
+        {
+          "slug": "1.18",
+          "order": 18,
+          "content": "(स्मितास्वरूपानुगमात्, स्मितानुगमात्) विरामप्रत्ययाभ्यासपूर्वः संस्कारशेषोऽन्यः",
+          "transliteration": "(smitāsvarūpānugamāt, smitānugamāt) virāmapratyayābhyāsapūrvaḥ saṃskāraśeṣo'nyaḥ",
+          "meaning": "The other samadhi is preceded by practice of cessation and is supported by residual impressions.",
+          "url": "https://swamij.com/yoga-sutras-118.htm"
+        },
+        {
+          "slug": "1.19",
+          "order": 19,
+          "content": "भवप्रत्ययो विदेहप्रकृतिलयानाम्",
+          "transliteration": "bhavapratyayo videhaprakṛtilayānām",
+          "meaning": "Some who have attained higher levels (videhas) or know unmanifest nature",
+          "url": "https://swamij.com/yoga-sutras-119.htm"
+        },
+        {
+          "slug": "1.20",
+          "order": 20,
+          "content": "श्रद्धावीर्यस्मृतिसमाधिप्रज्ञापूर्वक इतरेषाम्",
+          "transliteration": "śraddhāvīryasmṛtisamādhiprajñāpūrvaka itareṣām",
+          "meaning": "Others follow a five-fold systematic",
+          "url": "https://swamij.com/yoga-sutras-120.htm"
+        },
+        {
+          "slug": "1.21",
+          "order": 21,
+          "content": "तीव्रसंवेगानामासन्नः",
+          "transliteration": "tīvrasaṃvegānāmāsannaḥ",
+          "meaning": "Those who pursue their practices with",
+          "url": "https://swamij.com/yoga-sutras-121.htm"
+        },
+        {
+          "slug": "1.22",
+          "order": 22,
+          "content": "मृदुमध्याधिमात्रत्वात् ततोऽपि विशेषः",
+          "transliteration": "mṛdumadhyādhimātratvāt tato'pi viśeṣaḥ",
+          "meaning": "Because the methods may be applied",
+          "url": "https://swamij.com/yoga-sutras-122.htm"
+        },
+        {
+          "slug": "1.23",
+          "order": 23,
+          "content": "ईश्वरप्रणिधानाद्वा",
+          "transliteration": "īśvarapraṇidhānādvā",
+          "meaning": "From a special process of devotion",
+          "url": "https://swamij.com/yoga-sutras-123.htm"
+        },
+        {
+          "slug": "1.24",
+          "order": 24,
+          "content": "क्लेशकर्मविपाकाशयैरपरामृष्टः पुरुषविशेष ईश्वरः",
+          "transliteration": "kleśakarmavipākāśayairaparāmṛṣṭaḥ puruṣaviśeṣa īśvaraḥ",
+          "meaning": "That creative source (ishvara) is a particular",
+          "url": "https://swamij.com/yoga-sutras-124.htm"
+        },
+        {
+          "slug": "1.25",
+          "order": 25,
+          "content": "तत्र निरतिशयं सर्वज्ञबीजम्",
+          "transliteration": "tatra niratiśayaṃ sarvajñabījam",
+          "meaning": "In that pure consciousness (ishvara)",
+          "url": "https://swamij.com/yoga-sutras-125.htm"
+        },
+        {
+          "slug": "1.26",
+          "order": 26,
+          "content": "(सर्वज्ञत्वबीजम्) स पूर्वेषामपि गुरुः कालेनानवच्छेदात्",
+          "transliteration": "(sarvajñatvabījam) sa pūrveṣāmapi guruḥ kālenānavacchedāt",
+          "meaning": "From that consciousness (ishvara)",
+          "url": "https://swamij.com/yoga-sutras-126.htm"
+        },
+        {
+          "slug": "1.27",
+          "order": 27,
+          "content": "तस्य वाचकः प्रणवः",
+          "transliteration": "tasya vācakaḥ praṇavaḥ",
+          "meaning": "The sacred word designating this",
+          "url": "https://swamij.com/yoga-sutras-127.htm"
+        },
+        {
+          "slug": "1.28",
+          "order": 28,
+          "content": "तज्जपस्तदर्थभावनम्",
+          "transliteration": "tajjapastadarthabhāvanam",
+          "meaning": "This sound is remembered with deep",
+          "url": "https://swamij.com/yoga-sutras-128.htm"
+        },
+        {
+          "slug": "1.29",
+          "order": 29,
+          "content": "ततः प्रत्यक्चेतनाधिगमोऽप्यन्तरायाभावश्च",
+          "transliteration": "tataḥ pratyakcetanādhigamo'pyantarāyābhāvaśca",
+          "meaning": "From that remembering comes the realization of the",
+          "url": "https://swamij.com/yoga-sutras-129.htm"
+        },
+        {
+          "slug": "1.30",
+          "order": 30,
+          "content": "व्याधिस्त्यानसंशयप्रमादालस्याविरति\\- भ्रान्तिदर्शनालब्धभूमिकत्वानवस्थितत्वानि चित्तविक्षेपास्तेऽन्तरायाः",
+          "transliteration": "vyādhistyānasaṃśayapramādālasyāvirati\\- bhrāntidarśanālabdhabhūmikatvānavasthitatvāni cittavikṣepāste'ntarāyāḥ",
+          "meaning": "Nine kinds of",
+          "url": "https://swamij.com/yoga-sutras-130.htm"
+        },
+        {
+          "slug": "1.31",
+          "order": 31,
+          "content": "दुःखदौर्मनस्याङ्गमेजयत्वश्वासप्रश्वासा विक्षेपसहभुवः",
+          "transliteration": "duḥkhadaurmanasyāṅgamejayatvaśvāsapraśvāsā vikṣepasahabhuvaḥ",
+          "meaning": "From these obstacles, there are four",
+          "url": "https://swamij.com/yoga-sutras-131.htm"
+        },
+        {
+          "slug": "1.32",
+          "order": 32,
+          "content": "तत्प्रतिषेधार्थमेकतत्त्वाभ्यासः",
+          "transliteration": "tatpratiṣedhārthamekatattvābhyāsaḥ",
+          "meaning": "To prevent or deal with these nine",
+          "url": "https://swamij.com/yoga-sutras-132.htm"
+        },
+        {
+          "slug": "1.33",
+          "order": 33,
+          "content": "मैत्रीकरुणामुदितोपेक्षाणां सुखदुःखपुण्यापुण्यविषयाणां भावनातश्चित्तप्रसादनम्",
+          "transliteration": "maitrīkaruṇāmuditopekṣāṇāṃ sukhaduḥkhapuṇyāpuṇyaviṣayāṇāṃ bhāvanātaścittaprasādanam",
+          "meaning": "In relationships, the mind becomes",
+          "url": "https://swamij.com/yoga-sutras-133.htm"
+        },
+        {
+          "slug": "1.34",
+          "order": 34,
+          "content": "प्रच्छर्दनविधारणाभ्यां वा प्राणस्य",
+          "transliteration": "pracchardanavidhāraṇābhyāṃ vā prāṇasya",
+          "meaning": "The mind is also calmed by",
+          "url": "https://swamij.com/yoga-sutras-134.htm"
+        },
+        {
+          "slug": "1.35",
+          "order": 35,
+          "content": "विषयवती वा प्रवृत्तिरुत्पन्ना मनसः स्थितिनिबन्धिनी",
+          "transliteration": "viṣayavatī vā pravṛttirutpannā manasaḥ sthitinibandhinī",
+          "meaning": "The inner concentration on the",
+          "url": "https://swamij.com/yoga-sutras-135.htm"
+        },
+        {
+          "slug": "1.36",
+          "order": 36,
+          "content": "विशोका वा ज्योतिष्मती",
+          "transliteration": "viśokā vā jyotiṣmatī",
+          "meaning": "Or concentration on a painless inner",
+          "url": "https://swamij.com/yoga-sutras-136.htm"
+        },
+        {
+          "slug": "1.37",
+          "order": 37,
+          "content": "वीतरागविषयं वा चित्तम्",
+          "transliteration": "vītarāgaviṣayaṃ vā cittam",
+          "meaning": "Or contemplating on having a mind",
+          "url": "https://swamij.com/yoga-sutras-137.htm"
+        },
+        {
+          "slug": "1.38",
+          "order": 38,
+          "content": "स्वप्ननिद्राज्ञानालम्बनं वा",
+          "transliteration": "svapnanidrājñānālambanaṃ vā",
+          "meaning": "Or by focusing on the nature of the",
+          "url": "https://swamij.com/yoga-sutras-138.htm"
+        },
+        {
+          "slug": "1.39",
+          "order": 39,
+          "content": "यथाभिमतध्यानाद्वा",
+          "transliteration": "yathābhimatadhyānādvā",
+          "meaning": "Or by contemplating or concentrating",
+          "url": "https://swamij.com/yoga-sutras-139.htm"
+        },
+        {
+          "slug": "1.40",
+          "order": 40,
+          "content": "परमाणु परममहत्त्वान्तोऽस्य वशीकारः",
+          "transliteration": "paramāṇu paramamahattvānto'sya vaśīkāraḥ",
+          "meaning": "When, through such practices, the mind develops the power of",
+          "url": "https://swamij.com/yoga-sutras-140.htm"
+        },
+        {
+          "slug": "1.41",
+          "order": 41,
+          "content": "क्षीणवृत्तेरभिजातस्येव मणेर्ग्रहीतृग्रहणग्राह्येषु तत्स्थतदञ्जनता समापत्तिः",
+          "transliteration": "kṣīṇavṛtterabhijātasyeva maṇergrahītṛgrahaṇagrāhyeṣu tatsthatadañjanatā samāpattiḥ",
+          "meaning": "When the modifications of mind have",
+          "url": "https://swamij.com/yoga-sutras-141.htm"
+        },
+        {
+          "slug": "1.42",
+          "order": 42,
+          "content": "तत्र शब्दार्थज्ञानविकल्पैः सङ्कीर्णा सवितर्का समापत्तिः",
+          "transliteration": "tatra śabdārthajñānavikalpaiḥ saṅkīrṇā savitarkā samāpattiḥ",
+          "meaning": "One type of such an engrossment (samapatti)",
+          "url": "https://swamij.com/yoga-sutras-142.htm"
+        },
+        {
+          "slug": "1.43",
+          "order": 43,
+          "content": "स्मृतिपरिशुद्धौ स्वरूपशून्येवार्थमात्रनिर्भासा निर्वितर्का",
+          "transliteration": "smṛtipariśuddhau svarūpaśūnyevārthamātranirbhāsā nirvitarkā",
+          "meaning": "When the memory or storehouse of",
+          "url": "https://swamij.com/yoga-sutras-143.htm"
+        },
+        {
+          "slug": "1.44",
+          "order": 44,
+          "content": "एतयैव सविचारा निर्विचारा च सूक्ष्मविषया व्याख्याता",
+          "transliteration": "etayaiva savicārā nirvicārā ca sūkṣmaviṣayā vyākhyātā",
+          "meaning": "In the same way that these",
+          "url": "https://swamij.com/yoga-sutras-144.htm"
+        },
+        {
+          "slug": "1.45",
+          "order": 45,
+          "content": "सूक्ष्मविषयत्वं चालिङ्गपर्यवसानम्",
+          "transliteration": "sūkṣmaviṣayatvaṃ cāliṅgaparyavasānam",
+          "meaning": "The province of subtle objects extends up to the unmanifest.",
+          "url": "https://swamij.com/yoga-sutras-145.htm"
+        },
+        {
+          "slug": "1.46",
+          "order": 46,
+          "content": "ता एव सबीजः समाधिः",
+          "transliteration": "tā eva sabījaḥ samādhiḥ",
+          "meaning": "These are samadhi with seed.",
+          "url": "https://swamij.com/yoga-sutras-146.htm"
+        },
+        {
+          "slug": "1.47",
+          "order": 47,
+          "content": "निर्विचारवैशारद्येऽध्यात्मप्रसादः",
+          "transliteration": "nirvicāravaiśāradye'dhyātmaprasādaḥ",
+          "meaning": "As one gains proficiency in the",
+          "url": "https://swamij.com/yoga-sutras-147.htm"
+        },
+        {
+          "slug": "1.48",
+          "order": 48,
+          "content": "ऋतम्भरा तत्र प्रज्ञा",
+          "transliteration": "ṛtambharā tatra prajñā",
+          "meaning": "The experiential knowledge that is gained in that",
+          "url": "https://swamij.com/yoga-sutras-148.htm"
+        },
+        {
+          "slug": "1.49",
+          "order": 49,
+          "content": "श्रुतानुमानप्रज्ञाभ्यामन्यविषया विशेषार्थत्वात्",
+          "transliteration": "śrutānumānaprajñābhyāmanyaviṣayā viśeṣārthatvāt",
+          "meaning": "Its scope is different from that of inference and testimony due to its specific purpose.",
+          "url": "https://swamij.com/yoga-sutras-149.htm"
+        },
+        {
+          "slug": "1.50",
+          "order": 50,
+          "content": "तज्जः संस्कारोऽन्यसंस्कारप्रतिबन्धी",
+          "transliteration": "tajjaḥ saṃskāro'nyasaṃskārapratibandhī",
+          "meaning": "This type of knowledge that is",
+          "url": "https://swamij.com/yoga-sutras-150.htm"
+        },
+        {
+          "slug": "1.51",
+          "order": 51,
+          "content": "तस्यापि निरोधे सर्वनिरोधान्निर्बीजः समाधिः",
+          "transliteration": "tasyāpi nirodhe sarvanirodhānnirbījaḥ samādhiḥ",
+          "meaning": "When even these latent impressions",
+          "url": "https://swamij.com/yoga-sutras-151.htm"
+        }
+      ]
+    },
+    {
+      "slug": "sadhana-pada",
+      "title": "Sadhana Pada",
+      "order": 2,
+      "blocks": [
+        {
+          "slug": "2.1",
+          "order": 1,
+          "content": "तपःस्वाध्यायेश्वरप्रणिधानानि क्रियायोगः",
+          "transliteration": "tapaḥsvādhyāyeśvarapraṇidhānāni kriyāyogaḥ",
+          "meaning": "Yoga in the form of action (kriya",
+          "url": "https://swamij.com/yoga-sutras-201.htm"
+        },
+        {
+          "slug": "2.2",
+          "order": 2,
+          "content": "समाधिभावनार्थः क्लेशतनूकरणार्थश्च",
+          "transliteration": "samādhibhāvanārthaḥ kleśatanūkaraṇārthaśca",
+          "meaning": "That Yoga of action (kriya yoga) is",
+          "url": "https://swamij.com/yoga-sutras-202.htm"
+        },
+        {
+          "slug": "2.3",
+          "order": 3,
+          "content": "अविद्यास्मितारागद्वेषाभिनिवेशाः क्लेशाः",
+          "transliteration": "avidyāsmitārāgadveṣābhiniveśāḥ kleśāḥ",
+          "meaning": "There are five",
+          "url": "https://swamij.com/yoga-sutras-203.htm"
+        },
+        {
+          "slug": "2.4",
+          "order": 4,
+          "content": "अविद्या क्षेत्रमुत्तरेषां प्रसुप्ततनुविच्छिन्नोदाराणाम्",
+          "transliteration": "avidyā kṣetramuttareṣāṃ prasuptatanuvicchinnodārāṇām",
+          "meaning": "The root forgetting or ignorance of",
+          "url": "https://swamij.com/yoga-sutras-204.htm"
+        },
+        {
+          "slug": "2.5",
+          "order": 5,
+          "content": "अनित्याशुचिदुःखानात्मसु नित्यशुचिसुखात्मख्यातिरविद्या",
+          "transliteration": "anityāśuciduḥkhānātmasu nityaśucisukhātmakhyātiravidyā",
+          "meaning": "Ignorance (avidya) is of four types:",
+          "url": "https://swamij.com/yoga-sutras-205.htm"
+        },
+        {
+          "slug": "2.6",
+          "order": 6,
+          "content": "दृग्दर्शनशक्त्योरेकात्मतेवास्मिता",
+          "transliteration": "dṛgdarśanaśaktyorekātmatevāsmitā",
+          "meaning": "The coloring (klesha) of I-ness or",
+          "url": "https://swamij.com/yoga-sutras-206.htm"
+        },
+        {
+          "slug": "2.7",
+          "order": 7,
+          "content": "सुखानुशयी रागः",
+          "transliteration": "sukhānuśayī rāgaḥ",
+          "meaning": "Attachment (raga) is a separate",
+          "url": "https://swamij.com/yoga-sutras-207.htm"
+        },
+        {
+          "slug": "2.8",
+          "order": 8,
+          "content": "दुःखानुशयी द्वेषः",
+          "transliteration": "duḥkhānuśayī dveṣaḥ",
+          "meaning": "Aversion (dvesha) is a modification",
+          "url": "https://swamij.com/yoga-sutras-208.htm"
+        },
+        {
+          "slug": "2.9",
+          "order": 9,
+          "content": "स्वरसवाही विदुषोऽपि तथारूढोऽभिनिवेशः",
+          "transliteration": "svarasavāhī viduṣo'pi tathārūḍho'bhiniveśaḥ",
+          "meaning": "Even for those people who are learned,",
+          "url": "https://swamij.com/yoga-sutras-209.htm"
+        },
+        {
+          "slug": "2.10",
+          "order": 10,
+          "content": "ते प्रतिप्रसवहेयाः सूक्ष्माः",
+          "transliteration": "te pratiprasavaheyāḥ sūkṣmāḥ",
+          "meaning": "When the five types of colorings (kleshas)",
+          "url": "https://swamij.com/yoga-sutras-210.htm"
+        },
+        {
+          "slug": "2.11",
+          "order": 11,
+          "content": "ध्यानहेयास्तद्वृत्तयः",
+          "transliteration": "dhyānaheyāstadvṛttayaḥ",
+          "meaning": "When the modifications still have",
+          "url": "https://swamij.com/yoga-sutras-211.htm"
+        },
+        {
+          "slug": "2.12",
+          "order": 12,
+          "content": "क्लेशमूलः कर्माशयो दृष्टादृष्टजन्मवेदनीयः",
+          "transliteration": "kleśamūlaḥ karmāśayo dṛṣṭādṛṣṭajanmavedanīyaḥ",
+          "meaning": "Latent impressions that are colored",
+          "url": "https://swamij.com/yoga-sutras-212.htm"
+        },
+        {
+          "slug": "2.13",
+          "order": 13,
+          "content": "सति मूले तद्विपाको जात्यायुर्भोगाः",
+          "transliteration": "sati mūle tadvipāko jātyāyurbhogāḥ",
+          "meaning": "As long as those colorings (kleshas) remains at the root,",
+          "url": "https://swamij.com/yoga-sutras-213.htm"
+        },
+        {
+          "slug": "2.14",
+          "order": 14,
+          "content": "ते ह्लादपरितापफलाः पुण्यापुण्यहेतुत्वात्",
+          "transliteration": "te hlādaparitāpaphalāḥ puṇyāpuṇyahetutvāt",
+          "meaning": "Because of having the nature of",
+          "url": "https://swamij.com/yoga-sutras-214.htm"
+        },
+        {
+          "slug": "2.15",
+          "order": 15,
+          "content": "परिणामतापसंस्कारदुःखैर्गुणवृत्तिविरोधाच्च दुःखमेव सर्वं विवेकिनः",
+          "transliteration": "pariṇāmatāpasaṃskāraduḥkhairguṇavṛttivirodhācca duḥkhameva sarvaṃ vivekinaḥ",
+          "meaning": "A wise, discriminating person sees",
+          "url": "https://swamij.com/yoga-sutras-215.htm"
+        },
+        {
+          "slug": "2.16",
+          "order": 16,
+          "content": "हेयं दुःखमनागतम्",
+          "transliteration": "heyaṃ duḥkhamanāgatam",
+          "meaning": "Because the worldly experiences are",
+          "url": "https://swamij.com/yoga-sutras-216.htm"
+        },
+        {
+          "slug": "2.17",
+          "order": 17,
+          "content": "द्रष्टृदृश्ययोः संयोगो हेयहेतुः",
+          "transliteration": "draṣṭṛdṛśyayoḥ saṃyogo heyahetuḥ",
+          "meaning": "The uniting of the seer (the",
+          "url": "https://swamij.com/yoga-sutras-217.htm"
+        },
+        {
+          "slug": "2.18",
+          "order": 18,
+          "content": "प्रकाशक्रियास्थितिशीलं भूतेन्द्रियात्मकं भोगापवर्गार्थं दृश्यम्",
+          "transliteration": "prakāśakriyāsthitiśīlaṃ bhūtendriyātmakaṃ bhogāpavargārthaṃ dṛśyam",
+          "meaning": "The objects (or knowables) are by",
+          "url": "https://swamij.com/yoga-sutras-218.htm"
+        },
+        {
+          "slug": "2.19",
+          "order": 19,
+          "content": "विशेषाविशेषलिङ्गमात्रालिङ्गानि गुणपर्वाणि",
+          "transliteration": "viśeṣāviśeṣaliṅgamātrāliṅgāni guṇaparvāṇi",
+          "meaning": "There are four states of the",
+          "url": "https://swamij.com/yoga-sutras-219.htm"
+        },
+        {
+          "slug": "2.20",
+          "order": 20,
+          "content": "द्रष्टा दृशिमात्रः शुद्धोऽपि प्रत्ययानुपश्यः",
+          "transliteration": "draṣṭā dṛśimātraḥ śuddho'pi pratyayānupaśyaḥ",
+          "meaning": "The seer is pure consciousness only; though pure, it sees through the coloring of the intellect.",
+          "url": "https://swamij.com/yoga-sutras-220.htm"
+        },
+        {
+          "slug": "2.21",
+          "order": 21,
+          "content": "तदर्थ एव दृश्यस्यात्मा",
+          "transliteration": "tadartha eva dṛśyasyātmā",
+          "meaning": "The nature of the seen exists only for the sake of the seer.",
+          "url": "https://swamij.com/yoga-sutras-221.htm"
+        },
+        {
+          "slug": "2.22",
+          "order": 22,
+          "content": "कृतार्थं प्रति नष्टमप्यनष्टं तदन्यसाधारणत्वात्",
+          "transliteration": "kṛtārthaṃ prati naṣṭamapyanaṣṭaṃ tadanyasādhāraṇatvāt",
+          "meaning": "Although knowable objects cease to",
+          "url": "https://swamij.com/yoga-sutras-222.htm"
+        },
+        {
+          "slug": "2.23",
+          "order": 23,
+          "content": "स्वस्वामिशक्त्योः स्वरूपोपलब्धिहेतुः संयोगः",
+          "transliteration": "svasvāmiśaktyoḥ svarūpopalabdhihetuḥ saṃyogaḥ",
+          "meaning": "The conjunction of the owner with the owned is the cause of apprehending the nature and powers of both.",
+          "url": "https://swamij.com/yoga-sutras-223.htm"
+        },
+        {
+          "slug": "2.24",
+          "order": 24,
+          "content": "तस्य हेतुरविद्या",
+          "transliteration": "tasya heturavidyā",
+          "meaning": "Avidya or ignorance (2.3-2.5), the",
+          "url": "https://swamij.com/yoga-sutras-224.htm"
+        },
+        {
+          "slug": "2.25",
+          "order": 25,
+          "content": "तदभावात् संयोगाभावो हानं तद्।ह्दृशेः कैवल्यम्",
+          "transliteration": "tadabhāvāt saṃyogābhāvo hānaṃ tad|hdṛśeḥ kaivalyam",
+          "meaning": "By causing a lack of avidya, or ignorance there is then an absence of the alliance, and this",
+          "url": "https://swamij.com/yoga-sutras-225.htm"
+        },
+        {
+          "slug": "2.26",
+          "order": 26,
+          "content": "विवेकख्यातिरविप्लवा हानोपायः",
+          "transliteration": "vivekakhyātiraviplavā hānopāyaḥ",
+          "meaning": "Clear, distinct,",
+          "url": "https://swamij.com/yoga-sutras-226.htm"
+        },
+        {
+          "slug": "2.27",
+          "order": 27,
+          "content": "तस्य सप्तधा प्रान्तभूमिः प्रज्ञा",
+          "transliteration": "tasya saptadhā prāntabhūmiḥ prajñā",
+          "meaning": "Seven kinds of ultimate insight come to",
+          "url": "https://swamij.com/yoga-sutras-227.htm"
+        },
+        {
+          "slug": "2.28",
+          "order": 28,
+          "content": "योगाङ्गानुष्ठानादशुद्धिक्षये ज्ञानदीप्तिरा विवेकख्यातेः",
+          "transliteration": "yogāṅgānuṣṭhānādaśuddhikṣaye jñānadīptirā vivekakhyāteḥ",
+          "meaning": "Through the practice of the different",
+          "url": "https://swamij.com/yoga-sutras-228.htm"
+        },
+        {
+          "slug": "2.29",
+          "order": 29,
+          "content": "यमनियमासनप्राणायामप्रत्याहारधारणाध्यानसमाधयोऽष्टावङ्गानि",
+          "transliteration": "yamaniyamāsanaprāṇāyāmapratyāhāradhāraṇādhyānasamādhayo'ṣṭāvaṅgāni",
+          "meaning": "The eight rungs, limbs, or steps",
+          "url": "https://swamij.com/yoga-sutras-229.htm"
+        },
+        {
+          "slug": "2.30",
+          "order": 30,
+          "content": "अहिंसासत्यास्तेयब्रह्मचर्यापरिग्रहा यमाः",
+          "transliteration": "ahiṃsāsatyāsteyabrahmacaryāparigrahā yamāḥ",
+          "meaning": "Non-injury or non-harming",
+          "url": "https://swamij.com/yoga-sutras-230.htm"
+        },
+        {
+          "slug": "2.31",
+          "order": 31,
+          "content": "जातिदेशकालसमयानवच्छिन्नाः सार्वभौमा महाव्रतम्",
+          "transliteration": "jātideśakālasamayānavacchinnāḥ sārvabhaumā mahāvratam",
+          "meaning": "These codes of",
+          "url": "https://swamij.com/yoga-sutras-231.htm"
+        },
+        {
+          "slug": "2.32",
+          "order": 32,
+          "content": "शौचसन्तोषतपःस्वाध्यायेश्वरप्रणिधानानि नियमाः",
+          "transliteration": "śaucasantoṣatapaḥsvādhyāyeśvarapraṇidhānāni niyamāḥ",
+          "meaning": "Cleanliness and purity of",
+          "url": "https://swamij.com/yoga-sutras-232.htm"
+        },
+        {
+          "slug": "2.33",
+          "order": 33,
+          "content": "वितर्कबाधने प्रतिपक्षभावनम्",
+          "transliteration": "vitarkabādhane pratipakṣabhāvanam",
+          "meaning": "When these codes of",
+          "url": "https://swamij.com/yoga-sutras-233.htm"
+        },
+        {
+          "slug": "2.34",
+          "order": 34,
+          "content": "वितर्का हिंसादयः कृतकारितानुमोदिता लोभक्रोधमोहपूर्वका मृदुमध्याधिमात्रा दुःखाज्ञानानन्तफला इति प्रतिपक्षभावनम्",
+          "transliteration": "vitarkā hiṃsādayaḥ kṛtakāritānumoditā lobhakrodhamohapūrvakā mṛdumadhyādhimātrā duḥkhājñānānantaphalā iti pratipakṣabhāvanam",
+          "meaning": "Actions arising out of",
+          "url": "https://swamij.com/yoga-sutras-234.htm"
+        },
+        {
+          "slug": "2.35",
+          "order": 35,
+          "content": "अहिंसाप्रतिष्ठायां तत्सन्निधौ वैरत्यागः",
+          "transliteration": "ahiṃsāpratiṣṭhāyāṃ tatsannidhau vairatyāgaḥ",
+          "meaning": "As a Yogi becomes",
+          "url": "https://swamij.com/yoga-sutras-235.htm"
+        },
+        {
+          "slug": "2.36",
+          "order": 36,
+          "content": "सत्यप्रतिष्ठायां क्रियाफलाश्रयत्वम्",
+          "transliteration": "satyapratiṣṭhāyāṃ kriyāphalāśrayatvam",
+          "meaning": "As truthfulness (satya)",
+          "url": "https://swamij.com/yoga-sutras-236.htm"
+        },
+        {
+          "slug": "2.37",
+          "order": 37,
+          "content": "अस्तेयप्रतिष्ठायां सर्वरत्नोपस्थानम्",
+          "transliteration": "asteyapratiṣṭhāyāṃ sarvaratnopasthānam",
+          "meaning": "When non-stealing",
+          "url": "https://swamij.com/yoga-sutras-237.htm"
+        },
+        {
+          "slug": "2.38",
+          "order": 38,
+          "content": "ब्रह्मचर्यप्रतिष्ठायां वीर्यलाभः",
+          "transliteration": "brahmacaryapratiṣṭhāyāṃ vīryalābhaḥ",
+          "meaning": "When walking in the",
+          "url": "https://swamij.com/yoga-sutras-238.htm"
+        },
+        {
+          "slug": "2.39",
+          "order": 39,
+          "content": "अपरिग्रहस्थैर्ये जन्मकथन्तासम्बोधः",
+          "transliteration": "aparigrahasthairye janmakathantāsambodhaḥ",
+          "meaning": "When one is steadfast in",
+          "url": "https://swamij.com/yoga-sutras-239.htm"
+        },
+        {
+          "slug": "2.40",
+          "order": 40,
+          "content": "शौचात् स्वाङ्गजुगुप्सा परैरसंसर्गः",
+          "transliteration": "śaucāt svāṅgajugupsā parairasaṃsargaḥ",
+          "meaning": "Through cleanliness and",
+          "url": "https://swamij.com/yoga-sutras-240.htm"
+        },
+        {
+          "slug": "2.41",
+          "order": 41,
+          "content": "सत्त्वशुद्धिसौमनस्यैकाग्र्येन्द्रियजयात्मदर्शनयोग्यत्वानि च",
+          "transliteration": "sattvaśuddhisaumanasyaikāgryendriyajayātmadarśanayogyatvāni ca",
+          "meaning": "Also through",
+          "url": "https://swamij.com/yoga-sutras-241.htm"
+        },
+        {
+          "slug": "2.42",
+          "order": 42,
+          "content": "सन्तोषादनुत्तमसुखलाभः",
+          "transliteration": "santoṣādanuttamasukhalābhaḥ",
+          "meaning": "From an attitude of contentment",
+          "url": "https://swamij.com/yoga-sutras-242.htm"
+        },
+        {
+          "slug": "2.43",
+          "order": 43,
+          "content": "कायेन्द्रियसिद्धिरशुद्धिक्षयात् तपसः",
+          "transliteration": "kāyendriyasiddhiraśuddhikṣayāt tapasaḥ",
+          "meaning": "Through ascesis or",
+          "url": "https://swamij.com/yoga-sutras-243.htm"
+        },
+        {
+          "slug": "2.44",
+          "order": 44,
+          "content": "स्वाध्यायाद् इष्टदेवतासम्प्रयोगः",
+          "transliteration": "svādhyāyād iṣṭadevatāsamprayogaḥ",
+          "meaning": "From self-study and",
+          "url": "https://swamij.com/yoga-sutras-244.htm"
+        },
+        {
+          "slug": "2.45",
+          "order": 45,
+          "content": "समाधिसिद्धिरीश्वरप्रणिधानात्",
+          "transliteration": "samādhisiddhirīśvarapraṇidhānāt",
+          "meaning": "From an attitude of",
+          "url": "https://swamij.com/yoga-sutras-245.htm"
+        },
+        {
+          "slug": "2.46",
+          "order": 46,
+          "content": "स्थिरसुखम् आसनम्",
+          "transliteration": "sthirasukham āsanam",
+          "meaning": "The posture (asana) for",
+          "url": "https://swamij.com/yoga-sutras-246.htm"
+        },
+        {
+          "slug": "2.47",
+          "order": 47,
+          "content": "प्रयत्नशैथिल्यानन्तसमापत्तिभ्याम्",
+          "transliteration": "prayatnaśaithilyānantasamāpattibhyām",
+          "meaning": "The means of perfecting",
+          "url": "https://swamij.com/yoga-sutras-247.htm"
+        },
+        {
+          "slug": "2.48",
+          "order": 48,
+          "content": "ततो द्वन्द्वानभिघातः",
+          "transliteration": "tato dvandvānabhighātaḥ",
+          "meaning": "From the attainment of",
+          "url": "https://swamij.com/yoga-sutras-248.htm"
+        },
+        {
+          "slug": "2.49",
+          "order": 49,
+          "content": "तस्मिन्सति श्वासप्रश्वासयोर्गतिविच्छेदः प्राणायामः",
+          "transliteration": "tasminsati śvāsapraśvāsayorgativicchedaḥ prāṇāyāmaḥ",
+          "meaning": "Once that perfected",
+          "url": "https://swamij.com/yoga-sutras-249.htm"
+        },
+        {
+          "slug": "2.50",
+          "order": 50,
+          "content": "बाह्याभ्यन्तरस्तम्भवृत्तिर्देशकालसङ्ख्याभिः परिदृष्टो दीर्घसूक्ष्मः",
+          "transliteration": "bāhyābhyantarastambhavṛttirdeśakālasaṅkhyābhiḥ paridṛṣṭo dīrghasūkṣmaḥ",
+          "meaning": "That pranayama has three",
+          "url": "https://swamij.com/yoga-sutras-250.htm"
+        },
+        {
+          "slug": "2.51",
+          "order": 51,
+          "content": "बाह्याभ्यन्तरविषयाक्षेपी चतुर्थः",
+          "transliteration": "bāhyābhyantaraviṣayākṣepī caturthaḥ",
+          "meaning": "The fourth pranayama is",
+          "url": "https://swamij.com/yoga-sutras-251.htm"
+        },
+        {
+          "slug": "2.52",
+          "order": 52,
+          "content": "ततः क्षीयते प्रकाशावरणम्",
+          "transliteration": "tataḥ kṣīyate prakāśāvaraṇam",
+          "meaning": "Through that pranayama",
+          "url": "https://swamij.com/yoga-sutras-252.htm"
+        },
+        {
+          "slug": "2.53",
+          "order": 53,
+          "content": "धारणासु च योग्यता मनसः",
+          "transliteration": "dhāraṇāsu ca yogyatā manasaḥ",
+          "meaning": "Through these practices",
+          "url": "https://swamij.com/yoga-sutras-253.htm"
+        },
+        {
+          "slug": "2.54",
+          "order": 54,
+          "content": "स्वविषयासम्प्रयोगे चित्तस्वरूपानुकार इवेन्द्रियाणां प्रत्याहारः",
+          "transliteration": "svaviṣayāsamprayoge cittasvarūpānukāra ivendriyāṇāṃ pratyāhāraḥ",
+          "meaning": "When the mental",
+          "url": "https://swamij.com/yoga-sutras-254.htm"
+        },
+        {
+          "slug": "2.55",
+          "order": 55,
+          "content": "ततः परमा वश्यतेन्द्रियाणाम्",
+          "transliteration": "tataḥ paramā vaśyatendriyāṇām",
+          "meaning": "Through that turning",
+          "url": "https://swamij.com/yoga-sutras-255.htm"
+        }
+      ]
+    },
+    {
+      "slug": "vibhuti-pada",
+      "title": "Vibhuti Pada",
+      "order": 3,
+      "blocks": [
+        {
+          "slug": "3.1",
+          "order": 1,
+          "content": "देशबन्धश्चित्तस्य धारणा",
+          "transliteration": "deśabandhaścittasya dhāraṇā",
+          "meaning": "Concentration",
+          "url": "https://swamij.com/yoga-sutras-301.htm"
+        },
+        {
+          "slug": "3.2",
+          "order": 2,
+          "content": "तत्र प्रत्ययैकतानता ध्यानम्",
+          "transliteration": "tatra pratyayaikatānatā dhyānam",
+          "meaning": "The repeated continuation,",
+          "url": "https://swamij.com/yoga-sutras-302.htm"
+        },
+        {
+          "slug": "3.3",
+          "order": 3,
+          "content": "तदेवार्थमात्रनिर्भासं स्वरूपशून्यमिव समाधिः",
+          "transliteration": "tadevārthamātranirbhāsaṃ svarūpaśūnyamiva samādhiḥ",
+          "meaning": "Samadhi is when only the object shines forth, as if empty of its own form.",
+          "url": "https://swamij.com/yoga-sutras-303.htm"
+        },
+        {
+          "slug": "3.4",
+          "order": 4,
+          "content": "त्रयमेकत्र संयमः",
+          "transliteration": "trayamekatra saṃyamaḥ",
+          "meaning": "The three processes of",
+          "url": "https://swamij.com/yoga-sutras-304.htm"
+        },
+        {
+          "slug": "3.5",
+          "order": 5,
+          "content": "तज्जयात्प्रज्ञालोकः",
+          "transliteration": "tajjayātprajñālokaḥ",
+          "meaning": "Through the mastery of that",
+          "url": "https://swamij.com/yoga-sutras-305.htm"
+        },
+        {
+          "slug": "3.6",
+          "order": 6,
+          "content": "तस्य भूमिषु विनियोगः",
+          "transliteration": "tasya bhūmiṣu viniyogaḥ",
+          "meaning": "That three-part process",
+          "url": "https://swamij.com/yoga-sutras-306.htm"
+        },
+        {
+          "slug": "3.7",
+          "order": 7,
+          "content": "त्रयमन्तरङ्गं पूर्वेभ्यः",
+          "transliteration": "trayamantaraṅgaṃ pūrvebhyaḥ",
+          "meaning": "These three practices of",
+          "url": "https://swamij.com/yoga-sutras-307.htm"
+        },
+        {
+          "slug": "3.8",
+          "order": 8,
+          "content": "तदपि बहिरङ्गं निर्बीजस्य",
+          "transliteration": "tadapi bahiraṅgaṃ nirbījasya",
+          "meaning": "However, these three",
+          "url": "https://swamij.com/yoga-sutras-308.htm"
+        },
+        {
+          "slug": "3.9",
+          "order": 9,
+          "content": "व्युत्थाननिरोधसंस्कारयोरभिभवप्रादुर्भावौ निरोधक्षणचित्तान्वयो निरोधपरिणामः",
+          "transliteration": "vyutthānanirodhasaṃskārayorabhibhavaprādurbhāvau nirodhakṣaṇacittānvayo nirodhapariṇāmaḥ",
+          "meaning": "The transformation of control is the emergence of control impressions and the subsidence of emergence impressions.",
+          "url": "https://swamij.com/yoga-sutras-309.htm"
+        },
+        {
+          "slug": "3.10",
+          "order": 10,
+          "content": "तस्य प्रशान्तवाहिता संस्कारात्",
+          "transliteration": "tasya praśāntavāhitā saṃskārāt",
+          "meaning": "Its peaceful flow comes from impression.",
+          "url": "https://swamij.com/yoga-sutras-310.htm"
+        },
+        {
+          "slug": "3.11",
+          "order": 11,
+          "content": "सर्वार्थतैकाग्रतयोः क्षयोदयौ चित्तस्य समाधिपरिणामः",
+          "transliteration": "sarvārthataikāgratayoḥ kṣayodayau cittasya samādhipariṇāmaḥ",
+          "meaning": "The transformation of samadhi is the decline of scattered attention and the rise of one-pointedness.",
+          "url": "https://swamij.com/yoga-sutras-311.htm"
+        },
+        {
+          "slug": "3.12",
+          "order": 12,
+          "content": "ततः पुनः शान्तोदितौ तुल्यप्रत्ययौ चित्तस्यैकाग्रतापरिणामः",
+          "transliteration": "tataḥ punaḥ śāntoditau tulyapratyayau cittasyaikāgratāpariṇāmaḥ",
+          "meaning": "The transformation of one-pointedness is when subsiding and arising impressions are equal.",
+          "url": "https://swamij.com/yoga-sutras-312.htm"
+        },
+        {
+          "slug": "3.13",
+          "order": 13,
+          "content": "एतेन भूतेन्द्रियेषु धर्मलक्षणावस्थापरिणामा व्याख्याताः",
+          "transliteration": "etena bhūtendriyeṣu dharmalakṣaṇāvasthāpariṇāmā vyākhyātāḥ",
+          "meaning": "By this, the transformations of property, character, and condition in elements and senses are explained.",
+          "url": "https://swamij.com/yoga-sutras-313.htm"
+        },
+        {
+          "slug": "3.14",
+          "order": 14,
+          "content": "शान्तोदिताव्यपदेश्यधर्मानुपाती धर्मी",
+          "transliteration": "śāntoditāvyapadeśyadharmānupātī dharmī",
+          "meaning": "The substratum is that which runs through the past, present, and future properties.",
+          "url": "https://swamij.com/yoga-sutras-314.htm"
+        },
+        {
+          "slug": "3.15",
+          "order": 15,
+          "content": "क्रमान्यत्वं परिणामान्यत्वे हेतुः",
+          "transliteration": "kramānyatvaṃ pariṇāmānyatve hetuḥ",
+          "meaning": "Difference in sequence is the cause of different transformations.",
+          "url": "https://swamij.com/yoga-sutras-315.htm"
+        },
+        {
+          "slug": "3.16",
+          "order": 16,
+          "content": "परिणामत्रयसंयमाद् अतीतानागतज्ञानम्",
+          "transliteration": "pariṇāmatrayasaṃyamād atītānāgatajñānam",
+          "meaning": "By samyama on the three transformations comes knowledge of past and future.",
+          "url": "https://swamij.com/yoga-sutras-316.htm"
+        },
+        {
+          "slug": "3.17",
+          "order": 17,
+          "content": "शब्दार्थप्रत्ययानामितरेतराध्यासात् सङ्करस्तत्प्रविभागसंयमात्सर्वभूतरुतज्ञानम्",
+          "transliteration": "śabdārthapratyayānāmitaretarādhyāsāt saṅkarastatpravibhāgasaṃyamātsarvabhūtarutajñānam",
+          "meaning": "Word, meaning, and idea are normally confused; by samyama on their distinction comes knowledge of all sounds.",
+          "url": "https://swamij.com/yoga-sutras-317.htm"
+        },
+        {
+          "slug": "3.18",
+          "order": 18,
+          "content": "संस्कारसाक्षात्करणात्पूर्वजातिज्ञानम्",
+          "transliteration": "saṃskārasākṣātkaraṇātpūrvajātijñānam",
+          "meaning": "By bringing latent impressions to consciousness comes knowledge of previous births.",
+          "url": "https://swamij.com/yoga-sutras-318.htm"
+        },
+        {
+          "slug": "3.19",
+          "order": 19,
+          "content": "प्रत्ययस्य परचित्तज्ञानम्",
+          "transliteration": "pratyayasya paracittajñānam",
+          "meaning": "From samyama on another's mind comes knowledge of their thoughts.",
+          "url": "https://swamij.com/yoga-sutras-319.htm"
+        },
+        {
+          "slug": "3.20",
+          "order": 20,
+          "content": "न च तत्सालम्बनं तस्याविषयीभूतत्वात्",
+          "transliteration": "na ca tatsālambanaṃ tasyāviṣayībhūtatvāt",
+          "meaning": "But not of the underlying basis, as that is not the object of samyama.",
+          "url": "https://swamij.com/yoga-sutras-320.htm"
+        },
+        {
+          "slug": "3.21",
+          "order": 21,
+          "content": "कायरूपसंयमात्तद्ग्राह्यशक्तिस्तम्भे चक्षुःप्रकाशासम्प्रयोगेऽन्तर्धानम्",
+          "transliteration": "kāyarūpasaṃyamāttadgrāhyaśaktistambhe cakṣuḥprakāśāsamprayoge'ntardhānam",
+          "meaning": "By samyama on the form of the body, when its visibility is suspended, there is invisibility.",
+          "url": "https://swamij.com/yoga-sutras-321.htm"
+        },
+        {
+          "slug": "3.22",
+          "order": 22,
+          "content": "सोपक्रमं निरुपक्रमं च कर्म तत्संयमादपरान्तज्ञानमरिष्टेभ्यो वा",
+          "transliteration": "sopakramaṃ nirupakramaṃ ca karma tatsaṃyamādaparāntajñānamariṣṭebhyo vā",
+          "meaning": "Similarly, disappearance of sound and other senses.",
+          "url": "https://swamij.com/yoga-sutras-322.htm"
+        },
+        {
+          "slug": "3.23",
+          "order": 23,
+          "content": "मैत्र्यादिषु बलानि",
+          "transliteration": "maitryādiṣu balāni",
+          "meaning": "Karma is fast or slow; by samyama on it, or on omens, comes knowledge of death.",
+          "url": "https://swamij.com/yoga-sutras-323.htm"
+        },
+        {
+          "slug": "3.24",
+          "order": 24,
+          "content": "बलेषु हस्तिबलादीनि",
+          "transliteration": "baleṣu hastibalādīni",
+          "meaning": "By samyama on friendliness, etc., those powers arise.",
+          "url": "https://swamij.com/yoga-sutras-324.htm"
+        },
+        {
+          "slug": "3.25",
+          "order": 25,
+          "content": "प्रवृत्त्यालोकन्यासात्सूक्ष्मव्यवहितविप्रकृष्टज्ञानम्",
+          "transliteration": "pravṛttyālokanyāsātsūkṣmavyavahitaviprakṛṣṭajñānam",
+          "meaning": "By samyama on strength, the strength of an elephant, etc.",
+          "url": "https://swamij.com/yoga-sutras-325.htm"
+        },
+        {
+          "slug": "3.26",
+          "order": 26,
+          "content": "भुवनज्ञानं सूर्ये संयमात्",
+          "transliteration": "bhuvanajñānaṃ sūrye saṃyamāt",
+          "meaning": "By directing the light of superphysical perception, knowledge of the subtle, hidden, and distant arises.",
+          "url": "https://swamij.com/yoga-sutras-326.htm"
+        },
+        {
+          "slug": "3.27",
+          "order": 27,
+          "content": "चन्द्रे ताराव्यूहज्ञानम्",
+          "transliteration": "candre tārāvyūhajñānam",
+          "meaning": "By samyama on the sun, knowledge of the worlds.",
+          "url": "https://swamij.com/yoga-sutras-327.htm"
+        },
+        {
+          "slug": "3.28",
+          "order": 28,
+          "content": "ध्रुवे तद्गतिज्ञानम्",
+          "transliteration": "dhruve tadgatijñānam",
+          "meaning": "On the moon, knowledge of the arrangement of stars.",
+          "url": "https://swamij.com/yoga-sutras-328.htm"
+        },
+        {
+          "slug": "3.29",
+          "order": 29,
+          "content": "नाभिचक्रे कायव्यूहज्ञानम्",
+          "transliteration": "nābhicakre kāyavyūhajñānam",
+          "meaning": "On the pole star, knowledge of their movements.",
+          "url": "https://swamij.com/yoga-sutras-329.htm"
+        },
+        {
+          "slug": "3.30",
+          "order": 30,
+          "content": "कण्ठकूपे क्षुत्पिपासानिवृत्तिः",
+          "transliteration": "kaṇṭhakūpe kṣutpipāsānivṛttiḥ",
+          "meaning": "On the navel center, knowledge of the body's arrangement.",
+          "url": "https://swamij.com/yoga-sutras-330.htm"
+        },
+        {
+          "slug": "3.31",
+          "order": 31,
+          "content": "कूर्मनाड्यां स्थैर्यम्",
+          "transliteration": "kūrmanāḍyāṃ sthairyam",
+          "meaning": "On the throat pit, cessation of hunger and thirst.",
+          "url": "https://swamij.com/yoga-sutras-331.htm"
+        },
+        {
+          "slug": "3.32",
+          "order": 32,
+          "content": "मूर्धज्योतिषि सिद्धदर्शनम्",
+          "transliteration": "mūrdhajyotiṣi siddhadarśanam",
+          "meaning": "On the kurma nadi, steadiness.",
+          "url": "https://swamij.com/yoga-sutras-332.htm"
+        },
+        {
+          "slug": "3.33",
+          "order": 33,
+          "content": "प्रातिभाद्वा सर्वम्",
+          "transliteration": "prātibhādvā sarvam",
+          "meaning": "On the light at the crown of the head, vision of the perfected ones.",
+          "url": "https://swamij.com/yoga-sutras-333.htm"
+        },
+        {
+          "slug": "3.34",
+          "order": 34,
+          "content": "हृदये चित्तसंवित्",
+          "transliteration": "hṛdaye cittasaṃvit",
+          "meaning": "Or from intuitive illumination, all knowledge.",
+          "url": "https://swamij.com/yoga-sutras-334.htm"
+        },
+        {
+          "slug": "3.35",
+          "order": 35,
+          "content": "सत्त्वपुरुषयोरत्यन्तासङ्कीर्णयोः प्रत्ययाविशेषो भोगः परार्थत्वात्स्वार्थसंयमात्पुरुषज्ञानम्",
+          "transliteration": "sattvapuruṣayoratyantāsaṅkīrṇayoḥ pratyayāviśeṣo bhogaḥ parārthatvātsvārthasaṃyamātpuruṣajñānam",
+          "meaning": "On the heart, understanding of the mind.",
+          "url": "https://swamij.com/yoga-sutras-335.htm"
+        },
+        {
+          "slug": "3.36",
+          "order": 36,
+          "content": "ततः प्रातिभश्रावणवेदनादर्शास्वादवार्ता जायन्ते",
+          "transliteration": "tataḥ prātibhaśrāvaṇavedanādarśāsvādavārtā jāyante",
+          "meaning": "Experience arises from non-distinction between purusha and sattva, which are absolutely different. By samyama on self-interest vs. interest in the Self, comes knowledge of purusha.",
+          "url": "https://swamij.com/yoga-sutras-336.htm"
+        },
+        {
+          "slug": "3.37",
+          "order": 37,
+          "content": "ते समाधावुपसर्गा व्युत्थाने सिद्धयः",
+          "transliteration": "te samādhāvupasargā vyutthāne siddhayaḥ",
+          "meaning": "From that arise intuitive hearing, touching, seeing, tasting, and smelling.",
+          "url": "https://swamij.com/yoga-sutras-337.htm"
+        },
+        {
+          "slug": "3.38",
+          "order": 38,
+          "content": "बन्धकारणशैथिल्यात्प्रचारसंवेदनाच्च चित्तस्य परशरीरावेशः",
+          "transliteration": "bandhakāraṇaśaithilyātpracārasaṃvedanācca cittasya paraśarīrāveśaḥ",
+          "meaning": "These are obstacles to samadhi but accomplishments in the worldly state.",
+          "url": "https://swamij.com/yoga-sutras-338.htm"
+        },
+        {
+          "slug": "3.39",
+          "order": 39,
+          "content": "उदानजयाज्जलपङ्ककण्टकादिष्वसङ्ग उत्क्रान्तिश्च",
+          "transliteration": "udānajayājjalapaṅkakaṇṭakādiṣvasaṅga utkrāntiśca",
+          "meaning": "By loosening the cause of bondage and knowing the passages, the mind enters another's body.",
+          "url": "https://swamij.com/yoga-sutras-339.htm"
+        },
+        {
+          "slug": "3.40",
+          "order": 40,
+          "content": "समानजयाज्ज्वलनम्",
+          "transliteration": "samānajayājjvalanam",
+          "meaning": "By mastery over udana, there is non-contact with water, mud, thorns, etc., and rising above.",
+          "url": "https://swamij.com/yoga-sutras-340.htm"
+        },
+        {
+          "slug": "3.41",
+          "order": 41,
+          "content": "(समानजयात्प्रज्वलनम्) श्रोत्राकाशयोः सम्बन्धसंयमाद्दिव्यं श्रोत्रम्",
+          "transliteration": "(samānajayātprajvalanam) śrotrākāśayoḥ sambandhasaṃyamāddivyaṃ śrotram",
+          "meaning": "By mastery over samana, blazing radiance.",
+          "url": "https://swamij.com/yoga-sutras-341.htm"
+        },
+        {
+          "slug": "3.42",
+          "order": 42,
+          "content": "कायाकाशयोः सम्बन्धसंयमाल्लघुतूल\\- समापत्तेश्चाकाशगमनम्",
+          "transliteration": "kāyākāśayoḥ sambandhasaṃyamāllaghutūla\\- samāpatteścākāśagamanam",
+          "meaning": "By samyama on the relation between ear and space, divine hearing.",
+          "url": "https://swamij.com/yoga-sutras-342.htm"
+        },
+        {
+          "slug": "3.43",
+          "order": 43,
+          "content": "बहिरकल्पिता वृत्तिर्महाविदेहा ततः प्रकाशावरणक्षयः",
+          "transliteration": "bahirakalpitā vṛttirmahāvidehā tataḥ prakāśāvaraṇakṣayaḥ",
+          "meaning": "By samyama on the relation between body and space, and by absorption in lightness, passage through space.",
+          "url": "https://swamij.com/yoga-sutras-343.htm"
+        },
+        {
+          "slug": "3.44",
+          "order": 44,
+          "content": "स्थूलस्वरूपसूक्ष्मान्वयार्थवत्त्वसंयमाद्।ह्भूतजयः",
+          "transliteration": "sthūlasvarūpasūkṣmānvayārthavattvasaṃyamād|hbhūtajayaḥ",
+          "meaning": "The external, unfancied modification is the great disembodied; from that, the covering of light disappears.",
+          "url": "https://swamij.com/yoga-sutras-344.htm"
+        },
+        {
+          "slug": "3.45",
+          "order": 45,
+          "content": "ततोऽणिमादिप्रादुर्भावः कायसम्पत्तद्धर्मानभिघातश्च",
+          "transliteration": "tato'ṇimādiprādurbhāvaḥ kāyasampattaddharmānabhighātaśca",
+          "meaning": "By samyama on the gross, essential nature, subtle, interconnection, and purpose of elements, mastery over them.",
+          "url": "https://swamij.com/yoga-sutras-345.htm"
+        },
+        {
+          "slug": "3.46",
+          "order": 46,
+          "content": "रूपलावण्यबलवज्रसंहननत्वानि कायसम्पत्",
+          "transliteration": "rūpalāvaṇyabalavajrasaṃhananatvāni kāyasampat",
+          "meaning": "From that comes minuteness, etc., perfection of body, and non-obstruction of its functions.",
+          "url": "https://swamij.com/yoga-sutras-346.htm"
+        },
+        {
+          "slug": "3.47",
+          "order": 47,
+          "content": "ग्रहणस्वरूपास्मितान्वयार्थवत्त्वसंयमादिन्द्रियजयः",
+          "transliteration": "grahaṇasvarūpāsmitānvayārthavattvasaṃyamādindriyajayaḥ",
+          "meaning": "Perfection of body is beauty, grace, strength, and adamantine hardness.",
+          "url": "https://swamij.com/yoga-sutras-347.htm"
+        },
+        {
+          "slug": "3.48",
+          "order": 48,
+          "content": "ततो मनोजवित्वं विकरणभावः प्रधानजयश्च",
+          "transliteration": "tato manojavitvaṃ vikaraṇabhāvaḥ pradhānajayaśca",
+          "meaning": "By samyama on grasping, essential nature, I-am-ness, interconnection, and purpose, mastery over the senses.",
+          "url": "https://swamij.com/yoga-sutras-348.htm"
+        },
+        {
+          "slug": "3.49",
+          "order": 49,
+          "content": "सत्त्वपुरुषान्यताख्यातिमात्रस्य सर्वभावाधिष्ठातृत्वं सर्वज्ञातृत्वं च",
+          "transliteration": "sattvapuruṣānyatākhyātimātrasya sarvabhāvādhiṣṭhātṛtvaṃ sarvajñātṛtvaṃ ca",
+          "meaning": "From that, swiftness of mind, perception without instruments, and mastery over prakriti.",
+          "url": "https://swamij.com/yoga-sutras-349.htm"
+        },
+        {
+          "slug": "3.50",
+          "order": 50,
+          "content": "तद्वैराग्यादपि दोषबीजक्षये कैवल्यम्",
+          "transliteration": "tadvairāgyādapi doṣabījakṣaye kaivalyam",
+          "meaning": "Only from discernment of the difference between sattva and purusha comes sovereignty over all states and omniscience.",
+          "url": "https://swamij.com/yoga-sutras-350.htm"
+        },
+        {
+          "slug": "3.51",
+          "order": 51,
+          "content": "स्थान्युपनिमन्त्रणे सङ्गस्मयाकरणं पुनरनिष्टप्रसङ्गात्",
+          "transliteration": "sthānyupanimantraṇe saṅgasmayākaraṇaṃ punaraniṣṭaprasaṅgāt",
+          "meaning": "By non-attachment even to that, the seed of bondage is destroyed, and kaivalya results.",
+          "url": "https://swamij.com/yoga-sutras-351.htm"
+        },
+        {
+          "slug": "3.52",
+          "order": 52,
+          "content": "क्षणतत्क्रमयोः संयमाद्विवेकजं ज्ञानम्",
+          "transliteration": "kṣaṇatatkramayoḥ saṃyamādvivekajaṃ jñānam",
+          "meaning": "There should be no pride or attachment upon invitation by celestials, for undesirable consequences may recur.",
+          "url": "https://swamij.com/yoga-sutras-352.htm"
+        },
+        {
+          "slug": "3.53",
+          "order": 53,
+          "content": "जातिलक्षणदेशैरन्यतानवच्छेदात् तुल्ययोस्ततः प्रतिपत्तिः",
+          "transliteration": "jātilakṣaṇadeśairanyatānavacchedāt tulyayostataḥ pratipattiḥ",
+          "meaning": "By samyama on moment and its succession comes wisdom born of discrimination.",
+          "url": "https://swamij.com/yoga-sutras-353.htm"
+        },
+        {
+          "slug": "3.54",
+          "order": 54,
+          "content": "तारकं सर्वविषयं सर्वथाविषयमक्रमञ्चेति विवेकजं ज्ञानम्",
+          "transliteration": "tārakaṃ sarvaviṣayaṃ sarvathāviṣayamakramañceti vivekajaṃ jñānam",
+          "meaning": "From that comes discernment of two similar things not distinguishable by class, character, or position.",
+          "url": "https://swamij.com/yoga-sutras-354.htm"
+        },
+        {
+          "slug": "3.55",
+          "order": 55,
+          "content": "सत्त्वपुरुषयोः शुद्धिसाम्ये कैवल्यमिति",
+          "transliteration": "sattvapuruṣayoḥ śuddhisāmye kaivalyamiti",
+          "meaning": "Discriminative wisdom is liberating, encompasses all objects and all times, and is non-sequential.",
+          "url": "https://swamij.com/yoga-sutras-355.htm"
+        },
+        {
+          "slug": "3.56",
+          "order": 56,
+          "content": "",
+          "transliteration": "",
+          "meaning": "When sattva and purusha are equally pure, there is kaivalya.",
+          "url": "https://swamij.com/yoga-sutras-356.htm"
+        }
+      ]
+    },
+    {
+      "slug": "kaivalya-pada",
+      "title": "Kaivalya Pada",
+      "order": 4,
+      "blocks": [
+        {
+          "slug": "4.1",
+          "order": 1,
+          "content": "जन्मौषधिमन्त्रतपःसमाधिजाः सिद्धयः",
+          "transliteration": "janmauṣadhimantratapaḥsamādhijāḥ siddhayaḥ",
+          "meaning": "The subtler attainments",
+          "url": "https://swamij.com/yoga-sutras-401.htm"
+        },
+        {
+          "slug": "4.2",
+          "order": 2,
+          "content": "जात्यन्तरपरिणामः प्रकृत्यापूरात्",
+          "transliteration": "jātyantarapariṇāmaḥ prakṛtyāpūrāt",
+          "meaning": "The transition or",
+          "url": "https://swamij.com/yoga-sutras-402.htm"
+        },
+        {
+          "slug": "4.3",
+          "order": 3,
+          "content": "निमित्तमप्रयोजकं प्रकृतीनां वरणभेदस्तु ततः क्षेत्रिकवत्",
+          "transliteration": "nimittamaprayojakaṃ prakṛtīnāṃ varaṇabhedastu tataḥ kṣetrikavat",
+          "meaning": "The incidental cause does not move the natural tendencies; it merely removes obstacles, like a farmer.",
+          "url": "https://swamij.com/yoga-sutras-403.htm"
+        },
+        {
+          "slug": "4.4",
+          "order": 4,
+          "content": "निर्माणचित्तान्यस्मितामात्रात्",
+          "transliteration": "nirmāṇacittānyasmitāmātrāt",
+          "meaning": "Created minds arise from ego alone.",
+          "url": "https://swamij.com/yoga-sutras-404.htm"
+        },
+        {
+          "slug": "4.5",
+          "order": 5,
+          "content": "प्रवृत्तिभेदे प्रयोजकं चित्तमेकमनेकेषाम्",
+          "transliteration": "pravṛttibhede prayojakaṃ cittamekamanekeṣām",
+          "meaning": "One mind directs the many in their various activities.",
+          "url": "https://swamij.com/yoga-sutras-405.htm"
+        },
+        {
+          "slug": "4.6",
+          "order": 6,
+          "content": "तत्र ध्यानजमनाशयम्",
+          "transliteration": "tatra dhyānajamanāśayam",
+          "meaning": "Of these, the one born of meditation is free from impressions.",
+          "url": "https://swamij.com/yoga-sutras-406.htm"
+        },
+        {
+          "slug": "4.7",
+          "order": 7,
+          "content": "कर्माशुक्लाकृष्णं योगिनस्त्रिविधमितरेषाम्",
+          "transliteration": "karmāśuklākṛṣṇaṃ yoginastrividhamitareṣām",
+          "meaning": "The karma of a yogi is neither white nor black; of others, it is threefold.",
+          "url": "https://swamij.com/yoga-sutras-407.htm"
+        },
+        {
+          "slug": "4.8",
+          "order": 8,
+          "content": "ततस्तद्विपाकानुगुणानामेवाभिव्यक्तिर्वासनानाम्",
+          "transliteration": "tatastadvipākānuguṇānāmevābhivyaktirvāsanānām",
+          "meaning": "From that, only those tendencies manifest for which conditions are favorable.",
+          "url": "https://swamij.com/yoga-sutras-408.htm"
+        },
+        {
+          "slug": "4.9",
+          "order": 9,
+          "content": "जातिदेशकालव्यवहितानामप्यानन्तर्यं स्मृतिसंस्कारयोरेकरूपत्वात्",
+          "transliteration": "jātideśakālavyavahitānāmapyānantaryaṃ smṛtisaṃskārayorekarūpatvāt",
+          "meaning": "Memory and impressions are of the same form, so there is continuity even when separated by birth, place, and time.",
+          "url": "https://swamij.com/yoga-sutras-409.htm"
+        },
+        {
+          "slug": "4.10",
+          "order": 10,
+          "content": "तासामनादित्वं चाशिषो नित्यत्वात्",
+          "transliteration": "tāsāmanāditvaṃ cāśiṣo nityatvāt",
+          "meaning": "They are without beginning, due to the perpetuity of desire.",
+          "url": "https://swamij.com/yoga-sutras-410.htm"
+        },
+        {
+          "slug": "4.11",
+          "order": 11,
+          "content": "हेतुफलाश्रयालम्बनैः सङ्गृहीतत्वादेषामभावे तदभावः",
+          "transliteration": "hetuphalāśrayālambanaiḥ saṅgṛhītatvādeṣāmabhāve tadabhāvaḥ",
+          "meaning": "Being held together by cause, result, support, and object, they cease when those cease.",
+          "url": "https://swamij.com/yoga-sutras-411.htm"
+        },
+        {
+          "slug": "4.12",
+          "order": 12,
+          "content": "अतीतानागतं स्वरूपतोऽस्त्यध्वभेदाद्धर्माणाम्",
+          "transliteration": "atītānāgataṃ svarūpato'styadhvabhedāddharmāṇām",
+          "meaning": "Past and future exist in reality, in different forms according to the paths of properties.",
+          "url": "https://swamij.com/yoga-sutras-412.htm"
+        },
+        {
+          "slug": "4.13",
+          "order": 13,
+          "content": "ते व्यक्तसूक्ष्मा गुणात्मानः",
+          "transliteration": "te vyaktasūkṣmā guṇātmānaḥ",
+          "meaning": "They are manifest or subtle according to the nature of the gunas.",
+          "url": "https://swamij.com/yoga-sutras-413.htm"
+        },
+        {
+          "slug": "4.14",
+          "order": 14,
+          "content": "परिणामैकत्वाद्वस्तुतत्त्वम्",
+          "transliteration": "pariṇāmaikatvādvastutattvam",
+          "meaning": "The uniqueness of transformation is due to the unity of change.",
+          "url": "https://swamij.com/yoga-sutras-414.htm"
+        },
+        {
+          "slug": "4.15",
+          "order": 15,
+          "content": "वस्तुसाम्ये चित्तभेदात्तयोर्विभक्तः पन्थाः",
+          "transliteration": "vastusāmye cittabhedāttayorvibhaktaḥ panthāḥ",
+          "meaning": "Due to the difference in minds, the same object is perceived differently.",
+          "url": "https://swamij.com/yoga-sutras-415.htm"
+        },
+        {
+          "slug": "4.16",
+          "order": 16,
+          "content": "न चैकचित्ततन्त्रं वस्तु तदप्रमाणकं तदा किं स्यात्",
+          "transliteration": "na caikacittatantraṃ vastu tadapramāṇakaṃ tadā kiṃ syāt",
+          "meaning": "An object is not dependent on one mind; what would happen to it when not cognized by that mind?",
+          "url": "https://swamij.com/yoga-sutras-416.htm"
+        },
+        {
+          "slug": "4.17",
+          "order": 17,
+          "content": "तदुपरागापेक्षित्वाच्चित्तस्य वस्तु ज्ञाताज्ञातम्",
+          "transliteration": "taduparāgāpekṣitvāccittasya vastu jñātājñātam",
+          "meaning": "An object is known or unknown depending on whether the mind is colored by it.",
+          "url": "https://swamij.com/yoga-sutras-417.htm"
+        },
+        {
+          "slug": "4.18",
+          "order": 18,
+          "content": "सदा ज्ञाताश्चित्तवृत्तयस्तत्प्रभोः पुरुषस्यापरिणामित्वात्",
+          "transliteration": "sadā jñātāścittavṛttayastatprabhoḥ puruṣasyāpariṇāmitvāt",
+          "meaning": "The modifications of the mind are always known by its lord, the changeless purusha.",
+          "url": "https://swamij.com/yoga-sutras-418.htm"
+        },
+        {
+          "slug": "4.19",
+          "order": 19,
+          "content": "न तत्स्वाभासं दृश्यत्वात्",
+          "transliteration": "na tatsvābhāsaṃ dṛśyatvāt",
+          "meaning": "The mind is not self-luminous, being an object of perception.",
+          "url": "https://swamij.com/yoga-sutras-419.htm"
+        },
+        {
+          "slug": "4.20",
+          "order": 20,
+          "content": "एकसमये चोभयानवधारणम्",
+          "transliteration": "ekasamaye cobhayānavadhāraṇam",
+          "meaning": "And there cannot be cognition of both at the same time.",
+          "url": "https://swamij.com/yoga-sutras-420.htm"
+        },
+        {
+          "slug": "4.21",
+          "order": 21,
+          "content": "चित्तान्तरदृश्ये बुद्धिबुद्धेरतिप्रसङ्गः स्मृतिसङ्करश्च",
+          "transliteration": "cittāntaradṛśye buddhibuddheratiprasaṅgaḥ smṛtisaṅkaraśca",
+          "meaning": "If cognition by another mind were postulated, there would be infinite regress and confusion of memories.",
+          "url": "https://swamij.com/yoga-sutras-421.htm"
+        },
+        {
+          "slug": "4.22",
+          "order": 22,
+          "content": "चितेरप्रतिसङ्क्रमायास्तदाकारापत्तौ स्वबुद्धिसंवेदनम्",
+          "transliteration": "citerapratisaṅkramāyāstadākārāpattau svabuddhisaṃvedanam",
+          "meaning": "When consciousness assumes the form of that which does not move, self-knowledge becomes possible.",
+          "url": "https://swamij.com/yoga-sutras-422.htm"
+        },
+        {
+          "slug": "4.23",
+          "order": 23,
+          "content": "द्रष्टृदृश्योपरक्तं चित्तं सर्वार्थम्",
+          "transliteration": "draṣṭṛdṛśyoparaktaṃ cittaṃ sarvārtham",
+          "meaning": "The mind, colored by both seer and seen, comprehends everything.",
+          "url": "https://swamij.com/yoga-sutras-423.htm"
+        },
+        {
+          "slug": "4.24",
+          "order": 24,
+          "content": "तदसङ्ख्येयवासनाभिश्चित्रमपि परार्थं संहत्यकारित्वात्",
+          "transliteration": "tadasaṅkhyeyavāsanābhiścitramapi parārthaṃ saṃhatyakāritvāt",
+          "meaning": "Though variegated by countless impressions, the mind exists for another, because it acts in association.",
+          "url": "https://swamij.com/yoga-sutras-424.htm"
+        },
+        {
+          "slug": "4.25",
+          "order": 25,
+          "content": "विशेषदर्शिन आत्मभावभावनाविनिवृत्तिः",
+          "transliteration": "viśeṣadarśina ātmabhāvabhāvanāvinivṛttiḥ",
+          "meaning": "For one who sees the distinction, reflection on the nature of the self ceases.",
+          "url": "https://swamij.com/yoga-sutras-425.htm"
+        },
+        {
+          "slug": "4.26",
+          "order": 26,
+          "content": "तदा विवेकनिम्नं कैवल्यप्राग्भारं चित्तम्",
+          "transliteration": "tadā vivekanimnaṃ kaivalyaprāgbhāraṃ cittam",
+          "meaning": "Then the mind inclines toward discrimination and gravitates toward liberation.",
+          "url": "https://swamij.com/yoga-sutras-426.htm"
+        },
+        {
+          "slug": "4.27",
+          "order": 27,
+          "content": "तच्छिद्रेषु प्रत्ययान्तराणि संस्कारेभ्यः",
+          "transliteration": "tacchidreṣu pratyayāntarāṇi saṃskārebhyaḥ",
+          "meaning": "In the intervals of that, other thoughts arise from impressions.",
+          "url": "https://swamij.com/yoga-sutras-427.htm"
+        },
+        {
+          "slug": "4.28",
+          "order": 28,
+          "content": "हानमेषां क्लेशवदुक्तम्",
+          "transliteration": "hānameṣāṃ kleśavaduktam",
+          "meaning": "Their removal is like that of the afflictions, as described.",
+          "url": "https://swamij.com/yoga-sutras-428.htm"
+        },
+        {
+          "slug": "4.29",
+          "order": 29,
+          "content": "प्रसङ्ख्यानेऽप्यकुसीदस्य सर्वथा विवेकख्यातेर्धर्ममेघः समाधिः",
+          "transliteration": "prasaṅkhyāne'pyakusīdasya sarvathā vivekakhyāterdharmameghaḥ samādhiḥ",
+          "meaning": "For one who has no interest even in the highest knowledge, constant discriminative discernment brings the samadhi called dharma-megha.",
+          "url": "https://swamij.com/yoga-sutras-429.htm"
+        },
+        {
+          "slug": "4.30",
+          "order": 30,
+          "content": "ततः क्लेशकर्मनिवृत्तिः",
+          "transliteration": "tataḥ kleśakarmanivṛttiḥ",
+          "meaning": "From that, afflictions and karma cease.",
+          "url": "https://swamij.com/yoga-sutras-430.htm"
+        },
+        {
+          "slug": "4.31",
+          "order": 31,
+          "content": "तदा सर्वावरणमलापेतस्य ज्ञानस्यानन्त्याज्ज्ञेयमल्पम्",
+          "transliteration": "tadā sarvāvaraṇamalāpetasya jñānasyānantyājjñeyamalpam",
+          "meaning": "Then, with all coverings and impurities removed, what remains to be known is little, due to the infinity of knowledge.",
+          "url": "https://swamij.com/yoga-sutras-431.htm"
+        },
+        {
+          "slug": "4.32",
+          "order": 32,
+          "content": "ततः कृतार्थानां परिणामक्रमसमाप्तिर्गुणानाम्",
+          "transliteration": "tataḥ kṛtārthānāṃ pariṇāmakramasamāptirguṇānām",
+          "meaning": "From that, the gunas have fulfilled their purpose, and their sequence of transformation comes to an end.",
+          "url": "https://swamij.com/yoga-sutras-432.htm"
+        },
+        {
+          "slug": "4.33",
+          "order": 33,
+          "content": "क्षणप्रतियोगी परिणामापरान्तनिर्ग्राह्यः क्रमः",
+          "transliteration": "kṣaṇapratiyogī pariṇāmāparāntanirgrāhyaḥ kramaḥ",
+          "meaning": "Sequence corresponds to moments, apprehensible at the end of transformation.",
+          "url": "https://swamij.com/yoga-sutras-433.htm"
+        },
+        {
+          "slug": "4.34",
+          "order": 34,
+          "content": "पुरुषार्थशून्यानां गुणानां प्रतिप्रसवः कैवल्यं स्वरूपप्रतिष्ठा वा चितिशक्तिरिति",
+          "transliteration": "puruṣārthaśūnyānāṃ guṇānāṃ pratiprasavaḥ kaivalyaṃ svarūpapratiṣṭhā vā citiśaktiriti",
+          "meaning": "Kaivalya is the involution of the gunas, no longer serving the purpose of purusha, or the establishment of the power of consciousness in its own nature.",
+          "url": "https://swamij.com/yoga-sutras-434.htm"
+        }
+      ]
+    }
+  ]
+}

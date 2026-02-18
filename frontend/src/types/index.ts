@@ -1,0 +1,166 @@
+// API Response types
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  error?: string;
+}
+
+// Text model types
+export interface Text {
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  sections?: TextSection[];
+}
+
+export interface TextSection {
+  id: number;
+  slug: string;
+  title: string;
+  order: number;
+  text_id: number;
+  blocks?: TextBlock[];
+}
+
+export interface TextBlock {
+  id: number;
+  content: string;
+  content_transliteration: string;
+  content_meaning: string;
+  word_analysis: WordAnalysis | null;
+  commentary: string | null;
+  order: number;
+  section_id: number;
+}
+
+export interface WordAnalysis {
+  words: WordInfo[];
+}
+
+export interface WordInfo {
+  original: string;
+  base_form: string;
+  meaning?: string;
+}
+
+// Dictionary types
+export interface DictionaryEntry {
+  dictionary_code: string;
+  dictionary_name: string;
+  key: string;
+  key_devanagari: string;
+  key_iast: string;
+  definition: string;
+  is_fuzzy_match: boolean;
+}
+
+// Sandhi split types
+export interface SandhiType {
+  name: string;
+  name_devanagari: string;
+  rule: string;
+  description: string;
+}
+
+export interface SandhiSplitToken {
+  text: string;
+  text_devanagari: string;
+  text_iast: string;
+  lemma: string | null;
+  lemma_devanagari: string | null;
+  lemma_iast: string | null;
+  sandhi_type?: SandhiType;
+}
+
+export interface SandhiSplitResponse {
+  original: string;
+  original_devanagari: string;
+  original_iast: string;
+  original_slp1: string;
+  splits: SandhiSplitToken[];
+  engine_available: boolean;
+  engine_error: string | null;
+}
+
+// Morphology types
+export interface MorphologyAnalysis {
+  lemma: string;
+  unsandhied: string;
+  surface_form: string;
+  tag: string;
+  case: string | null;
+  gender: string | null;
+  number: string | null;
+  person: string | null;
+  tense: string | null;
+  voice: string | null;
+  meanings: string[];
+  is_verb: boolean;
+  dhatu: string | null;
+  gana: number | null;
+}
+
+export interface MorphologyResponse {
+  data: MorphologyAnalysis | null;
+  query: {
+    word: string;
+    service_available: boolean;
+  };
+}
+
+// Search types
+export interface SearchResult {
+  block_id: number;
+  sutra_number: string;
+  section_slug: string;
+  section_title: string;
+  match_field: 'devanagari' | 'iast' | 'english';
+  match_text: string;
+  match_score: number;
+  content: string;
+  transliteration: string;
+  meaning: string;
+}
+
+export interface SearchResponse {
+  data: SearchResult[];
+  query: string;
+  count: number;
+}
+
+// Navigation types
+export interface PadaInfo {
+  slug: string;
+  title: string;
+  description: string;
+  sutraCount: number;
+}
+
+// Pada metadata
+export const PADAS: PadaInfo[] = [
+  {
+    slug: 'samadhi-pada',
+    title: 'Samadhi Pada',
+    description: 'The chapter on contemplation, covering the nature and goal of yoga.',
+    sutraCount: 51,
+  },
+  {
+    slug: 'sadhana-pada',
+    title: 'Sadhana Pada',
+    description: 'The chapter on practice, outlining the eight limbs of yoga.',
+    sutraCount: 55,
+  },
+  {
+    slug: 'vibhuti-pada',
+    title: 'Vibhuti Pada',
+    description: 'The chapter on powers, describing the attainments from yoga practice.',
+    sutraCount: 56,
+  },
+  {
+    slug: 'kaivalya-pada',
+    title: 'Kaivalya Pada',
+    description: 'The chapter on liberation, explaining the nature of liberation.',
+    sutraCount: 34,
+  },
+];

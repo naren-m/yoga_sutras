@@ -1,29 +1,44 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: .
       dockerfile: docker/Dockerfile.backend
     ports:
-      - "5000:5000"
+      - "5001:5001"
     volumes:
-      - ./backend:/app
+      # Mount data directory for database and dictionaries
       - ./data:/app/data
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=sqlite:///data/yoga_sutras.db
-    restart: always
+      - PORT=5001
+      - DATA_DIR=/app/data
+      - DATABASE_URL=sqlite:////app/data/yoga_sutras.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
 
   frontend:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
+      args:
+        - VITE_API_URL=http://localhost:5001/api
     ports:
-      - "3000:80"
+      - "3002:80"
     depends_on:
-      - backend
-    restart: always
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
 
 volumes:
   data:

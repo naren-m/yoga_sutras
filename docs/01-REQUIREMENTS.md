@@ -31,7 +31,7 @@ This document specifies the requirements for a web-based digital library applica
 
 The Yoga Sutras Digital Library will:
 
-- Download all 196 sutras from shlokam.org
+- Download all 196 sutras from shlokam.org along with their  original sanskrit, transliteration, commentary and english translations
 - Display all 196 sutras organized by their four padas (chapters)
 - Provide fuzzy search across Sanskrit and English content
 - Enable click-on-word dictionary lookup (similar to Ambuda.org)
