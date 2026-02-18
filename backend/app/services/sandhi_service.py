@@ -13,11 +13,12 @@ from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 
 try:
-    from vidyut.vidyut import sandhi, kosha
+    from vidyut.vidyut import sandhi, kosha, cheda
     VIDYUT_AVAILABLE = True
 except ImportError:
     sandhi = None
     kosha = None
+    cheda = None
     VIDYUT_AVAILABLE = False
 
 
@@ -39,6 +40,7 @@ class SandhiService:
         """
         self.splitter = None
         self.kosha = None
+        self.chedaka = None  # For morphological analysis of inflected forms
         self._init_error: Optional[str] = None
 
         if not VIDYUT_AVAILABLE:
@@ -68,6 +70,9 @@ class SandhiService:
             # Initialize dictionary (kosha) for validation
             kosha_path = os.path.join(data_path, 'kosha')
             self.kosha = kosha.Kosha(kosha_path)
+
+            # Initialize Chedaka for morphological analysis (handles inflected forms)
+            self.chedaka = cheda.Chedaka(data_path)
         except Exception as e:
             self._init_error = f"Failed to initialize Vidyut: {e}"
 
@@ -134,29 +139,177 @@ class SandhiService:
         """
         Look up a word in the dictionary.
 
+        First tries direct kosha lookup, then falls back to Chedaka for
+        morphological analysis of inflected forms (e.g., niroDaH → niruD).
+
         Returns:
             Tuple of (found, lemma) where lemma is the root/stem if found.
         """
         if not self.kosha:
             return False, None
 
+        # First try direct dictionary lookup
         entries = self.kosha.get(word)
-        if not entries:
-            return False, None
+        if entries:
+            # Find the best lemma from dictionary entries
+            lemmas = set()
+            for entry in entries:
+                lemma = self._get_lemma_from_entry(entry)
+                if lemma:
+                    lemmas.add(lemma)
 
-        # Find the best lemma - prefer 'yuj' over 'yoji' for yoga-related words
-        lemmas = set()
-        for entry in entries:
-            lemma = self._get_lemma_from_entry(entry)
-            if lemma:
-                lemmas.add(lemma)
-
-        if not lemmas:
+            if lemmas:
+                # Prefer shorter lemmas (e.g., 'yuj' over 'yoji')
+                best_lemma = min(lemmas, key=len)
+                return True, best_lemma
             return True, None
 
-        # Prefer shorter lemmas (e.g., 'yuj' over 'yoji')
-        best_lemma = min(lemmas, key=len)
-        return True, best_lemma
+        # If not found in dictionary, try Chedaka for inflected forms
+        # Only use Chedaka for words with typical Sanskrit case endings
+        # This handles cases like niroDaH (nominative) → niruD (stem)
+        inflected_endings = ('H', 'm', 'aH', 'am', 'eH', 'oH', 'ayoH', 'AH', 'In', 'iH')
+        if self.chedaka and any(word.endswith(e) for e in inflected_endings):
+            try:
+                tokens = self.chedaka.run(word)
+                if tokens:
+                    token = tokens[0]
+                    lemma = token.lemma if hasattr(token, 'lemma') else None
+                    # Chedaka returns 'None' string for unknown lemmas
+                    # Also reject very short lemmas (< 2 chars) as likely false positives
+                    if lemma and lemma != 'None' and len(lemma) >= 2:
+                        return True, lemma
+            except Exception:
+                pass
+
+        return False, None
+
+    def _detect_sandhi_type(self, first: str, second: str, original_junction: str) -> Optional[Dict[str, str]]:
+        """
+        Detect the type of sandhi that occurred at the junction between two words.
+
+        Args:
+            first: First part of the split (in SLP1)
+            second: Second part of the split (in SLP1)
+            original_junction: The character(s) at the split point in the original text
+
+        Returns:
+            Dictionary with sandhi type info, or None if no sandhi detected
+        """
+        if not first or not second:
+            return None
+
+        first_end = first[-1] if first else ''
+        second_start = second[0] if second else ''
+
+        # Define vowel groups in SLP1
+        short_a = 'a'
+        long_a = 'A'
+        short_i = 'i'
+        long_i = 'I'
+        short_u = 'u'
+        long_u = 'U'
+        short_r = 'f'  # ṛ in SLP1
+        long_r = 'F'   # ṝ in SLP1
+
+        all_vowels = 'aAiIuUfFxXeEoO'
+        a_vowels = 'aA'
+        i_vowels = 'iI'
+        u_vowels = 'uU'
+        r_vowels = 'fF'
+
+        # Check for savarṇa dīrgha sandhi (similar vowels merge to long)
+        # a/ā + a/ā → ā, i/ī + i/ī → ī, u/ū + u/ū → ū, ṛ/ṝ + ṛ/ṝ → ṝ
+        if first_end in a_vowels and second_start in a_vowels:
+            return {
+                "name": "savarṇa-dīrgha",
+                "name_devanagari": "सवर्ण-दीर्घ",
+                "rule": "ā + a → ā",
+                "description": "Similar vowels combine into long vowel"
+            }
+        if first_end in i_vowels and second_start in i_vowels:
+            return {
+                "name": "savarṇa-dīrgha",
+                "name_devanagari": "सवर्ण-दीर्घ",
+                "rule": "ī + i → ī",
+                "description": "Similar vowels combine into long vowel"
+            }
+        if first_end in u_vowels and second_start in u_vowels:
+            return {
+                "name": "savarṇa-dīrgha",
+                "name_devanagari": "सवर्ण-दीर्घ",
+                "rule": "ū + u → ū",
+                "description": "Similar vowels combine into long vowel"
+            }
+
+        # Check for guṇa sandhi (a/ā + i/ī → e, a/ā + u/ū → o, a/ā + ṛ → ar)
+        if first_end in a_vowels:
+            if second_start in i_vowels:
+                return {
+                    "name": "guṇa",
+                    "name_devanagari": "गुण",
+                    "rule": "a + i → e",
+                    "description": "a/ā + i/ī combines to e"
+                }
+            if second_start in u_vowels:
+                return {
+                    "name": "guṇa",
+                    "name_devanagari": "गुण",
+                    "rule": "a + u → o",
+                    "description": "a/ā + u/ū combines to o"
+                }
+            if second_start in r_vowels:
+                return {
+                    "name": "guṇa",
+                    "name_devanagari": "गुण",
+                    "rule": "a + ṛ → ar",
+                    "description": "a/ā + ṛ combines to ar"
+                }
+
+        # Check for vṛddhi sandhi (ā + i → ai, ā + u → au)
+        if first_end == long_a:
+            if second_start in i_vowels:
+                return {
+                    "name": "vṛddhi",
+                    "name_devanagari": "वृद्धि",
+                    "rule": "ā + i → ai",
+                    "description": "ā + i/ī combines to ai"
+                }
+            if second_start in u_vowels:
+                return {
+                    "name": "vṛddhi",
+                    "name_devanagari": "वृद्धि",
+                    "rule": "ā + u → au",
+                    "description": "ā + u/ū combines to au"
+                }
+
+        # Check for yāṇ sandhi (i/ī + vowel → y + vowel)
+        if first_end in i_vowels and second_start in all_vowels and second_start not in i_vowels:
+            return {
+                "name": "yāṇ",
+                "name_devanagari": "यण्",
+                "rule": "i + V → y + V",
+                "description": "i/ī before different vowel becomes y"
+            }
+
+        # Check for yāṇ sandhi (u/ū + vowel → v + vowel)
+        if first_end in u_vowels and second_start in all_vowels and second_start not in u_vowels:
+            return {
+                "name": "yāṇ",
+                "name_devanagari": "यण्",
+                "rule": "u + V → v + V",
+                "description": "u/ū before different vowel becomes v"
+            }
+
+        # Check for visarga sandhi
+        if first_end == 'H':  # visarga in SLP1
+            return {
+                "name": "visarga",
+                "name_devanagari": "विसर्ग",
+                "rule": "ḥ + ...",
+                "description": "Visarga sandhi"
+            }
+
+        return None
 
     def _find_valid_splits(self, text: str, max_depth: int = 4, include_whole: bool = True) -> List[List[Dict[str, Any]]]:
         """
@@ -245,14 +398,22 @@ class SandhiService:
                 second_start = second[0] if second else ""
                 vowel_sandhi = (original_at_split != second_start) or second_start in 'aAiIuUfFxXeEoO'
 
+                # Detect sandhi type if vowel sandhi occurred
+                sandhi_type = None
+                if vowel_sandhi:
+                    sandhi_type = self._detect_sandhi_type(first, second, original_at_split)
+
                 # Check if second part is valid (either directly or recursively)
                 second_found, second_lemma = self._lookup_word(second)
 
                 if second_found:
                     seen_splits.add(split_key)
+                    second_token = {"text": second, "lemma": second_lemma, "vowel_sandhi": vowel_sandhi}
+                    if sandhi_type:
+                        second_token["sandhi_type"] = sandhi_type
                     valid_splits.append([
                         {"text": first, "lemma": first_lemma, "vowel_sandhi": False},
-                        {"text": second, "lemma": second_lemma, "vowel_sandhi": vowel_sandhi},
+                        second_token,
                     ])
 
                     # Also try to recursively split the second part for deeper analysis
@@ -308,31 +469,61 @@ class SandhiService:
             # Hard filter: reject splits with very short parts (< 3 chars)
             # These are almost always incorrect sandhi interpretations
             if min_part_len < 3:
-                return (1000, 0, 0, 0, 0, 0)
+                return (1000, 0, 0, 0, 0, 0, 0, 0)
 
             # Count vowel-sandhi reconstructions - penalize these
             # Prefer direct splits (compound joins) over vowel sandhi reconstructions
             # This handles savarṇa dīrgha ambiguity: mithyā+jñāna vs mithyā+ajñāna
             vowel_sandhi_count = sum(1 for p in split if p.get("vowel_sandhi", False))
 
-            # Ideal number of parts is 2-3 for most compounds
-            # Penalize 1 part (no split) and > 3 parts (over-fragmentation)
+            # Penalize splits that have very short FINAL parts (3 chars or less)
+            # Short final parts often indicate over-splitting (e.g., "jñā + nam" vs "jñānam")
+            # But short prefixes (like "anu", "upa", "pra") are valid and shouldn't be penalized
+            last_part_len = len(split[-1]["text"])
+            short_final_penalty = 3 if last_part_len <= 3 else 0
+
+            # For educational purposes, prefer splits that show all meaningful components
+            # Sanskrit compounds often have 3-4 parts (e.g., yoga+citta+vṛtti+nirodha)
+            # We want MORE granular splits when parts are meaningful (min length >= 4)
             if num_parts == 1:
                 part_penalty = 10  # No split - only use as fallback
-            elif num_parts == 2:
-                part_penalty = 0   # Binary compound - ideal
-            elif num_parts == 3:
-                part_penalty = 1   # Ternary compound - good
+            elif num_parts >= 2 and num_parts <= 4:
+                # Prefer more parts when all parts are meaningful (longer)
+                # If min_part_len >= 4, prefer more parts; otherwise prefer fewer
+                if min_part_len >= 4:
+                    part_penalty = 5 - num_parts  # 2 parts=3, 3 parts=2, 4 parts=1
+                else:
+                    part_penalty = num_parts - 1  # 2 parts=1, 3 parts=2, 4 parts=3
             else:
-                part_penalty = 5 * (num_parts - 3)  # Penalize heavily
+                part_penalty = 5 * (num_parts - 4)  # Penalize heavily > 4 parts
+
+            # First part should be a meaningful word (prefer longer first parts)
+            # This helps select "yoga + anu" over "yas + gAn"
+            first_part_len = len(split[0]["text"])
+
+            # Penalize first parts that look like inflected forms rather than stems
+            # In compounds, the first member should be in stem form (prātipadika)
+            # e.g., "yoga" is stem, "yogAn" is accusative plural - prefer stem
+            first_part = split[0]["text"]
+            inflected_penalty = 0
+            # Common case endings that indicate inflected forms (not stem forms)
+            # - Nominative singular: -aH, -As, -iH, -uH (a-stems, i-stems, u-stems)
+            # - Accusative plural: -An, -In, -Un
+            # - Other plural endings: -AH, -IH, -UH, -Ani, -Ini
+            inflected_endings = ('An', 'In', 'Un', 'AH', 'IH', 'UH', 'Ani', 'Ini', 'As', 'is', 'us')
+            if any(first_part.endswith(e) for e in inflected_endings):
+                inflected_penalty = 2  # Significant penalty for inflected first parts
 
             # Scoring tuple (lower is better):
             # 1. Vowel sandhi count (prefer 0)
-            # 2. Part count penalty
-            # 3. Negative min part length (prefer longer)
-            # 4. Negative total length (prefer more coverage)
-            # 5. Number of parts (tiebreaker)
-            return (vowel_sandhi_count, part_penalty, -min_part_len, -total_len, num_parts)
+            # 2. Short final part penalty (penalize 3-char or shorter final parts)
+            # 3. Inflected form penalty (prefer stem forms as first compound member)
+            # 4. Part count penalty
+            # 5. Negative first part length (prefer longer first part)
+            # 6. Negative min part length (prefer longer)
+            # 7. Negative total length (prefer more coverage)
+            # 8. Number of parts (tiebreaker - prefer more for education)
+            return (vowel_sandhi_count, short_final_penalty, inflected_penalty, part_penalty, -first_part_len, -min_part_len, -total_len, -num_parts)
 
         return min(splits, key=split_score)
 
@@ -406,7 +597,7 @@ class SandhiService:
 
             # Format results
             splits = []
-            for token in best_split:
+            for i, token in enumerate(best_split):
                 token_text = token["text"]
                 token_lemma = token.get("lemma")
 
@@ -418,6 +609,14 @@ class SandhiService:
                     "lemma_devanagari": self._to_devanagari(token_lemma) if token_lemma else None,
                     "lemma_iast": self._to_iast(token_lemma) if token_lemma else None,
                 }
+
+                # Detect sandhi at junction with NEXT token (what sandhi applies when joining)
+                if i < len(best_split) - 1:
+                    next_token = best_split[i + 1]
+                    sandhi_type = self._detect_sandhi_type(token_text, next_token["text"], "")
+                    if sandhi_type:
+                        split_obj["sandhi_type"] = sandhi_type
+
                 splits.append(split_obj)
 
             return {

@@ -56,6 +56,13 @@ export interface DictionaryEntry {
 }
 
 // Sandhi split types
+export interface SandhiType {
+  name: string;
+  name_devanagari: string;
+  rule: string;
+  description: string;
+}
+
 export interface SandhiSplitToken {
   text: string;
   text_devanagari: string;
@@ -63,6 +70,7 @@ export interface SandhiSplitToken {
   lemma: string | null;
   lemma_devanagari: string | null;
   lemma_iast: string | null;
+  sandhi_type?: SandhiType;
 }
 
 export interface SandhiSplitResponse {

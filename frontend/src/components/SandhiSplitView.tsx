@@ -91,6 +91,15 @@ export default function SandhiSplitView({
                   </span>
                 )}
               </button>
+              {/* Sandhi type indicator on the right */}
+              {token.sandhi_type && (
+                <span
+                  className="ml-1 px-1.5 py-0.5 text-[10px] bg-purple-100 text-purple-700 rounded border border-purple-200"
+                  title={`${token.sandhi_type.description}: ${token.sandhi_type.rule}`}
+                >
+                  {token.sandhi_type.name}
+                </span>
+              )}
             </span>
           ))}
         </div>
