@@ -12,15 +12,15 @@
 
 ## Current State Assessment
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Database | ✅ Complete | 196 sutras across 4 padas |
-| Backend APIs | ✅ Exists | Text, dictionary, sandhi, morphology routes |
-| Frontend Pages | ✅ Exists | Home, Pada, Sutra, Bookmarks pages |
-| Frontend Components | ✅ Exists | Dictionary panel, sandhi view, etc. |
-| Docker | ⚠️ Partial | docker-compose exists, needs K8s manifests |
-| K8s Deployment | ❌ Missing | No manifests, no ingress |
-| Domains | ❌ Not configured | Need ingress for both domains |
+| Component           | Status           | Notes                                       |
+| ------------------- | ---------------- | ------------------------------------------- |
+| Database            | ✅ Complete       | 196 sutras across 4 padas                   |
+| Backend APIs        | ✅ Exists         | Text, dictionary, sandhi, morphology routes |
+| Frontend Pages      | ✅ Exists         | Home, Pada, Sutra, Bookmarks pages          |
+| Frontend Components | ✅ Exists         | Dictionary panel, sandhi view, etc.         |
+| Docker              | ⚠️ Partial        | docker-compose exists, needs K8s manifests  |
+| K8s Deployment      | ❌ Missing        | No manifests, no ingress                    |
+| Domains             | ❌ Not configured | Need ingress for both domains               |
 
 ---
 
@@ -761,6 +761,6 @@ Update success criteria checklist in design doc
 
 **Document Control**
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-02-27 | Claude + Naren | Initial plan |
+| Version | Date       | Author         | Changes      |
+| ------- | ---------- | -------------- | ------------ |
+| 1.0     | 2026-02-27 | Claude + Naren | Initial plan |

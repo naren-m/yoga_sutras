@@ -183,6 +183,27 @@ class SandhiService:
 
         return False, None
 
+    def _build_fallback_response(self, text: str, slp1_text: str, lemma: Optional[str] = None,
+                                  engine_available: bool = False, error: Optional[str] = None) -> Dict[str, Any]:
+        """Build a fallback response when splitting fails or is unavailable."""
+        return {
+            "splits": [{
+                "text": slp1_text,
+                "text_devanagari": self._to_devanagari(slp1_text),
+                "text_iast": self._to_iast(slp1_text),
+                "lemma": lemma,
+                "lemma_devanagari": self._to_devanagari(lemma) if lemma else None,
+                "lemma_iast": self._to_iast(lemma) if lemma else None,
+                "is_original": True
+            }],
+            "original": text,
+            "original_slp1": slp1_text,
+            "original_devanagari": self._to_devanagari(slp1_text),
+            "original_iast": self._to_iast(slp1_text),
+            "engine_available": engine_available,
+            "engine_error": error
+        }
+
     def _detect_sandhi_type(self, first: str, second: str, original_junction: str) -> Optional[Dict[str, str]]:
         """
         Detect the type of sandhi that occurred at the junction between two words.
@@ -202,15 +223,6 @@ class SandhiService:
         second_start = second[0] if second else ''
 
         # Define vowel groups in SLP1
-        short_a = 'a'
-        long_a = 'A'
-        short_i = 'i'
-        long_i = 'I'
-        short_u = 'u'
-        long_u = 'U'
-        short_r = 'f'  # ṛ in SLP1
-        long_r = 'F'   # ṝ in SLP1
-
         all_vowels = 'aAiIuUfFxXeEoO'
         a_vowels = 'aA'
         i_vowels = 'iI'
@@ -218,55 +230,38 @@ class SandhiService:
         r_vowels = 'fF'
 
         # Check for savarṇa dīrgha sandhi (similar vowels merge to long)
-        # a/ā + a/ā → ā, i/ī + i/ī → ī, u/ū + u/ū → ū, ṛ/ṝ + ṛ/ṝ → ṝ
-        if first_end in a_vowels and second_start in a_vowels:
-            return {
-                "name": "savarṇa-dīrgha",
-                "name_devanagari": "सवर्ण-दीर्घ",
-                "rule": "ā + a → ā",
-                "description": "Similar vowels combine into long vowel"
-            }
-        if first_end in i_vowels and second_start in i_vowels:
-            return {
-                "name": "savarṇa-dīrgha",
-                "name_devanagari": "सवर्ण-दीर्घ",
-                "rule": "ī + i → ī",
-                "description": "Similar vowels combine into long vowel"
-            }
-        if first_end in u_vowels and second_start in u_vowels:
-            return {
-                "name": "savarṇa-dīrgha",
-                "name_devanagari": "सवर्ण-दीर्घ",
-                "rule": "ū + u → ū",
-                "description": "Similar vowels combine into long vowel"
-            }
+        savarna_rules = [
+            (a_vowels, "ā + a → ā"),
+            (i_vowels, "ī + i → ī"),
+            (u_vowels, "ū + u → ū"),
+        ]
+        for vowels, rule in savarna_rules:
+            if first_end in vowels and second_start in vowels:
+                return {
+                    "name": "savarṇa-dīrgha",
+                    "name_devanagari": "सवर्ण-दीर्घ",
+                    "rule": rule,
+                    "description": "Similar vowels combine into long vowel"
+                }
 
         # Check for guṇa sandhi (a/ā + i/ī → e, a/ā + u/ū → o, a/ā + ṛ → ar)
         if first_end in a_vowels:
-            if second_start in i_vowels:
-                return {
-                    "name": "guṇa",
-                    "name_devanagari": "गुण",
-                    "rule": "a + i → e",
-                    "description": "a/ā + i/ī combines to e"
-                }
-            if second_start in u_vowels:
-                return {
-                    "name": "guṇa",
-                    "name_devanagari": "गुण",
-                    "rule": "a + u → o",
-                    "description": "a/ā + u/ū combines to o"
-                }
-            if second_start in r_vowels:
-                return {
-                    "name": "guṇa",
-                    "name_devanagari": "गुण",
-                    "rule": "a + ṛ → ar",
-                    "description": "a/ā + ṛ combines to ar"
-                }
+            guna_rules = [
+                (i_vowels, "a + i → e", "a/ā + i/ī combines to e"),
+                (u_vowels, "a + u → o", "a/ā + u/ū combines to o"),
+                (r_vowels, "a + ṛ → ar", "a/ā + ṛ combines to ar"),
+            ]
+            for vowels, rule, desc in guna_rules:
+                if second_start in vowels:
+                    return {
+                        "name": "guṇa",
+                        "name_devanagari": "गुण",
+                        "rule": rule,
+                        "description": desc
+                    }
 
         # Check for vṛddhi sandhi (ā + i → ai, ā + u → au)
-        if first_end == long_a:
+        if first_end == 'A':  # long_a in SLP1
             if second_start in i_vowels:
                 return {
                     "name": "vṛddhi",
@@ -548,24 +543,7 @@ class SandhiService:
         slp1_text = self._to_slp1(text.strip())
 
         if not self.splitter or not self.kosha:
-            # Return graceful fallback when engine not available
-            return {
-                "splits": [{
-                    "text": slp1_text,
-                    "text_devanagari": self._to_devanagari(slp1_text),
-                    "text_iast": self._to_iast(slp1_text),
-                    "lemma": None,
-                    "lemma_devanagari": None,
-                    "lemma_iast": None,
-                    "is_original": True
-                }],
-                "original": text,
-                "original_slp1": slp1_text,
-                "original_devanagari": self._to_devanagari(slp1_text),
-                "original_iast": self._to_iast(slp1_text),
-                "engine_available": False,
-                "engine_error": self._init_error
-            }
+            return self._build_fallback_response(text, slp1_text, error=self._init_error)
 
         try:
             # Find all valid splits using dictionary lookup
@@ -576,24 +554,8 @@ class SandhiService:
 
             if not best_split:
                 # No valid split found - return original word
-                found, lemma = self._lookup_word(slp1_text)
-                return {
-                    "splits": [{
-                        "text": slp1_text,
-                        "text_devanagari": self._to_devanagari(slp1_text),
-                        "text_iast": self._to_iast(slp1_text),
-                        "lemma": lemma,
-                        "lemma_devanagari": self._to_devanagari(lemma) if lemma else None,
-                        "lemma_iast": self._to_iast(lemma) if lemma else None,
-                        "is_original": True
-                    }],
-                    "original": text,
-                    "original_slp1": slp1_text,
-                    "original_devanagari": self._to_devanagari(slp1_text),
-                    "original_iast": self._to_iast(slp1_text),
-                    "engine_available": True,
-                    "engine_error": None
-                }
+                _, lemma = self._lookup_word(slp1_text)
+                return self._build_fallback_response(text, slp1_text, lemma=lemma, engine_available=True)
 
             # Format results
             splits = []
@@ -630,24 +592,7 @@ class SandhiService:
             }
 
         except Exception as e:
-            # Graceful fallback on error - return original word
-            return {
-                "splits": [{
-                    "text": slp1_text,
-                    "text_devanagari": self._to_devanagari(slp1_text),
-                    "text_iast": self._to_iast(slp1_text),
-                    "lemma": None,
-                    "lemma_devanagari": None,
-                    "lemma_iast": None,
-                    "is_original": True
-                }],
-                "original": text,
-                "original_slp1": slp1_text,
-                "original_devanagari": self._to_devanagari(slp1_text),
-                "original_iast": self._to_iast(slp1_text),
-                "engine_available": True,
-                "engine_error": str(e)
-            }
+            return self._build_fallback_response(text, slp1_text, engine_available=True, error=str(e))
 
     def is_available(self) -> bool:
         """Check if the sandhi engine is available and initialized."""

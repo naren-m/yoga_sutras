@@ -67,11 +67,8 @@ export default function SandhiSplitView({
                 <span className="text-amber-400 mx-1 font-bold">+</span>
               )}
               <button
-                onClick={() => {
-                  // Use lemma for dictionary lookup if available, otherwise use text
-                  const lookupWord = token.lemma_devanagari || token.text_devanagari;
-                  onComponentClick(lookupWord);
-                }}
+                // Use lemma for dictionary lookup if available, otherwise use text
+                onClick={() => onComponentClick(token.lemma_devanagari || token.text_devanagari)}
                 className="group px-2 py-1 bg-white rounded border border-amber-200 hover:border-amber-400 hover:bg-amber-100 transition-colors"
                 title={`Look up "${token.lemma_iast || token.text_iast}" in dictionary`}
               >
