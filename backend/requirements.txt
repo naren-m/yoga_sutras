@@ -5,8 +5,8 @@ sqlalchemy
 requests
 beautifulsoup4
 unidecode
-vidyut
 rapidfuzz
 python-dotenv
-indic-transliteration
-dharmamitra-sanskrit-grammar
+
+# Sanskrit Processing - unified analyzer (replaces vidyut + dharmamitra)
+sanskrit-analyzer @ git+file:///Users/narenmudivarthy/Projects/sanskrit_analyzer@feature/sanskrit-analyzer-integration
