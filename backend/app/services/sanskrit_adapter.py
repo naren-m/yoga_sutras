@@ -61,10 +61,10 @@ class SanskritAdapter:
             for sg in groups:
                 for word in sg.base_words:
                     tokens.append({
-                        "text": word.form,
-                        "lemma": word.lemma or word.form,
-                        "text_devanagari": word.form,
-                        "lemma_devanagari": word.lemma or word.form,
+                        "text": word.surface_form,
+                        "lemma": word.lemma or word.surface_form,
+                        "text_devanagari": word.surface_form,
+                        "lemma_devanagari": word.lemma or word.surface_form,
                     })
 
             return {
@@ -126,9 +126,9 @@ class SanskritAdapter:
             return None
 
         return {
-            "lemma": first_word.lemma or first_word.form,
-            "unsandhied": first_word.form,
-            "surface_form": first_word.form,
+            "lemma": first_word.lemma or first_word.surface_form,
+            "unsandhied": first_word.surface_form,
+            "surface_form": first_word.surface_form,
             "tag": self._build_tag(morph),
             "case": morph.case.value if morph.case else None,
             "gender": morph.gender.value if morph.gender else None,
@@ -138,8 +138,8 @@ class SanskritAdapter:
             "voice": morph.voice.value if morph.voice else None,
             "meanings": [m.definition for m in morph.meanings if m.definition] if morph.meanings else [],
             "is_verb": morph.tense is not None or morph.person is not None,
-            "dhatu": first_word.dhatu_info.dhatu if first_word.dhatu_info else None,
-            "gana": first_word.dhatu_info.gana.value if first_word.dhatu_info and first_word.dhatu_info.gana else None,
+            "dhatu": first_word.dhatu.dhatu if first_word.dhatu else None,
+            "gana": first_word.dhatu.gana.value if first_word.dhatu and first_word.dhatu.gana else None,
         }
 
     def get_morphology_sync(self, word: str) -> dict | None:
