@@ -1,12 +1,16 @@
+"""Dictionary and Sanskrit analysis routes for Yoga Sutras API.
+
+Provides REST endpoints for dictionary lookups, sandhi splitting,
+and morphological analysis using the unified sanskrit_analyzer.
+"""
+
 from flask import Blueprint, jsonify, request
 from app.services.dictionary_service import DictionaryService
-from app.services.sandhi_service import SandhiService
-from app.services.dharmamitra_service import get_dharmamitra_service
+from app.services.sanskrit_adapter import get_sanskrit_adapter
 
 dict_bp = Blueprint('dictionary', __name__, url_prefix='/api')
 dict_service = DictionaryService()
-sandhi_service = SandhiService()
-dharmamitra_service = get_dharmamitra_service()
+sanskrit_adapter = get_sanskrit_adapter()
 
 
 @dict_bp.route('/dictionary/<path:word>', methods=['GET'])
@@ -41,7 +45,7 @@ def lookup_word(word):
 @dict_bp.route('/split/<path:compound>', methods=['GET'])
 def split_compound(compound):
     """
-    Split a Sanskrit compound word into components using Vidyut Cheda.
+    Split a Sanskrit compound word into components using sanskrit_analyzer.
 
     Accepts input in Devanagari, IAST, or SLP1 encoding.
     Returns splits with both Devanagari and IAST representations.
@@ -53,9 +57,9 @@ def split_compound(compound):
         JSON with:
             - splits: List of token objects with text and lemma in multiple scripts
             - original: Original input with converted forms
-            - engine_available: Whether Vidyut engine is initialized
+            - engine_available: Whether analyzer is initialized
     """
-    result = sandhi_service.split(compound)
+    result = sanskrit_adapter.split(compound)
 
     return jsonify({
         "success": True,
@@ -70,7 +74,7 @@ def split_status():
 
     Returns availability and any initialization errors.
     """
-    status = sandhi_service.get_status()
+    status = sanskrit_adapter.get_status()
 
     return jsonify({
         "success": True,
@@ -81,7 +85,7 @@ def split_status():
 @dict_bp.route('/morphology/<path:word>', methods=['GET'])
 def get_morphology(word):
     """
-    Get morphological analysis for a Sanskrit word using Dharmamitra ByT5.
+    Get morphological analysis for a Sanskrit word using sanskrit_analyzer.
 
     Accepts word in Devanagari or IAST encoding.
     Returns grammatical analysis including lemma, case, gender, number.
@@ -95,12 +99,12 @@ def get_morphology(word):
             - unsandhied: Form after sandhi splitting
             - tag: Morphological tags (Case=X|Gender=Y|Number=Z)
             - case, gender, number: Parsed tag components
-            - meanings: English meanings from Dharmamitra
+            - meanings: English meanings
             - is_verb: Whether the word is a verb form
             - dhatu: Verb root (if applicable)
             - gana: Verb class 1-10 (if applicable)
     """
-    analysis = dharmamitra_service.analyze_word(word)
+    analysis = sanskrit_adapter.get_morphology_sync(word)
 
     if analysis is None:
         # Return empty analysis if word not recognized or service unavailable
@@ -109,28 +113,13 @@ def get_morphology(word):
             "data": None,
             "query": {
                 "word": word,
-                "service_available": dharmamitra_service.is_available()
+                "service_available": sanskrit_adapter.is_available()
             }
         })
 
     return jsonify({
         "success": True,
-        "data": {
-            "lemma": analysis.lemma,
-            "unsandhied": analysis.unsandhied,
-            "surface_form": analysis.surface_form,
-            "tag": analysis.tag,
-            "case": analysis.case,
-            "gender": analysis.gender,
-            "number": analysis.number,
-            "person": analysis.person,
-            "tense": analysis.tense,
-            "voice": analysis.voice,
-            "meanings": analysis.meanings,
-            "is_verb": analysis.is_verb,
-            "dhatu": analysis.dhatu,
-            "gana": analysis.gana,
-        },
+        "data": analysis,
         "query": {
             "word": word,
             "service_available": True
@@ -143,12 +132,12 @@ def morphology_status():
     """
     Get status of the morphology analysis service.
 
-    Returns availability of Dharmamitra processor.
+    Returns availability of sanskrit_analyzer.
     """
     return jsonify({
         "success": True,
         "data": {
-            "available": dharmamitra_service.is_available(),
-            "service": "Dharmamitra ByT5"
+            "available": sanskrit_adapter.is_available(),
+            "service": "sanskrit_analyzer"
         }
     })
