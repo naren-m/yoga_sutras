@@ -4,10 +4,11 @@ This adapter wraps the sanskrit_analyzer library, providing both async
 and sync interfaces for integration with the Yoga Sutras application.
 """
 
-from sanskrit_analyzer import Analyzer, Config, AnalysisMode
-from sanskrit_analyzer.models import AnalysisTree, SandhiGroup
 import asyncio
 import logging
+
+from sanskrit_analyzer import Analyzer, Config, AnalysisMode
+from sanskrit_analyzer.models import AnalysisTree, SandhiGroup
 
 logger = logging.getLogger(__name__)
 
