@@ -1,0 +1,677 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+
+/**
+ * Yoga Sutras - CI/CD Pipeline with Test Gates & Slack Notifications
+ *
+ * Full test-gate-build-deploy pipeline:
+ * - PR Workflow: Run tests (when available), update GitHub status, gate merge
+ * - Main Branch: Test → Build Multi-Arch (backend + frontend) → Deploy → Verify → Auto-rollback
+ *
+ * Uses homelab shared pipeline library for:
+ * - notifyGitHub: GitHub Commit Status API
+ * - notifySlack: Slack notifications (#builds)
+ * - runTests: Test orchestration via SSH
+ * - collectTestArtifacts: Test result collection
+ * - rollbackDeployment: Auto-rollback on failure
+ * - updateGitOpsManifest: GitOps kustomization update
+ * - triggerArgoSync: ArgoCD sync trigger
+ *
+ * NOTE: No tests exist yet. Test stages are present but skipped via enableE2E: false
+ * and conditional checks. Add test commands here as the test suite grows.
+ */
+
+@Library('homelab-pipeline') _
+
+@Field def config = [
+    appName: 'yogasutras',
+    appType: 'fullstack',  // Flask backend + React/Vite frontend
+    namespace: 'yogasutras',
+    localRegistry: '192.168.68.138:5002',
+    kubeconfigId: 'homelab-kubeconfig',
+    platforms: 'linux/amd64,linux/arm64',
+    builderName: 'multiarch-builder',
+    testHost: 'macmini',
+    homelabRepo: '/Users/narenmudivarthy/Projects/homelab',
+    enableE2E: false,  // E2E tests not yet implemented
+    deployTimeout: 300,
+    // Slack configuration
+    slackChannel: '#builds',
+    appUrl: 'https://yogasutras.naren.me'
+]
+
+@Field def imageTag = ''
+@Field def testResults = [:]  // Store test results for Slack notification
+
+// Derived image names for backend and frontend
+@Field def backendImage = ''
+@Field def frontendImage = ''
+
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+        timeout(time: 45, unit: 'MINUTES')
+        timestamps()
+    }
+
+    environment {
+        APP_NAME = "${config.appName}"
+        NAMESPACE = "${config.namespace}"
+        LOCAL_REGISTRY = "${config.localRegistry}"
+        BACKEND_IMAGE  = "${config.localRegistry}/yogasutras-backend"
+        FRONTEND_IMAGE = "${config.localRegistry}/yogasutras-frontend"
+        DOCKER_BUILDKIT = '1'
+        DOCKER_CLI_EXPERIMENTAL = 'enabled'
+        // PR detection - CHANGE_ID is set by Multibranch Pipeline for PRs
+        IS_PR   = "${env.CHANGE_ID ? 'true' : 'false'}"
+        IS_MAIN = "${env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master' ? 'true' : 'false'}"
+        PREVIOUS_TAG = ''
+    }
+
+    stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    echo "╔══════════════════════════════════════════════════════════════╗"
+                    echo "║          YOGA SUTRAS CI/CD PIPELINE STARTED                  ║"
+                    echo "╠══════════════════════════════════════════════════════════════╣"
+                    echo "║  Application: ${config.appName.padRight(47)}║"
+                    echo "║  Branch:      ${env.BRANCH_NAME?.padRight(47) ?: 'N/A'.padRight(47)}║"
+                    echo "║  Is PR:       ${env.IS_PR.padRight(47)}║"
+                    echo "║  Is Main:     ${env.IS_MAIN.padRight(47)}║"
+                    echo "║  Registry:    ${config.localRegistry.padRight(47)}║"
+                    echo "╚══════════════════════════════════════════════════════════════╝"
+
+                    // Generate image tag: HHmmss-ddMMMyy-githash
+                    def ts = new Date().format("HHmmss-ddMMMyy")
+                    def gitHash = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+                    imageTag = "${ts}-${gitHash}"
+                    backendImage  = "${config.localRegistry}/yogasutras-backend:${imageTag}"
+                    frontendImage = "${config.localRegistry}/yogasutras-frontend:${imageTag}"
+                    echo "Image tag:      ${imageTag}"
+                    echo "Backend image:  ${backendImage}"
+                    echo "Frontend image: ${frontendImage}"
+
+                    // Set GitHub status to pending for PR builds
+                    if (env.IS_PR == 'true') {
+                        notifyGitHub(
+                            state: 'pending',
+                            context: 'ci/jenkins/pipeline',
+                            description: 'Pipeline started...'
+                        )
+
+                        // Notify Slack: PR opened/updated
+                        notifySlack.prOpened(
+                            channel: config.slackChannel,
+                            repo: config.appName,
+                            prNumber: env.CHANGE_ID,
+                            title: env.CHANGE_TITLE,
+                            author: env.CHANGE_AUTHOR,
+                            branch: env.CHANGE_BRANCH,
+                            prUrl: env.CHANGE_URL
+                        )
+                    }
+
+                    // Notify Slack: Merge to main
+                    if (env.IS_MAIN == 'true') {
+                        notifySlack.prMerged(
+                            channel: config.slackChannel,
+                            repo: config.appName,
+                            prNumber: env.CHANGE_ID ?: 'N/A',
+                            title: sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim(),
+                            author: sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+                        )
+                    }
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // TEST STAGES (PR and Main Branch)
+        // NOTE: No tests exist yet. These stages are present for when
+        //       pytest / vitest suites are added to backend/ and frontend/.
+        //       Currently they pass trivially (no test command executed).
+        // ═══════════════════════════════════════════════════════════════
+
+        stage('Run Tests') {
+            parallel {
+                stage('Backend Unit Tests') {
+                    steps {
+                        script {
+                            // TODO: Replace with real pytest command once backend/tests/ exists:
+                            //   testCommand: 'cd backend && pytest tests/unit/ -v --junitxml=/tmp/test-results/pytest-unit.xml --cov=. --cov-report=html:/tmp/test-results/coverage'
+                            echo "Backend tests: no test suite yet — skipping"
+                            env.BACKEND_UNIT_PASSED = 'true'
+                            testResults.backend = [passed: 0, failed: 0, total: 0, success: true]
+
+                            if (env.IS_PR == 'true') {
+                                notifyGitHub(
+                                    state: 'success',
+                                    context: 'ci/jenkins/backend-tests',
+                                    description: 'No tests yet — skipped'
+                                )
+                            }
+                        }
+                    }
+                }
+
+                stage('Frontend Unit Tests') {
+                    steps {
+                        script {
+                            // TODO: Replace with real vitest command once frontend/src/__tests__/ exists:
+                            //   testCommand: 'cd frontend && npm ci && npm run test:coverage -- --reporter=junit --outputFile=/tmp/test-results/vitest-results.xml'
+                            echo "Frontend tests: no test suite yet — skipping"
+                            env.FRONTEND_UNIT_PASSED = 'true'
+                            testResults.frontend = [passed: 0, failed: 0, total: 0, success: true]
+
+                            if (env.IS_PR == 'true') {
+                                notifyGitHub(
+                                    state: 'success',
+                                    context: 'ci/jenkins/frontend-tests',
+                                    description: 'No tests yet — skipped'
+                                )
+                            }
+                        }
+                    }
+                }
+
+                stage('Integration Tests') {
+                    steps {
+                        script {
+                            // TODO: Replace with real integration test command once backend/tests/integration/ exists:
+                            //   testCommand: 'cd backend && pytest tests/integration/ -v -m integration --junitxml=/tmp/test-results/pytest-integration.xml'
+                            echo "Integration tests: no test suite yet — skipping"
+                            env.INTEGRATION_PASSED = 'true'
+                            testResults.integration = [passed: 0, failed: 0, total: 0, success: true]
+
+                            if (env.IS_PR == 'true') {
+                                notifyGitHub(
+                                    state: 'success',
+                                    context: 'ci/jenkins/integration-tests',
+                                    description: 'No tests yet — skipped'
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('E2E Tests') {
+            when {
+                expression { config.enableE2E }
+            }
+            steps {
+                script {
+                    // enableE2E is false — this stage will never execute until enabled.
+                    // When ready, implement with Playwright pointed at a staging instance:
+                    //   testCommand: 'cd frontend && npx playwright install --with-deps && npx playwright test --reporter=junit'
+                    if (env.IS_PR == 'true') {
+                        notifyGitHub(
+                            state: 'pending',
+                            context: 'ci/jenkins/e2e-tests',
+                            description: 'Running Playwright E2E tests...'
+                        )
+                    }
+
+                    def results = runTests(
+                        appType: 'node',
+                        testType: 'e2e',
+                        projectPath: env.WORKSPACE,
+                        host: config.testHost,
+                        testCommand: 'cd frontend && npx playwright install --with-deps && npx playwright test --reporter=junit'
+                    )
+
+                    env.E2E_PASSED = results.success ? 'true' : 'false'
+                    testResults.e2e = [
+                        passed: results.passed ?: 0,
+                        failed: results.failed ?: 0,
+                        total: (results.passed ?: 0) + (results.failed ?: 0),
+                        success: results.success
+                    ]
+
+                    if (env.IS_PR == 'true') {
+                        notifyGitHub(
+                            state: results.success ? 'success' : 'failure',
+                            context: 'ci/jenkins/e2e-tests',
+                            description: results.success
+                                ? "Passed: ${results.passed} tests"
+                                : "Failed: ${results.failed} of ${results.passed + results.failed} tests"
+                        )
+                    }
+
+                    if (!results.success) {
+                        error "E2E tests failed"
+                    }
+                }
+            }
+        }
+
+        stage('Collect Test Artifacts') {
+            steps {
+                script {
+                    collectTestArtifacts(
+                        host: config.testHost,
+                        remotePath: '/tmp/test-results',
+                        artifactTypes: ['junit', 'coverage', 'playwright', 'pytest']
+                    )
+                }
+            }
+        }
+
+        stage('Mark Tests Passed') {
+            steps {
+                script {
+                    echo "All tests passed (or skipped — no suite yet)."
+
+                    if (env.IS_PR == 'true') {
+                        notifyGitHub(
+                            state: 'success',
+                            context: 'ci/jenkins/pipeline',
+                            description: 'All tests passed - Ready to merge'
+                        )
+
+                        // Notify Slack: All tests passed
+                        notifySlack.testsPassed(
+                            channel: config.slackChannel,
+                            repo: config.appName,
+                            prNumber: env.CHANGE_ID,
+                            backendPassed: testResults.backend?.passed ?: '?',
+                            backendTotal: testResults.backend?.total ?: '?',
+                            frontendPassed: testResults.frontend?.passed ?: '?',
+                            frontendTotal: testResults.frontend?.total ?: '?',
+                            integrationPassed: testResults.integration?.passed ?: '?',
+                            integrationTotal: testResults.integration?.total ?: '?'
+                        )
+                    }
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // DEPLOYMENT STAGES (Main Branch Only)
+        // ═══════════════════════════════════════════════════════════════
+
+        stage('Store Previous Tag') {
+            when {
+                expression { env.IS_MAIN == 'true' }
+            }
+            steps {
+                script {
+                    // For multi-image apps we store/restore by the backend image tag;
+                    // both images are always tagged identically so one tag covers both.
+                    def previousTag = rollbackDeployment.storePreviousTag(
+                        appName: config.appName,
+                        namespace: config.namespace
+                    )
+                    env.PREVIOUS_TAG = previousTag ?: ''
+                    echo "Previous deployment tag: ${env.PREVIOUS_TAG}"
+                }
+            }
+        }
+
+        stage('Setup Buildx') {
+            when {
+                expression { env.IS_MAIN == 'true' }
+            }
+            steps {
+                script {
+                    sh """
+                        set -e
+                        echo "Setting up Docker Buildx for local insecure registry..."
+
+                        # Create buildkitd config to allow insecure (HTTP) registry
+                        mkdir -p /tmp/buildkit
+                        cat > /tmp/buildkit/buildkitd.toml << 'TOML'
+# BuildKit configuration for homelab local registry
+[registry."192.168.68.138:5002"]
+  http = true
+  insecure = true
+TOML
+
+                        echo "BuildKit config:"
+                        cat /tmp/buildkit/buildkitd.toml
+
+                        # Remove existing builder to apply new config
+                        docker buildx rm ${config.builderName} 2>/dev/null || true
+
+                        # Create new builder with insecure registry config
+                        echo "Creating buildx builder with insecure registry support: ${config.builderName}"
+                        docker buildx create --name ${config.builderName} \\
+                            --driver docker-container \\
+                            --config /tmp/buildkit/buildkitd.toml \\
+                            --bootstrap
+
+                        # Use the builder
+                        docker buildx use ${config.builderName}
+
+                        # Verify builder is ready
+                        docker buildx inspect --bootstrap
+                        echo "Buildx builder ready with insecure registry: ${config.localRegistry}"
+                    """
+                }
+            }
+        }
+
+        stage('Build & Push Backend') {
+            when {
+                expression { env.IS_MAIN == 'true' }
+            }
+            steps {
+                script {
+                    echo "Building multi-arch backend image: ${backendImage}"
+
+                    sh """
+                        set -e
+
+                        # Verify registry is accessible before building
+                        echo "Verifying local registry is accessible..."
+                        if curl -sf http://${config.localRegistry}/v2/ > /dev/null; then
+                            echo "Registry ${config.localRegistry} is accessible"
+                        else
+                            echo "ERROR: Cannot reach registry ${config.localRegistry}"
+                            echo "       Make sure the registry is running and accessible"
+                            exit 1
+                        fi
+
+                        echo "Building and pushing backend multi-arch image..."
+                        echo "  Image:     ${backendImage}"
+                        echo "  Platforms: ${config.platforms}"
+                        echo "  Dockerfile: docker/Dockerfile.backend"
+
+                        docker buildx build \\
+                            --platform ${config.platforms} \\
+                            -f docker/Dockerfile.backend \\
+                            --tag ${backendImage} \\
+                            --push \\
+                            --progress=plain \\
+                            .
+
+                        echo "Backend build and push completed."
+
+                        # Verify the image was pushed to local registry
+                        echo "Verifying backend image in local registry..."
+                        curl -sf "http://${config.localRegistry}/v2/yogasutras-backend/tags/list" || echo "Warning: Could not verify backend tags"
+
+                        echo "Verifying backend multi-arch manifest..."
+                        docker buildx imagetools inspect ${backendImage}
+                    """
+
+                    echo "Backend image pushed: ${backendImage}"
+                }
+            }
+        }
+
+        stage('Build & Push Frontend') {
+            when {
+                expression { env.IS_MAIN == 'true' }
+            }
+            steps {
+                script {
+                    echo "Building multi-arch frontend image: ${frontendImage}"
+
+                    sh """
+                        set -e
+
+                        echo "Building and pushing frontend multi-arch image..."
+                        echo "  Image:      ${frontendImage}"
+                        echo "  Platforms:  ${config.platforms}"
+                        echo "  Dockerfile: docker/Dockerfile.frontend"
+                        echo "  Build arg:  VITE_API_URL=/api (nginx proxies to backend sidecar)"
+
+                        docker buildx build \\
+                            --platform ${config.platforms} \\
+                            -f docker/Dockerfile.frontend \\
+                            --build-arg VITE_API_URL=/api \\
+                            --tag ${frontendImage} \\
+                            --push \\
+                            --progress=plain \\
+                            .
+
+                        echo "Frontend build and push completed."
+
+                        # Verify the image was pushed to local registry
+                        echo "Verifying frontend image in local registry..."
+                        curl -sf "http://${config.localRegistry}/v2/yogasutras-frontend/tags/list" || echo "Warning: Could not verify frontend tags"
+
+                        echo "Verifying frontend multi-arch manifest..."
+                        docker buildx imagetools inspect ${frontendImage}
+                    """
+
+                    echo "Frontend image pushed: ${frontendImage}"
+                }
+            }
+        }
+
+        stage('Deploy via GitOps') {
+            when {
+                expression { env.IS_MAIN == 'true' }
+            }
+            steps {
+                script {
+                    // Update both image tags in base/applications/yogasutras/kustomization.yaml.
+                    // The shared library's updateGitOpsManifest handles multi-image apps when
+                    // called once per image. If the library does not yet support this, the sed
+                    // fallback below patches both tags directly.
+                    echo "Updating GitOps manifests for yogasutras-backend and yogasutras-frontend..."
+
+                    def backendResult = updateGitOpsManifest(
+                        appName: 'yogasutras-backend',
+                        imageTag: imageTag,
+                        registry: config.localRegistry,
+                        previousTag: env.PREVIOUS_TAG,
+                        gitCredentialsId: 'github-ssh-key'
+                    )
+
+                    def frontendResult = updateGitOpsManifest(
+                        appName: 'yogasutras-frontend',
+                        imageTag: imageTag,
+                        registry: config.localRegistry,
+                        previousTag: env.PREVIOUS_TAG,
+                        gitCredentialsId: 'github-ssh-key'
+                    )
+
+                    if (!backendResult.success || !frontendResult.success) {
+                        // Fallback: patch kustomization.yaml directly via sed if the shared
+                        // library call fails (e.g. library does not support per-image naming).
+                        echo "Shared library GitOps update failed — falling back to direct sed patch"
+                        sh """
+                            set -e
+                            KUSTOMIZE_FILE="${config.homelabRepo}/base/applications/yogasutras/kustomization.yaml"
+
+                            sed -i "s|${config.localRegistry}/yogasutras-backend:.*|${backendImage}|g" "\$KUSTOMIZE_FILE"
+                            sed -i "s|${config.localRegistry}/yogasutras-frontend:.*|${frontendImage}|g" "\$KUSTOMIZE_FILE"
+
+                            cd "${config.homelabRepo}"
+                            git add "\$KUSTOMIZE_FILE"
+                            git commit -m "chore(yogasutras): deploy ${imageTag}
+
+Backend:  ${backendImage}
+Frontend: ${frontendImage}
+[skip ci]"
+                            git push origin main
+                        """
+                        env.GITOPS_COMMIT = sh(
+                            script: "cd ${config.homelabRepo} && git rev-parse --short HEAD",
+                            returnStdout: true
+                        ).trim()
+                    } else {
+                        env.GITOPS_COMMIT = frontendResult.commitSha ?: backendResult.commitSha
+                        echo "GitOps manifests updated"
+                        echo "  Backend commit:  ${backendResult.commitSha}"
+                        echo "  Frontend commit: ${frontendResult.commitSha}"
+                    }
+
+                    // Trigger ArgoCD sync
+                    def syncResult = triggerArgoSync(
+                        appName: 'homelab-applications',
+                        waitForSync: true,
+                        timeout: config.deployTimeout,
+                        triggerMethod: 'kubectl'
+                    )
+
+                    if (!syncResult.success) {
+                        echo "WARNING: ArgoCD sync did not complete within timeout"
+                        echo "         Status: ${syncResult.status}, Health: ${syncResult.health}"
+                        echo "         ArgoCD will continue syncing in background"
+                    } else {
+                        echo "ArgoCD sync completed"
+                        echo "  Status: ${syncResult.status}"
+                        echo "  Health: ${syncResult.health}"
+                    }
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            when {
+                expression { env.IS_MAIN == 'true' }
+            }
+            steps {
+                script {
+                    def verification = rollbackDeployment.checkAndRollback(
+                        appName: config.appName,
+                        namespace: config.namespace,
+                        timeout: config.deployTimeout,
+                        previousTag: env.PREVIOUS_TAG,
+                        healthCheckUrl: "http://yogasutras.hanuma.com/health"
+                    )
+
+                    if (verification.rollbackTriggered) {
+                        // Notify Slack: Rollback occurred
+                        notifySlack.rolledBack(
+                            channel: config.slackChannel,
+                            repo: config.appName,
+                            fromVersion: imageTag,
+                            toVersion: env.PREVIOUS_TAG,
+                            reason: verification.reason ?: 'Deployment verification failed'
+                        )
+                        error "Deployment failed and was rolled back"
+                    }
+
+                    echo "Deployment verified successfully"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Archive test results (allowEmptyResults covers the no-tests-yet case)
+                junit(
+                    testResults: '**/test-results/**/*.xml',
+                    allowEmptyResults: true
+                )
+
+                archiveArtifacts(
+                    artifacts: 'test-results/**/*',
+                    allowEmptyArchive: true,
+                    fingerprint: false
+                )
+            }
+        }
+
+        failure {
+            script {
+                if (env.IS_PR == 'true') {
+                    notifyGitHub(
+                        state: 'failure',
+                        context: 'ci/jenkins/pipeline',
+                        description: 'Pipeline failed - See Jenkins for details'
+                    )
+
+                    // Collect failed test names for Slack notification
+                    def failedTests = []
+                    if (testResults.backend?.success == false) {
+                        failedTests.add("Backend unit tests")
+                    }
+                    if (testResults.frontend?.success == false) {
+                        failedTests.add("Frontend unit tests")
+                    }
+                    if (testResults.integration?.success == false) {
+                        failedTests.add("Integration tests")
+                    }
+                    if (testResults.e2e?.success == false) {
+                        failedTests.add("E2E tests")
+                    }
+
+                    // Notify Slack: Tests failed
+                    notifySlack.testsFailed(
+                        channel: config.slackChannel,
+                        repo: config.appName,
+                        prNumber: env.CHANGE_ID,
+                        summary: "Tests failed for PR #${env.CHANGE_ID}",
+                        failedTests: failedTests.isEmpty() ? ['Pipeline error - see logs'] : failedTests,
+                        logsUrl: env.BUILD_URL
+                    )
+                }
+
+                // If we were deploying and it failed, trigger rollback.
+                // PREVIOUS_TAG is only set on main branch after Store Previous Tag succeeds.
+                if (env.IS_MAIN == 'true' && env.PREVIOUS_TAG) {
+                    echo "Deployment failed, initiating rollback..."
+                    rollbackDeployment(
+                        appName: config.appName,
+                        namespace: config.namespace,
+                        previousTag: env.PREVIOUS_TAG,
+                        homelabRepo: config.homelabRepo,
+                        reason: "Pipeline failed during deployment"
+                    )
+
+                    // Notify Slack: Deploy failed
+                    notifySlack.deployFailed(
+                        channel: config.slackChannel,
+                        repo: config.appName,
+                        version: imageTag,
+                        reason: 'Pipeline failed during deployment',
+                        logsUrl: env.BUILD_URL
+                    )
+                }
+            }
+        }
+
+        success {
+            script {
+                if (env.IS_MAIN == 'true') {
+                    echo "╔══════════════════════════════════════════════════════════════╗"
+                    echo "║          DEPLOYMENT COMPLETED SUCCESSFULLY                   ║"
+                    echo "╠══════════════════════════════════════════════════════════════╣"
+                    echo "║  Application: ${config.appName.padRight(47)}║"
+                    echo "║  Tag:         ${imageTag?.padRight(47) ?: 'N/A'.padRight(47)}║"
+                    echo "║  Namespace:   ${config.namespace.padRight(47)}║"
+                    echo "║  Registry:    ${config.localRegistry.padRight(47)}║"
+                    echo "║  URL:         https://yogasutras.naren.me                    ║"
+                    echo "╚══════════════════════════════════════════════════════════════╝"
+
+                    // Notify Slack: Deployment successful
+                    def commitMsg = sh(script: 'git log -1 --pretty=%s', returnStdout: true).trim()
+                    def author    = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+
+                    notifySlack.deployed(
+                        channel: config.slackChannel,
+                        repo: config.appName,
+                        version: imageTag,
+                        commitMessage: commitMsg,
+                        author: author,
+                        url: config.appUrl
+                    )
+                }
+            }
+        }
+
+        cleanup {
+            sh "docker logout || true"
+            cleanWs()
+        }
+    }
+}
