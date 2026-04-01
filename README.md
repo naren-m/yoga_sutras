@@ -5,14 +5,14 @@ A generic Sanskrit reading platform, starting with the Yoga Sutras of Patanjali.
 ## Overview
 
 This application provides a rich reading experience for Sanskrit texts, featuring:
-- **Sandhi Splitting**: Compound words are split into components using [Vidyut](https://github.com/ambuda-org/vidyut).
+- **Sandhi Splitting**: Compound words are split into components using [sanskrit_analyzer](https://github.com/naren-m/sanskrit_analyser).
 - **Dictionary Lookup**: Integrated dictionaries (Monier-Williams, Apte).
 - **Generic Architecture**: Support for any Sanskrit text (Text -> Section -> Block).
 - **Offline First**: All data and processing (including Sandhi) happen locally.
 
 ## Architecture
 
-- **Backend**: Python/Flask (REST API, SQLAlchemy, Vidyut integration).
+- **Backend**: Python/Flask (REST API, SQLAlchemy, sanskrit_analyzer integration).
 - **Frontend**: React (TypeScript, Tailwind).
 - **Database**: SQLite.
 - **Infrastructure**: Docker & Docker Compose.

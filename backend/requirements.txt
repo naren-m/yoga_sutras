@@ -9,4 +9,4 @@ rapidfuzz
 python-dotenv
 
 # Sanskrit Processing - unified analyzer (replaces vidyut + dharmamitra)
-sanskrit-analyzer @ git+file:///Users/narenmudivarthy/Projects/sanskrit_analyzer@feature/sanskrit-analyzer-integration
+sanskrit-analyzer @ git+https://github.com/naren-m/sanskrit_analyser.git@main
