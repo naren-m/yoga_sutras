@@ -10,3 +10,8 @@ python-dotenv
 
 # Sanskrit Processing - unified analyzer (replaces vidyut + dharmamitra)
 sanskrit-analyzer @ git+https://github.com/naren-m/sanskrit_analyser.git@main
+
+# Observability via shared homelab-observability lib. Bundles OTel SDK,
+# exporters, and Loki handler; reads HOMELAB_* env vars set by the
+# homelab-observability Kustomize component at deploy time.
+homelab-observability[flask] @ git+https://github.com/naren-m/homelab-observability.git@v0.1.0#subdirectory=python
