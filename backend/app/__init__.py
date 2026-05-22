@@ -48,4 +48,18 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+    # Observability via shared homelab-observability lib. No-op if the lib
+    # isn't installed (e.g. minimal dev shells). Reads HOMELAB_* env vars
+    # injected by the homelab-observability Kustomize component at deploy time.
+    _setup_observability(app)
+
     return app
+
+
+def _setup_observability(app):
+    """Wire OpenTelemetry tracing + metrics + Loki logging via homelab-observability."""
+    try:
+        import homelab_observability as hobs
+    except ImportError:
+        return
+    hobs.setup(service_name="yoga-sutras-backend", flask_app=app)
