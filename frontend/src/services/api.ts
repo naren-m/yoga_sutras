@@ -1,8 +1,11 @@
 import axios from 'axios';
 import type { ApiResponse, Text, TextSection, TextBlock, DictionaryEntry, SandhiSplitResponse, SearchResult, MorphologyAnalysis, MorphologyResponse } from '../types';
 
-// Backend API base URL - configurable via environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+// Backend API base URL - configurable via environment variable.
+// Defaults to same-origin '/api' so production (behind the ingress that routes
+// /api -> backend) never points a visitor's browser at localhost. Dev uses the
+// Vite proxy (see vite.config.ts) so relative '/api' works there too.
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

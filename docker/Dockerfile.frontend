@@ -13,8 +13,10 @@ RUN npm ci
 # Copy source code
 COPY frontend/ .
 
-# Set production API URL (can be overridden at build time)
-ARG VITE_API_URL=http://localhost:5001/api
+# API base URL baked into the bundle at build time. Defaults to same-origin
+# '/api' so visitors never hit their own localhost. In k8s the ingress routes
+# /api -> backend; in docker-compose nginx proxies /api -> backend (nginx.conf).
+ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Build the application
