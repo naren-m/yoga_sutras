@@ -83,3 +83,41 @@ class TestSanskritAdapter:
         result = adapter.analyze_word_sync("रामः")
         assert "word" in result
         assert result["word"] == "रामः"
+
+    def test_split_output_is_display_scripts_not_slp1(self, adapter):
+        """Regression: tokens must be IAST/Devanagari, not raw SLP1.
+
+        Sutra 1.2 contains vṛtti/nirodha whose SLP1 forms (vftti, niroDa)
+        leaked to the frontend before the adapter transliterated output.
+        """
+        result = adapter.split("योगश्चित्तवृत्तिनिरोधः")
+
+        texts = [t["text"] for t in result["splits"]]
+        assert "vṛtti" in texts
+        assert "nirodha" in texts
+        assert not any("f" in t or "D" in t for t in texts)
+
+        devanagari = [t["text_devanagari"] for t in result["splits"]]
+        assert "वृत्ति" in devanagari
+
+        assert result["original"]["iast"] == "yogaścittavṛttinirodhaḥ"
+
+    def test_morphology_iast_verb_keeps_aspirate(self, adapter):
+        """Regression: 'bhavati' was mangled to 'bavati' by double script
+        detection (title-case SLP1 'Bavati' misread as IAST in engines)."""
+        result = adapter.get_morphology_sync("bhavati")
+
+        assert result is not None
+        assert result["lemma"] == "bhū"
+        assert result["surface_form"] == "bhavati"
+        assert result["is_verb"] is True
+        assert result["dhatu"] == "bhū"
+        assert result["gana"] == 1
+
+    def test_morphology_returns_lemma_without_dhatu(self, adapter):
+        """A parseable word with no morphology/dhatu still yields its lemma."""
+        result = adapter.get_morphology_sync("योगः")
+
+        assert result is not None
+        assert result["lemma"] == "yoga"
+        assert result["lemma_devanagari"] == "योग"

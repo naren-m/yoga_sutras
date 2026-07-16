@@ -9,8 +9,26 @@ import logging
 
 from sanskrit_analyzer import Analyzer, Config, AnalysisMode
 from sanskrit_analyzer.models import AnalysisTree, SandhiGroup
+from sanskrit_analyzer.models.scripts import Script
+from sanskrit_analyzer.utils import detect_script, to_devanagari, to_iast
 
 logger = logging.getLogger(__name__)
+
+
+def _slp1_to_devanagari(text: str) -> str:
+    """Convert analyzer-internal SLP1 to Devanagari for display."""
+    try:
+        return to_devanagari(text, Script.SLP1)
+    except Exception:
+        return text
+
+
+def _slp1_to_iast(text: str) -> str:
+    """Convert analyzer-internal SLP1 to IAST for display."""
+    try:
+        return to_iast(text, Script.SLP1)
+    except Exception:
+        return text
 
 
 class SanskritAdapter:
@@ -61,19 +79,28 @@ class SanskritAdapter:
             tokens = []
             for sg in groups:
                 for word in sg.base_words:
+                    surface = word.surface_form
+                    lemma = word.lemma or word.surface_form
                     tokens.append({
-                        "text": word.surface_form,
-                        "lemma": word.lemma or word.surface_form,
-                        "text_devanagari": word.surface_form,
-                        "lemma_devanagari": word.lemma or word.surface_form,
+                        "text": _slp1_to_iast(surface),
+                        "lemma": _slp1_to_iast(lemma),
+                        "text_devanagari": _slp1_to_devanagari(surface),
+                        "lemma_devanagari": _slp1_to_devanagari(lemma),
                     })
+
+            try:
+                input_script = detect_script(compound)
+                original_dev = to_devanagari(compound, input_script)
+                original_iast = to_iast(compound, input_script)
+            except Exception:
+                original_dev = original_iast = compound
 
             return {
                 "splits": tokens,
                 "original": {
                     "input": compound,
-                    "devanagari": compound,
-                    "iast": compound,
+                    "devanagari": original_dev,
+                    "iast": original_iast,
                 },
                 "engine_available": True,
             }
@@ -122,25 +149,41 @@ class SanskritAdapter:
 
         first_word = result.parse_forest[0].sandhi_groups[0].base_words[0]
         morph = first_word.morphology
+        lemma = first_word.lemma or first_word.surface_form
 
-        if not morph:
-            return None
+        # Pipeline never populates BaseWord.dhatu; fall back to the
+        # analyzer's dhatu DB keyed by the lemma.
+        dhatu_info = first_word.dhatu or self.analyzer.lookup_dhatu(lemma)
+        dhatu = dhatu_info.dhatu if dhatu_info else None
+        if dhatu and dhatu.isascii():
+            dhatu = _slp1_to_iast(dhatu)
+        morph_meanings = getattr(morph, "meanings", None) if morph else None
+        gana = None
+        if dhatu_info and dhatu_info.gana is not None:
+            gana = getattr(dhatu_info.gana, "value", dhatu_info.gana)
 
+        # Even without morphology or a dhatu hit, a successful parse still
+        # yields a useful lemma for the frontend to display.
         return {
-            "lemma": first_word.lemma or first_word.surface_form,
-            "unsandhied": first_word.surface_form,
-            "surface_form": first_word.surface_form,
-            "tag": self._build_tag(morph),
-            "case": morph.case.value if morph.case else None,
-            "gender": morph.gender.value if morph.gender else None,
-            "number": morph.number.value if morph.number else None,
-            "person": morph.person.value if morph.person else None,
-            "tense": morph.tense.value if morph.tense else None,
-            "voice": morph.voice.value if morph.voice else None,
-            "meanings": [m.definition for m in morph.meanings if m.definition] if morph.meanings else [],
-            "is_verb": morph.tense is not None or morph.person is not None,
-            "dhatu": first_word.dhatu.dhatu if first_word.dhatu else None,
-            "gana": first_word.dhatu.gana.value if first_word.dhatu and first_word.dhatu.gana else None,
+            "lemma": _slp1_to_iast(lemma),
+            "lemma_devanagari": _slp1_to_devanagari(lemma),
+            "unsandhied": _slp1_to_iast(first_word.surface_form),
+            "surface_form": _slp1_to_iast(first_word.surface_form),
+            "tag": self._build_tag(morph) if morph else "",
+            "case": morph.case.value if morph and morph.case else None,
+            "gender": morph.gender.value if morph and morph.gender else None,
+            "number": morph.number.value if morph and morph.number else None,
+            "person": morph.person.value if morph and morph.person else None,
+            "tense": morph.tense.value if morph and morph.tense else None,
+            "voice": morph.voice.value if morph and morph.voice else None,
+            "meanings": (
+                [m.definition for m in morph_meanings if m.definition]
+                if morph_meanings
+                else (list(dhatu_info.meanings) if dhatu_info and dhatu_info.meanings else [])
+            ),
+            "is_verb": (morph.tense is not None or morph.person is not None) if morph else dhatu_info is not None,
+            "dhatu": dhatu,
+            "gana": gana,
         }
 
     def get_morphology_sync(self, word: str) -> dict | None:

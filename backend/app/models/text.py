@@ -67,10 +67,11 @@ class TextBlock(Base):
         return {
             "id": self.id,
             "slug": self.slug,
-             "order": self.order_in_section,
+            "order": self.order_in_section,
+            "section_id": self.section_id,
             "content": self.content,
-            "transliteration": self.content_transliteration,
-            "meaning": self.content_meaning,
+            "content_transliteration": self.content_transliteration,
+            "content_meaning": self.content_meaning,
             "commentary": self.commentary,
             "word_analysis": self.word_analysis
         }
