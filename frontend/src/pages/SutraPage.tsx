@@ -4,6 +4,7 @@ import { useSection } from '../hooks/useTexts';
 import { PADAS } from '../types';
 import ClickableText from '../components/ClickableText';
 import BookmarkButton from '../components/BookmarkButton';
+import WordByWordGloss from '../components/WordByWordGloss';
 import { useScriptPreference } from '../hooks/useScriptPreference';
 
 export default function SutraPage() {
@@ -112,6 +113,11 @@ export default function SutraPage() {
                 {currentSutra.content_transliteration}
               </p>
             </div>
+          )}
+
+          {/* Word-by-word gloss (precomputed analysis) */}
+          {currentSutra.word_analysis && (
+            <WordByWordGloss analysis={currentSutra.word_analysis} />
           )}
 
           {/* Meaning */}

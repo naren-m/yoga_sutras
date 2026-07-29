@@ -124,7 +124,10 @@ export default defineConfig({
             urlPattern: /\/api\/dictionary\/.+$/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'dictionary-data',
+              // v2: server now cleans raw CDSL bodies (SLP1->IAST, headword
+              // echoes, scan refs) — new cache name evicts 30-day CacheFirst
+              // entries holding the old raw responses.
+              cacheName: 'dictionary-data-v2',
               expiration: {
                 maxEntries: 5000, // Many unique words
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days

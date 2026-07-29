@@ -35,13 +35,34 @@ export interface TextBlock {
 }
 
 export interface WordAnalysis {
+  source?: string;
+  confidence?: number | null;
+  dhatu_verifier?: string;
   words: WordInfo[];
 }
 
 export interface WordInfo {
-  original: string;
-  base_form: string;
-  meaning?: string;
+  surface_form: string;
+  surface_devanagari: string;
+  lemma: string;
+  lemma_devanagari: string;
+  tag: string;
+  case: string | null;
+  gender: string | null;
+  number: string | null;
+  person: string | null;
+  tense: string | null;
+  voice: string | null;
+  meanings: string[];
+  is_verb: boolean;
+  dhatu: string | null;
+  dhatu_slp1?: string | null;
+  gana: number | null;
+  // Dhatupatha verification (sanskrit_model DhatuKosha)
+  dhatu_verified?: boolean;
+  dhatu_devanagari?: string | null;
+  dhatu_meaning?: string | null;
+  gana_name?: string | null;
 }
 
 // Dictionary types

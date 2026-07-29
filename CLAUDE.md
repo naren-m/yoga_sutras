@@ -22,6 +22,12 @@ python run.py  # Runs on localhost:5001 (port 5000 blocked by macOS AirPlay)
 pip install requests beautifulsoup4
 python scripts/scrape_text.py      # Creates data/yoga_sutras.json
 python scripts/seed_dictionaries.py # Downloads MW and Apte dictionaries to data/dictionaries/
+
+# Precompute word-by-word gloss (TextBlock.word_analysis) for all sutras.
+# --byt5 needs torch+transformers; Dhatupatha verification uses the
+# sanskrit_model sibling checkout. Writes DB + data/word_analysis.json cache;
+# populate_db.py re-applies the cache on reseed, so this runs once per corpus.
+backend/venv/bin/python scripts/enrich_word_analysis.py --byt5
 ```
 
 ### URLs
