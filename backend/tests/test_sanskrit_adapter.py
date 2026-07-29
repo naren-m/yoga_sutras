@@ -121,3 +121,52 @@ class TestSanskritAdapter:
         assert result is not None
         assert result["lemma"] == "yoga"
         assert result["lemma_devanagari"] == "योग"
+
+    def test_analyze_block_returns_word_list(self, adapter):
+        """analyze_block yields one display-script entry per unsandhied word."""
+        result = adapter.analyze_block_sync("योगश्चित्तवृत्तिनिरोधः")
+
+        assert result is not None
+        assert result["source"] == "sanskrit_analyzer"
+        assert isinstance(result["words"], list)
+        assert len(result["words"]) >= 2  # yoga + citta/vṛtti/nirodha splits
+
+        for entry in result["words"]:
+            assert "surface_form" in entry
+            assert "surface_devanagari" in entry
+            assert "lemma" in entry
+            assert "lemma_devanagari" in entry
+            assert "meanings" in entry
+            # Display scripts only — no SLP1 leakage markers
+            assert "f" not in entry["surface_form"]
+            assert "D" not in entry["surface_form"]
+
+    def test_display_forms_handles_both_engine_scripts(self):
+        """Regression: ByT5 emits IAST surfaces, vidyut emits SLP1.
+
+        Blind SLP1 conversion turned IAST 'atha' into अत्ह and left
+        'anuśāsanam' half-converted (अनुśāसनम्).
+        """
+        from app.services.sanskrit_adapter import _display_forms
+
+        # IAST input (ByT5 path) — plain ASCII must be read as IAST
+        assert _display_forms("atha") == ("atha", "अथ")
+        assert _display_forms("anuśāsanam")[1] == "अनुशासनम्"
+        assert _display_forms("nirodhaḥ")[1] == "निरोधः"
+
+        # SLP1 input (vidyut path) — markers force SLP1 reading
+        assert _display_forms("vftti") == ("vṛtti", "वृत्ति")
+        assert _display_forms("BU") == ("bhū", "भू")
+        # Title-case SLP1 (only marker is the initial capital)
+        assert _display_forms("Bavati") == ("bhavati", "भवति")
+
+    def test_analyze_block_matches_stored_schema(self, adapter):
+        """Output is JSON-serializable, fit for the word_analysis column."""
+        import json
+
+        result = adapter.analyze_block_sync("अथ योगानुशासनम्")
+
+        assert result is not None
+        json.dumps(result, ensure_ascii=False)  # must not raise
+        surfaces = [w["surface_devanagari"] for w in result["words"]]
+        assert any("योग" in s or "अनुशासन" in s for s in surfaces)

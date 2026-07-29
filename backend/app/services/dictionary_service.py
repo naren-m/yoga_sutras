@@ -7,6 +7,18 @@ from rapidfuzz import fuzz, process
 import re
 
 
+# CDSL entry bodies interleave English prose with SLP1 Sanskrit tokens and
+# end with scan-page references, e.g.:
+#   'niroDaHniroDaH niroDanaM 1 Confinement; yogaScittavfttiniroDaH Yoga S.168960631-c'
+_DEF_WORD = re.compile(r'[A-Za-z/]+')
+_DEF_TRAIL_REF = re.compile(r'[\d,\-]{4,}[a-z]?\s*$')
+_DEF_DOUBLED = re.compile(r'(\w{4,})\1+')
+_DEF_ACCENT = re.compile(r'(?<=[A-Za-z])/(?=[A-Za-z])')
+# A token that starts the definition body proper: part-of-speech marker,
+# numbered sense, parenthesis, abbreviation, or capitalized English word.
+_DEF_BODY_START = re.compile(r'^(?:(?:mfn|mf|m|f|n|ind|cl|p{1,2})\.?$|[0-9(&A-Z])')
+
+
 class DictionaryService:
     """
     Dictionary lookup service supporting multiple input scripts
@@ -16,6 +28,49 @@ class DictionaryService:
     # Cache for dictionary keys to speed up fuzzy matching
     _keys_cache: Optional[List[str]] = None
     _keys_cache_count: int = 0
+
+    @staticmethod
+    def clean_definition(value: str) -> str:
+        """Make a raw CDSL entry body readable.
+
+        - Transliterates embedded SLP1 tokens to IAST. An SLP1 token starts
+          lowercase but has interior capitals (aspirates/long vowels:
+          'niroDaH', 'yogaScittavfttiniroDaH'); English words and citation
+          abbreviations ('Ms.', 'MBh.') never match that shape.
+        - Collapses doubled headword echoes ('cittacitta' -> 'citta').
+        - Drops the trailing scan-page reference ('168960631-c').
+        """
+        def _xlit_token(m: re.Match) -> str:
+            token = m.group(0)
+            core = token.replace('/', '')  # '/' marks vedic accent in MW
+            if core and core[0].islower() and any(c.isupper() for c in core[1:]):
+                try:
+                    return transliterate(core, sanscript.SLP1, sanscript.IAST)
+                except Exception:
+                    return token
+            return token
+
+        text = _DEF_WORD.sub(_xlit_token, value)
+        text = _DEF_ACCENT.sub('', text)   # MW vedic accent marks: yo/ga -> yoga
+        text = _DEF_DOUBLED.sub(r'\1', text)
+        text = _DEF_TRAIL_REF.sub('', text)
+        # Apte bodies open with a run of headword variants ("nirodhaḥ
+        # nirodhanaṃ ...") before the first numbered sense. After
+        # transliteration those echoes carry IAST diacritics while English
+        # prose is pure ASCII — strip the leading non-ASCII token run.
+        stripped = re.sub(r'^(?:\S*[^\x00-\x7F]\S*\s+)+', '', text)
+        if len(stripped) >= 3:
+            text = stripped
+        # All-lowercase SLP1 echoes ('vftti f. rolling...') carry no capitals
+        # for the transliterator to spot; drop leading tokens up to the first
+        # recognizable body-start token instead.
+        tokens = text.split(' ')
+        for i, token in enumerate(tokens[:6]):
+            if _DEF_BODY_START.match(token):
+                if i > 0:
+                    text = ' '.join(tokens[i:])
+                break
+        return text.rstrip(' ;,')
 
     def _detect_script(self, word: str) -> str:
         """
@@ -146,7 +201,7 @@ class DictionaryService:
                 "key": entry.key,
                 "key_devanagari": self._to_devanagari(entry.key),
                 "key_iast": self._to_iast(entry.key),
-                "definition": entry.value,
+                "definition": self.clean_definition(entry.value),
                 "is_fuzzy_match": is_fuzzy_match and entry.key != word_slp1
             })
 

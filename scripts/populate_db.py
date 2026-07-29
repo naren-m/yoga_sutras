@@ -21,6 +21,19 @@ sys.path.insert(0, BACKEND_DIR)
 
 DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 INPUT_FILE = os.path.join(DATA_DIR, 'yoga_sutras.json')
+WORD_ANALYSIS_CACHE = os.path.join(DATA_DIR, 'word_analysis.json')
+
+
+def load_word_analysis_cache() -> dict:
+    """Load precomputed word_analysis (from enrich_word_analysis.py), keyed
+    by block slug. Lets reseeds keep the enriched gloss without re-running
+    the analyzer models."""
+    if not os.path.exists(WORD_ANALYSIS_CACHE):
+        return {}
+    with open(WORD_ANALYSIS_CACHE, 'r', encoding='utf-8') as f:
+        cache = json.load(f)
+    print(f"  Loaded word_analysis cache: {len(cache)} entries")
+    return cache
 
 
 def load_json_data(filepath: str) -> dict:
@@ -77,6 +90,7 @@ def populate_database(data: dict):
             print(f"Created text: {text.title}")
 
         # Create sections and blocks
+        word_analysis_cache = load_word_analysis_cache()
         total_blocks = 0
         for section_data in data['sections']:
             section = TextSection(
@@ -101,6 +115,7 @@ def populate_database(data: dict):
                     content_meaning=block_data.get('meaning', ''),
                     commentary=block_data.get('commentary'),
                     word_analysis=block_data.get('word_analysis')
+                        or word_analysis_cache.get(block_data['slug'])
                 )
                 db.session.add(block)
                 total_blocks += 1
