@@ -208,6 +208,40 @@ class SanskritAdapter:
             "gana": gana,
         }
 
+    @staticmethod
+    def _merge_privative(words: list[dict]) -> list[dict]:
+        """Rejoin a split privative prefix (a-/an-) with the following word.
+
+        Segmenters decompose e.g. akliṣṭāḥ into 'a' + 'kliṣṭāḥ'. That is
+        morphologically defensible but pedagogically misleading — the
+        negated stem is one lexical unit with its own dictionary entry
+        ('akliṣṭa' = non-afflicted, opposite of kliṣṭa). Merge them and
+        clear meanings so the enricher looks up the negated stem itself.
+        """
+        merged: list[dict] = []
+        i = 0
+        while i < len(words):
+            word = words[i]
+            if word.get("surface_form") in ("a", "an") and i + 1 < len(words):
+                nxt = words[i + 1]
+                combined = dict(nxt)
+                surface = word["surface_form"] + nxt["surface_form"]
+                # Negated compounds are a-stem nominals; the joined verb-root
+                # lemma ('a'+'kliś') is not a word — stem the surface instead
+                # (akliṣṭāḥ -> akliṣṭa), which is the dictionary headword.
+                lemma = surface.rstrip("ḥṃ")
+                if lemma.endswith("ā"):
+                    lemma = lemma[:-1] + "a"
+                combined["surface_form"], combined["surface_devanagari"] = _display_forms(surface)
+                combined["lemma"], combined["lemma_devanagari"] = _display_forms(lemma)
+                combined["meanings"] = []
+                merged.append(combined)
+                i += 2
+                continue
+            merged.append(word)
+            i += 1
+        return merged
+
     async def get_morphology(self, word: str) -> dict | None:
         """Get morphological analysis for a word."""
         result = await self.analyzer.analyze(word, mode=AnalysisMode.EDUCATIONAL)
@@ -235,6 +269,7 @@ class SanskritAdapter:
         for sg in parse.sandhi_groups:
             for word in sg.base_words:
                 words.append(self._word_entry(word))
+        words = self._merge_privative(words)
         if not words:
             return None
 
