@@ -12,7 +12,32 @@ from sanskrit_analyzer.models import AnalysisTree, SandhiGroup
 from sanskrit_analyzer.models.scripts import Script
 from sanskrit_analyzer.utils import detect_script, to_devanagari, to_iast
 
+from app.services.dhatu_resolver import get_dhatu_resolver
+
 logger = logging.getLogger(__name__)
+
+
+def _ascii_default(text: str) -> Script:
+    """Disambiguate plain-ASCII script the same way _display_forms does:
+    any uppercase marks SLP1 (aspirates/long vowels), else IAST."""
+    return (
+        Script.SLP1 if text.isascii() and any(c.isupper() for c in text)
+        else Script.IAST
+    )
+
+
+def _to_slp1(text: str) -> str:
+    """Convert an engine-produced word to SLP1 for Kośa/dhātu lookup."""
+    try:
+        from indic_transliteration import sanscript
+        from indic_transliteration.sanscript import transliterate
+        script = detect_script(text, plain_ascii_default=_ascii_default(text))
+        if script == Script.SLP1:
+            return text
+        src = sanscript.IAST if script == Script.IAST else sanscript.DEVANAGARI
+        return transliterate(text, src, sanscript.SLP1)
+    except Exception:
+        return text
 
 
 def _slp1_to_devanagari(text: str) -> str:
@@ -42,11 +67,7 @@ def _display_forms(text: str) -> tuple[str, str]:
     would produce अत्ह instead of अथ.
     """
     try:
-        ascii_default = (
-            Script.SLP1 if text.isascii() and any(c.isupper() for c in text)
-            else Script.IAST
-        )
-        script = detect_script(text, plain_ascii_default=ascii_default)
+        script = detect_script(text, plain_ascii_default=_ascii_default(text))
         return to_iast(text, script), to_devanagari(text, script)
     except Exception:
         return text, text
@@ -168,24 +189,12 @@ class SanskritAdapter:
         morph = word.morphology
         lemma = word.lemma or word.surface_form
 
-        # Pipeline never populates BaseWord.dhatu; fall back to the
-        # analyzer's dhatu DB keyed by the lemma.
-        dhatu_info = word.dhatu or self.analyzer.lookup_dhatu(lemma)
-        dhatu_slp1 = dhatu_info.dhatu if dhatu_info else None
-        dhatu = dhatu_slp1
-        if dhatu and dhatu.isascii():
-            dhatu = _slp1_to_iast(dhatu)
         morph_meanings = getattr(morph, "meanings", None) if morph else None
-        gana = None
-        if dhatu_info and dhatu_info.gana is not None:
-            gana = getattr(dhatu_info.gana, "value", dhatu_info.gana)
 
         lemma_iast, lemma_dev = _display_forms(lemma)
         surface_iast, surface_dev = _display_forms(word.surface_form)
 
-        # Even without morphology or a dhatu hit, a successful parse still
-        # yields a useful lemma for the frontend to display.
-        return {
+        entry = {
             "lemma": lemma_iast,
             "lemma_devanagari": lemma_dev,
             "surface_form": surface_iast,
@@ -197,16 +206,49 @@ class SanskritAdapter:
             "person": morph.person.value if morph and morph.person else None,
             "tense": morph.tense.value if morph and morph.tense else None,
             "voice": morph.voice.value if morph and morph.voice else None,
-            "meanings": (
-                [m.definition for m in morph_meanings if m.definition]
-                if morph_meanings
-                else (list(dhatu_info.meanings) if dhatu_info and dhatu_info.meanings else [])
-            ),
-            "is_verb": (morph.tense is not None or morph.person is not None) if morph else dhatu_info is not None,
-            "dhatu": dhatu,
-            "dhatu_slp1": dhatu_slp1 if dhatu_slp1 and dhatu_slp1.isascii() else None,
-            "gana": gana,
+            "meanings": [m.definition for m in morph_meanings if m.definition] if morph_meanings else [],
+            "is_verb": (morph.tense is not None or morph.person is not None) if morph else False,
         }
+        self._attach_dhatu(entry, word.surface_form, lemma)
+        return entry
+
+    def _attach_dhatu(self, entry: dict, surface: str, lemma: str) -> None:
+        """Populate root fields via the vidyut-Kośa dhātu resolver.
+
+        Recovers the root even for derived nominals (yoga -> √yuj), with the
+        root's own Sanskrit gloss and any prefixes (nirodha -> ni + √rudh).
+        Leaves everything null for particles/pronouns that have no root.
+        """
+        entry.setdefault("dhatu", None)
+        entry.setdefault("dhatu_slp1", None)
+        entry.setdefault("dhatu_devanagari", None)
+        entry.setdefault("dhatu_meaning", None)
+        entry.setdefault("dhatu_prefixes", [])
+        entry.setdefault("dhatu_verified", False)
+        entry.setdefault("gana", None)
+
+        # Look up surface first (most specific), then lemma. We deliberately
+        # do NOT strip a privative a-/an- to find the root: the Kośa readily
+        # mis-parses the debrided stem (avidyā -> vi+√dā "give" instead of
+        # √vid "know"), and a confident wrong root on a key term is worse
+        # than none — the positive form beside it already shows the root.
+        info = get_dhatu_resolver().resolve(_to_slp1(surface), _to_slp1(lemma))
+        if not info:
+            return
+        root = info["root_slp1"]
+        entry["dhatu_slp1"] = root
+        entry["dhatu"] = _slp1_to_iast(root)
+        entry["dhatu_devanagari"] = _slp1_to_devanagari(root)
+        entry["dhatu_prefixes"] = [_slp1_to_iast(p) for p in info["prefixes_slp1"]]
+        entry["dhatu_verified"] = info["verified"]
+        entry["gana"] = info["gana"]
+        # Trust the resolver's verb flag only when the engine didn't already
+        # give the word nominal morphology (a case) — otherwise a noun that
+        # happens to share a surface with a finite verb gets mislabeled.
+        if info.get("is_verb") and not entry.get("case"):
+            entry["is_verb"] = True
+        if info.get("artha_slp1"):
+            entry["dhatu_meaning"] = _slp1_to_iast(info["artha_slp1"])
 
     @staticmethod
     def _merge_privative(words: list[dict]) -> list[dict]:

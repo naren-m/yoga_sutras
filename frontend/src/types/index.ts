@@ -55,14 +55,15 @@ export interface WordInfo {
   voice: string | null;
   meanings: string[];
   is_verb: boolean;
+  // Root (dhātu) recovered via the vidyut-Kośa resolver — present even for
+  // derived nominals (yoga -> yuj), with the root's own gloss and prefixes.
   dhatu: string | null;
   dhatu_slp1?: string | null;
-  gana: number | null;
-  // Dhatupatha verification (sanskrit_model DhatuKosha)
-  dhatu_verified?: boolean;
   dhatu_devanagari?: string | null;
-  dhatu_meaning?: string | null;
-  gana_name?: string | null;
+  dhatu_meaning?: string | null;     // the root's Sanskrit gloss (artha)
+  dhatu_prefixes?: string[];         // e.g. ["ni"] for ni + rudh
+  dhatu_verified?: boolean;          // attested in the hand-curated Dhātupāṭha
+  gana: number | null;               // traditional dhātu class 1..10
 }
 
 // Dictionary types

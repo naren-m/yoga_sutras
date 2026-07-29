@@ -57,51 +57,6 @@ def build_adapter(use_byt5: bool):
     return SanskritAdapter(config)
 
 
-def load_dhatu_kosha(slm_path: str):
-    """Load the sanskrit_model Dhatupatha verifier; None if unavailable."""
-    if not os.path.isdir(slm_path):
-        print(f"  sanskrit_model not found at {slm_path}; skipping dhatu verification")
-        return None
-    try:
-        sys.path.insert(0, slm_path)
-        from slm.rules import DhatuKosha
-        kosha = DhatuKosha()
-        print(f"  Dhatu verifier loaded: {len(kosha.entries)} dhatupatha entries")
-        return kosha
-    except Exception as e:
-        print(f"  Could not load DhatuKosha ({e}); skipping dhatu verification")
-        return None
-
-
-def verify_dhatus(analysis: dict, kosha) -> None:
-    """Cross-check analyzer-proposed dhatus against the real Dhatupatha.
-
-    A confirmed root gains dhatu_verified=True plus the attested meaning
-    (artha) and gana name; an unattested root is flagged False so the UI
-    can de-emphasize it.
-    """
-    for word in analysis.get('words', []):
-        root = word.get('dhatu_slp1')
-        if not root:
-            continue
-        entries = kosha.lookup(root)
-        if entries:
-            # Prefer the hand-curated dhatus-core.csv rows
-            entry = next((e for e in entries if e.get('curated')), entries[0])
-            word['dhatu_verified'] = True
-            word['dhatu_devanagari'] = entry.get('dhatu_deva') or None
-            word['dhatu_meaning'] = entry.get('artha_iast') or None
-            word['gana_name'] = entry.get('gana_name') or None
-            if word.get('gana') is None and entry.get('gana'):
-                try:
-                    word['gana'] = int(entry['gana'])
-                except ValueError:
-                    pass
-        else:
-            word['dhatu_verified'] = False
-    analysis['dhatu_verifier'] = 'sanskrit_model DhatuKosha'
-
-
 import re
 
 # POS markers that begin the definition body in an MW entry
@@ -186,7 +141,6 @@ def enrich(limit: int | None, dry_run: bool, use_byt5: bool, slm_path: str) -> b
     print("Initializing sanskrit_analyzer...")
     adapter = build_adapter(use_byt5)
     _ = adapter.analyzer  # trigger init up front so failures are loud
-    kosha = load_dhatu_kosha(slm_path)
 
     app = create_app()
     cache: dict[str, dict] = {}
@@ -219,8 +173,9 @@ def enrich(limit: int | None, dry_run: bool, use_byt5: bool, slm_path: str) -> b
                 failed += 1
                 continue
 
-            if kosha:
-                verify_dhatus(analysis, kosha)
+            # Dhātu roots (yoga -> √yuj), their gloss, gaṇa and Dhātupāṭha
+            # verification are populated inside adapter.analyze_block via the
+            # vidyut-Kośa DhatuResolver — no separate verification pass needed.
             attach_meanings(analysis, db)
 
             cache[block.slug] = analysis

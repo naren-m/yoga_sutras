@@ -180,6 +180,26 @@ class TestSanskritAdapter:
         assert merged[1]["lemma"] == "akliṣṭa"  # dictionary headword of the negated stem
         assert merged[1]["meanings"] == []  # forces negated-stem re-lookup
 
+    def test_analyze_block_resolves_dhatu_for_derived_nouns(self, adapter):
+        """The headline feature: every content word shows its root, not just
+        finite verbs. yoga -> √yuj, nirodha -> ni + √rudh, with the root's
+        own Sanskrit gloss."""
+        result = adapter.analyze_block_sync("योगश्चित्तवृत्तिनिरोधः")
+        assert result is not None
+        by_lemma = {w["lemma"]: w for w in result["words"]}
+
+        yoga = by_lemma.get("yoga")
+        assert yoga is not None
+        assert yoga["dhatu"] == "yuj"
+        assert yoga["dhatu_devanagari"] == "युज्"
+        assert yoga["dhatu_verified"] is True
+        assert yoga["dhatu_meaning"]  # non-empty artha
+
+        nirodha = by_lemma.get("nirodha")
+        assert nirodha is not None
+        assert nirodha["dhatu"] == "rudh"
+        assert nirodha["dhatu_prefixes"] == ["ni"]
+
     def test_analyze_block_matches_stored_schema(self, adapter):
         """Output is JSON-serializable, fit for the word_analysis column."""
         import json
