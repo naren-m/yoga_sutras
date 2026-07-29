@@ -141,7 +141,7 @@ def apte_gloss(value: str) -> str | None:
     Apte rows look like: 'cittacittacitta p. p. [cit-kta] 1 Observed,
     perceived. 2 Considered...'
     """
-    m = re.search(r'\b1\s+(\(?[A-Za-z][^.]{2,90})', value)
+    m = re.search(r'\b1\s+(\(?[A-Za-z][^.;]{2,90})', value)
     if not m:
         return None
     return m.group(1).strip(' ,;')

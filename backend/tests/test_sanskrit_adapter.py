@@ -160,6 +160,26 @@ class TestSanskritAdapter:
         # Title-case SLP1 (only marker is the initial capital)
         assert _display_forms("Bavati") == ("bhavati", "भवति")
 
+    def test_merge_privative_rejoins_a_prefix(self):
+        """Sutra 1.5 regression: 'akliṣṭāḥ' split into 'a' + 'kliṣṭāḥ'
+        misleads — the negated stem is one word with its own entry."""
+        words = [
+            {"surface_form": "kliṣṭa", "surface_devanagari": "क्लिष्ट",
+             "lemma": "kliś", "lemma_devanagari": "क्लिश्", "meanings": ["afflicted"]},
+            {"surface_form": "a", "surface_devanagari": "अ",
+             "lemma": "a", "lemma_devanagari": "अ", "meanings": ["not"]},
+            {"surface_form": "kliṣṭāḥ", "surface_devanagari": "क्लिष्टाः",
+             "lemma": "kliś", "lemma_devanagari": "क्लिश्", "meanings": ["afflicted"]},
+        ]
+        merged = SanskritAdapter._merge_privative(words)
+
+        assert len(merged) == 2
+        assert merged[0]["surface_form"] == "kliṣṭa"
+        assert merged[1]["surface_form"] == "akliṣṭāḥ"
+        assert merged[1]["surface_devanagari"] == "अक्लिष्टाः"
+        assert merged[1]["lemma"] == "akliṣṭa"  # dictionary headword of the negated stem
+        assert merged[1]["meanings"] == []  # forces negated-stem re-lookup
+
     def test_analyze_block_matches_stored_schema(self, adapter):
         """Output is JSON-serializable, fit for the word_analysis column."""
         import json

@@ -380,7 +380,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To be tormented, be afflicted, suffer; apyupadeSagrahaRe nAtikliSyate vaH SizyA M"
+     "To be tormented, be afflicted, suffer"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -389,10 +389,10 @@
     "meaning_source": "apte"
    },
    {
-    "lemma": "a",
-    "lemma_devanagari": "अ",
-    "surface_form": "a",
-    "surface_devanagari": "अ",
+    "lemma": "akliṣṭa",
+    "lemma_devanagari": "अक्लिष्ट",
+    "surface_form": "akliṣṭāḥ",
+    "surface_devanagari": "अक्लिष्टाः",
     "tag": "",
     "case": null,
     "gender": null,
@@ -401,34 +401,13 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "A prefix corresponding to Latin in, Eng"
+     "untroubled"
     ],
     "is_verb": false,
     "dhatu": null,
     "dhatu_slp1": null,
     "gana": null,
-    "meaning_source": "apte"
-   },
-   {
-    "lemma": "kliś",
-    "lemma_devanagari": "क्लिश्",
-    "surface_form": "kliṣṭāḥ",
-    "surface_devanagari": "क्लिष्टाः",
-    "tag": "",
-    "case": null,
-    "gender": null,
-    "number": null,
-    "person": null,
-    "tense": null,
-    "voice": null,
-    "meanings": [
-     "To be tormented, be afflicted, suffer; apyupadeSagrahaRe nAtikliSyate vaH SizyA M"
-    ],
-    "is_verb": false,
-    "dhatu": null,
-    "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "apte"
+    "meaning_source": "mw"
    }
   ],
   "dhatu_verifier": "sanskrit_model DhatuKosha"
@@ -704,10 +683,10 @@
     "meaning_source": "mw"
    },
    {
-    "lemma": "a",
-    "lemma_devanagari": "अ",
-    "surface_form": "a",
-    "surface_devanagari": "अ",
+    "lemma": "atad",
+    "lemma_devanagari": "अतद्",
+    "surface_form": "atad",
+    "surface_devanagari": "अतद्",
     "tag": "",
     "case": null,
     "gender": null,
@@ -715,35 +694,11 @@
     "person": null,
     "tense": null,
     "voice": null,
-    "meanings": [
-     "A prefix corresponding to Latin in, Eng"
-    ],
+    "meanings": [],
     "is_verb": false,
     "dhatu": null,
     "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "apte"
-   },
-   {
-    "lemma": "tad",
-    "lemma_devanagari": "तद्",
-    "surface_form": "tad",
-    "surface_devanagari": "तद्",
-    "tag": "",
-    "case": null,
-    "gender": null,
-    "number": null,
-    "person": null,
-    "tense": null,
-    "voice": null,
-    "meanings": [
-     "of and base in comp. for"
-    ],
-    "is_verb": false,
-    "dhatu": null,
-    "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "mw"
+    "gana": null
    },
    {
     "lemma": "rūpa",
@@ -1451,7 +1406,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To carry out, practise, perform zealously; DaMrma, vrataM &c"
+     "To carry out, practise, perform zealously"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -2747,7 +2702,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4423,7 +4378,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4493,7 +4448,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4535,7 +4490,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To be born or produced, arise, originate, spring up; utpatsyate'sti mama kopi samAnaDarmA M"
+     "To be born or produced, arise, originate, spring up"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4647,7 +4602,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4759,7 +4714,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4892,7 +4847,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4941,7 +4896,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To wish or desire, long for, covet, like; na tvevaM jyAyasIM vfttimaBimanyeta karhicit Ms"
+     "To wish or desire, long for, covet, like"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -4983,7 +4938,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -5204,7 +5159,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To be born to or for (a person or thing), to claim as one's birth-right; sa mahImaBijAyate"
+     "To be born to or for (a person or thing), to claim as one's birth-right"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -5562,7 +5517,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To commit; ye pakzAparapakzadozasahitAH pApAni saMkurvate Mk"
+     "To commit"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -7447,7 +7402,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To cut off, break, tear asunder, divide; yadarDe vicCinnaM Bavati kftasaMDAnamiva tat Ś"
+     "To cut off, break, tear asunder, divide"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -9782,7 +9737,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To become pure or purified; (fig"
+     "To become pure or purified"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -11138,7 +11093,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "the eight parts of the body with which a very low obeisance is performed; ˚pAtaH, -praRAmaH"
+     "the eight parts of the body with which a very low obeisance is performed"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -11779,7 +11734,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To do (in general); tAta (pb) kiMkaravARyahaM"
+     "To do (in general)"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -12444,10 +12399,10 @@
   "confidence": 0.9,
   "words": [
    {
-    "lemma": "a",
-    "lemma_devanagari": "अ",
-    "surface_form": "a",
-    "surface_devanagari": "अ",
+    "lemma": "aparigraha",
+    "lemma_devanagari": "अपरिग्रह",
+    "surface_form": "aparigraha",
+    "surface_devanagari": "अपरिग्रह",
     "tag": "",
     "case": null,
     "gender": null,
@@ -12456,28 +12411,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "A prefix corresponding to Latin in, Eng"
-    ],
-    "is_verb": false,
-    "dhatu": null,
-    "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "apte"
-   },
-   {
-    "lemma": "parigraha",
-    "lemma_devanagari": "परिग्रह",
-    "surface_form": "parigraha",
-    "surface_devanagari": "परिग्रह",
-    "tag": "",
-    "case": null,
-    "gender": null,
-    "number": null,
-    "person": null,
-    "tense": null,
-    "voice": null,
-    "meanings": [
-     "laying hold of on all sides, surrounding, enclosing, fencing round"
+     "not including"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -12679,10 +12613,10 @@
     "meaning_source": "mw"
    },
    {
-    "lemma": "a",
-    "lemma_devanagari": "अ",
-    "surface_form": "a",
-    "surface_devanagari": "अ",
+    "lemma": "asaṃsarga",
+    "lemma_devanagari": "असंसर्ग",
+    "surface_form": "asaṃsargaḥ",
+    "surface_devanagari": "असंसर्गः",
     "tag": "",
     "case": null,
     "gender": null,
@@ -12690,35 +12624,11 @@
     "person": null,
     "tense": null,
     "voice": null,
-    "meanings": [
-     "A prefix corresponding to Latin in, Eng"
-    ],
+    "meanings": [],
     "is_verb": false,
     "dhatu": null,
     "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "apte"
-   },
-   {
-    "lemma": "saṃsarga",
-    "lemma_devanagari": "संसर्ग",
-    "surface_form": "saṃsargaḥ",
-    "surface_devanagari": "संसर्गः",
-    "tag": "",
-    "case": null,
-    "gender": null,
-    "number": null,
-    "person": null,
-    "tense": null,
-    "voice": null,
-    "meanings": [
-     "commingling, combining"
-    ],
-    "is_verb": false,
-    "dhatu": null,
-    "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "mw"
+    "gana": null
    }
   ],
   "dhatu_verifier": "sanskrit_model DhatuKosha"
@@ -16175,7 +16085,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To remain, stay, abide; tena saha suKamavatizWaMte K"
+     "To remain, stay, abide"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -16547,7 +16457,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To go beyond, pass on, over or beyond, cross (time or space); stokamaMtaramatItya Ś"
+     "To go beyond, pass on, over or beyond, cross (time or space)"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -17193,31 +17103,10 @@
     "meaning_source": "mw"
    },
    {
-    "lemma": "a",
-    "lemma_devanagari": "अ",
-    "surface_form": "a",
-    "surface_devanagari": "अ",
-    "tag": "",
-    "case": null,
-    "gender": null,
-    "number": null,
-    "person": null,
-    "tense": null,
-    "voice": null,
-    "meanings": [
-     "A prefix corresponding to Latin in, Eng"
-    ],
-    "is_verb": false,
-    "dhatu": null,
-    "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "apte"
-   },
-   {
-    "lemma": "viṣayībhū",
-    "lemma_devanagari": "विषयीभू",
-    "surface_form": "viṣayībhūta",
-    "surface_devanagari": "विषयीभूत",
+    "lemma": "aviṣayībhūta",
+    "lemma_devanagari": "अविषयीभूत",
+    "surface_form": "aviṣayībhūta",
+    "surface_devanagari": "अविषयीभूत",
     "tag": "",
     "case": null,
     "gender": null,
@@ -17449,10 +17338,10 @@
     "meaning_source": "mw"
    },
    {
-    "lemma": "a",
-    "lemma_devanagari": "अ",
-    "surface_form": "a",
-    "surface_devanagari": "अ",
+    "lemma": "asamprayoge",
+    "lemma_devanagari": "असम्प्रयोगे",
+    "surface_form": "asamprayoge",
+    "surface_devanagari": "असम्प्रयोगे",
     "tag": "",
     "case": null,
     "gender": null,
@@ -17460,35 +17349,11 @@
     "person": null,
     "tense": null,
     "voice": null,
-    "meanings": [
-     "A prefix corresponding to Latin in, Eng"
-    ],
+    "meanings": [],
     "is_verb": false,
     "dhatu": null,
     "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "apte"
-   },
-   {
-    "lemma": "samprayoga",
-    "lemma_devanagari": "सम्प्रयोग",
-    "surface_form": "samprayoge",
-    "surface_devanagari": "सम्प्रयोगे",
-    "tag": "",
-    "case": null,
-    "gender": null,
-    "number": null,
-    "person": null,
-    "tense": null,
-    "voice": null,
-    "meanings": [
-     "joining together, attaching, fastening"
-    ],
-    "is_verb": false,
-    "dhatu": null,
-    "dhatu_slp1": null,
-    "gana": null,
-    "meaning_source": "mw"
+    "gana": null
    },
    {
     "lemma": "antardhāna",
@@ -17720,7 +17585,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -18676,7 +18541,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -23112,7 +22977,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "An affix added to nouns to show ‘possession’; Danavat possessed of wealth; rUpavat beautifu"
+     "An affix added to nouns to show ‘possession’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -24209,7 +24074,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To collect, gather, accumulate, hoard; saMgfhya DanaM, pASAn &c"
+     "To collect, gather, accumulate, hoard"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -24339,7 +24204,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To go beyond, pass on, over or beyond, cross (time or space); stokamaMtaramatItya Ś"
+     "To go beyond, pass on, over or beyond, cross (time or space)"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -24825,7 +24690,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To divide, distribute; viBajya merurna yadarTisAtkftaH N"
+     "To divide, distribute"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -26857,7 +26722,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "An affix added to nouns to show ‘possession’; Danavat possessed of wealth; rUpavat beautifu"
+     "An affix added to nouns to show ‘possession’"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -27259,7 +27124,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "To go away, depart, withdraw, retire, run away, escape; apehi begone, avaunt, away, hence"
+     "To go away, depart, withdraw, retire, run away, escape"
     ],
     "is_verb": false,
     "dhatu": null,
@@ -27742,7 +27607,7 @@
     "tense": null,
     "voice": null,
     "meanings": [
-     "As an alternative conjunction it means ‘or’; but its position is different in Sanskrit, bei"
+     "As an alternative conjunction it means ‘or’"
     ],
     "is_verb": false,
     "dhatu": null,
