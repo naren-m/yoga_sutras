@@ -59,14 +59,18 @@ export default function WordByWordGloss({ analysis }: WordByWordGlossProps) {
               </div>
             )}
             {word.dhatu && (
-              <div className="text-[11px] text-amber-600 mt-1">
-                √{word.dhatu}
-                {word.gana != null && <span> · class {word.gana}</span>}
+              <div className="text-[11px] text-amber-700 mt-1 pt-1 border-t border-amber-100">
+                <span className="text-amber-500">root </span>
+                <span className="font-medium">
+                  {word.dhatu_prefixes?.length ? word.dhatu_prefixes.join('-') + '-' : ''}
+                  √{showDevanagari && word.dhatu_devanagari ? word.dhatu_devanagari : word.dhatu}
+                </span>
+                {word.gana != null && <span className="text-amber-500"> · class {word.gana}</span>}
                 {word.dhatu_verified && (
-                  <span title="Root attested in the Dhatupatha" className="text-green-600"> ✓</span>
+                  <span title="Root attested in the Dhātupāṭha" className="text-green-600"> ✓</span>
                 )}
                 {word.dhatu_meaning && (
-                  <span className="text-gray-500"> “{word.dhatu_meaning}”</span>
+                  <span className="text-gray-500"> · “{word.dhatu_meaning}”</span>
                 )}
               </div>
             )}
