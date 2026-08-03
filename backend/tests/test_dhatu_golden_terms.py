@@ -1,10 +1,12 @@
 """Ground truth: roots of the Yoga Sutras' core technical vocabulary.
 
 Every entry is a term whose derivation the grammatical tradition agrees on
-(Vyāsa's bhāṣya, MW's etymologies, the Dhātupāṭha). This is the regression
-guard for DhatuResolver: root identification is a ranking problem over
-homographic Kośa readings, and a change that helps one word easily breaks
-another, so the whole set runs together.
+(Vyāsa's bhāṣya, MW's etymologies, the Dhātupāṭha). DhatuResolver itself is
+unit-tested upstream in sanskrit_analyzer; this file is the integration guard
+for the dictionary-assisted path — it exercises the resolver through
+SanskritAdapter._attach_dhatu and DictionaryService's MW etymologies, since a
+change that helps one word easily breaks another, so the whole set runs
+together.
 
 Roots are SLP1. ``None`` means the word must show NO root — a pronoun,
 particle, or a stem with no accepted verbal derivation.
@@ -12,7 +14,7 @@ particle, or a stem with no accepted verbal derivation.
 
 import pytest
 
-from app.services.dhatu_resolver import get_dhatu_resolver
+from sanskrit_analyzer.dhatu import get_dhatu_resolver
 
 # (stem in SLP1, expected root in SLP1 or None)
 GOLDEN_TERMS = [
@@ -86,7 +88,7 @@ def resolve_root():
     """Resolve exactly as the adapter does — Kośa plus MW's own etymology."""
     r = get_dhatu_resolver()
     if not r._ensure():
-        pytest.skip("vidyut Kośa / sanskrit_model unavailable")
+        pytest.skip("vidyut Kośa unavailable")
 
     from app import create_app
     from app.services.sanskrit_adapter import SanskritAdapter

@@ -12,7 +12,7 @@ from sanskrit_analyzer.models import AnalysisTree, SandhiGroup
 from sanskrit_analyzer.models.scripts import Script
 from sanskrit_analyzer.utils import detect_script, to_devanagari, to_iast
 
-from app.services.dhatu_resolver import get_dhatu_resolver
+from sanskrit_analyzer.dhatu import get_dhatu_resolver
 
 logger = logging.getLogger(__name__)
 
