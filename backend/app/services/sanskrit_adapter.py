@@ -223,19 +223,42 @@ class SanskritAdapter:
         entry.setdefault("dhatu_slp1", None)
         entry.setdefault("dhatu_devanagari", None)
         entry.setdefault("dhatu_meaning", None)
+        entry.setdefault("dhatu_meaning_en", None)
         entry.setdefault("dhatu_prefixes", [])
         entry.setdefault("dhatu_verified", False)
         entry.setdefault("gana", None)
 
-        # Look up surface first (most specific), then lemma. We deliberately
-        # do NOT strip a privative a-/an- to find the root: the Kośa readily
-        # mis-parses the debrided stem (avidyā -> vi+√dā "give" instead of
-        # √vid "know"), and a confident wrong root on a key term is worse
-        # than none — the positive form beside it already shows the root.
-        info = get_dhatu_resolver().resolve(_to_slp1(surface), _to_slp1(lemma))
+        # A word the engine gave a case to is a nominal, and its lemma is the
+        # form to ask about: asking with the inflection first let case endings
+        # choose the reading, so viṣayam matched a vi+√siv 'to sew' krdanta
+        # and viṣayā matched √viṣ 'to sprinkle' — one word, three etymologies
+        # across the text. A finite verb has no case and keeps surface-first,
+        # since only the inflected form carries its root (gacchati -> √gam).
+        # Either way the resolver falls back to peeling a canonical prefix
+        # when the Kośa has no dhātu link for the prefixed stem itself
+        # (anuśāsana -> anu + √śās).
+        resolver = get_dhatu_resolver()
+        if resolver.is_rootless(_to_slp1(surface), _to_slp1(lemma)):
+            return  # particle or pronoun — no root, and no fallback either
+        cited = self._cited_root(lemma) or self._cited_root(surface)
+        info = resolver.resolve(
+            _to_slp1(surface), _to_slp1(lemma), preferred_root=cited,
+        )
+        if not info and cited:
+            # The Kośa has no derivation for this stem, but the dictionary
+            # names its root outright (karman -> √kṛ, and taddhita forms the
+            # Kośa does not analyse at all).
+            info = resolver.describe_root(cited)
         if not info:
             return
         root = info["root_slp1"]
+        # The Kośa sometimes derives a stem from something that is not in the
+        # Dhātupāṭha at all (artha, guṇa, kāla). Those are stems, not roots —
+        # showing them as √artha teaches the reader something false, so a root
+        # must be attested somewhere: the Dhātupāṭha index, or MW naming it
+        # for this very word (√vic is a real root the index happens to lack).
+        if not info["verified"] and root != cited:
+            return
         entry["dhatu_slp1"] = root
         entry["dhatu"] = _slp1_to_iast(root)
         entry["dhatu_devanagari"] = _slp1_to_devanagari(root)
@@ -249,6 +272,33 @@ class SanskritAdapter:
             entry["is_verb"] = True
         if info.get("artha_slp1"):
             entry["dhatu_meaning"] = _slp1_to_iast(info["artha_slp1"])
+        entry["dhatu_meaning_en"] = self._root_gloss_en(root, info["gana"])
+
+    @staticmethod
+    def _cited_root(word: str) -> str | None:
+        """Root MW names for this word, if the dictionary is reachable."""
+        try:
+            from app.services.dictionary_service import DictionaryService
+
+            return DictionaryService().get_cited_root(_to_slp1(word))
+        except Exception:  # no app context / dictionaries not seeded
+            return None
+
+    @staticmethod
+    def _root_gloss_en(root_slp1: str, gana: int | None) -> str | None:
+        """English sense of the root from MW, e.g. √yuj -> 'to yoke or join'.
+
+        The Dhātupāṭha artha carried by the Kośa is Sanskrit ('saṃyamane'),
+        which is opaque to the reader this gloss is for. Best-effort: needs a
+        Flask app context and a seeded dictionary, and returns None without
+        them so analysis still works in bare unit tests.
+        """
+        try:
+            from app.services.dictionary_service import DictionaryService
+
+            return DictionaryService().get_root_gloss(root_slp1, gana)
+        except Exception:  # no app context / dictionaries not seeded
+            return None
 
     @staticmethod
     def _merge_privative(words: list[dict]) -> list[dict]:
@@ -284,6 +334,43 @@ class SanskritAdapter:
             i += 1
         return merged
 
+    # Abstract-noun (bhāva) taddhita suffixes the segmenter strands as words.
+    # Keyed by the lemma the analyser gives the fragment; the value is the
+    # suffix in its stem form, which is what the joined lemma ends in
+    # (adhimātra + tvāt -> lemma adhimātratva, surface adhimātratvāt).
+    _ABSTRACT_SUFFIXES = {"tva": "tva", "tā": "tā"}
+
+    @staticmethod
+    def _merge_suffix(words: list[dict]) -> list[dict]:
+        """Rejoin a stranded abstract-noun suffix with the stem before it.
+
+        The mirror of ``_merge_privative``, on the other end of the word.
+        Segmenters cut adhimātratvāt into 'adhimātra' + 'tvāt' and ekātmatā
+        into 'ātma' + 'tā'. The tail is a suffix, not a word: shown on its own
+        it was glossed from the homographic numeral tva ('one, several') and
+        the root √tu, telling the reader something the sentence never said.
+        The stem keeps its own root — adhiṣṭhātṛtvam is still from √sthā —
+        so the merged entry is built from the stem and only its meanings are
+        cleared, so the enricher looks the whole abstract noun up afresh.
+        """
+        merged: list[dict] = []
+        for word in words:
+            suffix = SanskritAdapter._ABSTRACT_SUFFIXES.get(word.get("lemma"))
+            if suffix and merged:
+                stem = merged[-1]
+                surface = stem["surface_form"] + word["surface_form"]
+                # The stem's *surface* is the compounding form (ātman -> ātma),
+                # so the abstract noun is built on it, not on the stem's lemma.
+                lemma = stem["surface_form"] + suffix
+                combined = dict(stem)
+                combined["surface_form"], combined["surface_devanagari"] = _display_forms(surface)
+                combined["lemma"], combined["lemma_devanagari"] = _display_forms(lemma)
+                combined["meanings"] = []
+                merged[-1] = combined
+                continue
+            merged.append(word)
+        return merged
+
     async def get_morphology(self, word: str) -> dict | None:
         """Get morphological analysis for a word."""
         result = await self.analyzer.analyze(word, mode=AnalysisMode.EDUCATIONAL)
@@ -312,6 +399,7 @@ class SanskritAdapter:
             for word in sg.base_words:
                 words.append(self._word_entry(word))
         words = self._merge_privative(words)
+        words = self._merge_suffix(words)
         if not words:
             return None
 

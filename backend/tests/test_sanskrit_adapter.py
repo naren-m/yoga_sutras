@@ -180,6 +180,76 @@ class TestSanskritAdapter:
         assert merged[1]["lemma"] == "akliṣṭa"  # dictionary headword of the negated stem
         assert merged[1]["meanings"] == []  # forces negated-stem re-lookup
 
+    def test_nominal_resolves_from_its_lemma_not_its_inflection(self, adapter):
+        """A declined noun must give the same root wherever it appears.
+
+        Trying the inflected surface first let case endings pick the reading:
+        viṣayam matched a vi+√siv 'to sew' krdanta and viṣayā matched √viṣ
+        'to sprinkle', so one word carried three etymologies across the text.
+        A word the engine gave a case to is a nominal — its lemma is the form
+        to ask about. The ByT5 pipeline fills in no morphology at all (case,
+        gender and person are empty for the whole corpus), so the signal that
+        actually fires is the lemma differing from the surface: that only
+        happens when the analyser really did reduce an inflected form."""
+        entry = {}
+        SanskritAdapter._attach_dhatu(adapter, entry, "vizayam", "vizaya")
+        bare = {}
+        SanskritAdapter._attach_dhatu(adapter, bare, "vizaya", "vizaya")
+
+        assert entry.get("dhatu") == bare.get("dhatu")
+        assert entry.get("dhatu") != "siv"
+
+    def test_finite_verb_still_resolves_from_its_surface(self, adapter):
+        """A finite verb has no case, and only its surface carries the root
+        (the lemma of gacchati is no help — √gam is in the inflected form)."""
+        entry = {}
+        SanskritAdapter._attach_dhatu(adapter, entry, "gacCati", "gacCati")
+        assert entry.get("dhatu") == "gam"
+
+    def test_merge_suffix_rejoins_abstract_tva(self):
+        """Sutra 1.22 regression: 'adhimātratvāt' split into 'adhimātra' +
+        'tvāt'. The stranded suffix is not a word — it was being shown to the
+        reader as one and glossed 'one, several' (the numeral tva), a gloss
+        with nothing to do with the sentence."""
+        words = [
+            {"surface_form": "adhimātra", "surface_devanagari": "अधिमात्र",
+             "lemma": "adhimātra", "lemma_devanagari": "अधिमात्र",
+             "meanings": ["above measure, excessive"], "dhatu": "mā"},
+            {"surface_form": "tvāt", "surface_devanagari": "त्वात्",
+             "lemma": "tva", "lemma_devanagari": "त्व",
+             "meanings": ["one, several"]},
+        ]
+        merged = SanskritAdapter._merge_suffix(words)
+
+        assert len(merged) == 1
+        assert merged[0]["surface_form"] == "adhimātratvāt"
+        assert merged[0]["surface_devanagari"] == "अधिमात्रत्वात्"
+        assert merged[0]["lemma"] == "adhimātratva"  # the abstract noun
+        assert merged[0]["meanings"] == []  # forces re-lookup of the whole
+        assert merged[0]["dhatu"] == "mā"  # the stem still carries the root
+
+    def test_merge_suffix_rejoins_abstract_ta(self):
+        """Sutra 2.6 regression: 'ekātmatā' left a bare 'tā' glossed √tu."""
+        words = [
+            {"surface_form": "ātma", "surface_devanagari": "आत्म",
+             "lemma": "ātman", "lemma_devanagari": "आत्मन्", "meanings": ["the breath"]},
+            {"surface_form": "tā", "surface_devanagari": "ता",
+             "lemma": "tā", "lemma_devanagari": "ता", "meanings": [], "dhatu": "tu"},
+        ]
+        merged = SanskritAdapter._merge_suffix(words)
+
+        assert len(merged) == 1
+        assert merged[0]["surface_form"] == "ātmatā"
+        assert merged[0]["lemma"] == "ātmatā"
+        assert merged[0].get("dhatu") != "tu", "√tu belonged to the stray suffix"
+
+    def test_merge_suffix_keeps_a_leading_fragment(self):
+        """With no stem in front of it there is nothing to rejoin — a
+        sentence-initial fragment is left alone rather than dropped."""
+        words = [{"surface_form": "tā", "surface_devanagari": "ता",
+                  "lemma": "tā", "lemma_devanagari": "ता", "meanings": []}]
+        assert SanskritAdapter._merge_suffix(words) == words
+
     def test_analyze_block_resolves_dhatu_for_derived_nouns(self, adapter):
         """The headline feature: every content word shows its root, not just
         finite verbs. yoga -> √yuj, nirodha -> ni + √rudh, with the root's
@@ -199,6 +269,45 @@ class TestSanskritAdapter:
         assert nirodha is not None
         assert nirodha["dhatu"] == "rudh"
         assert nirodha["dhatu_prefixes"] == ["ni"]
+
+    def test_golden_sutra_1_1_roots_and_english_meanings(self):
+        """Golden example — sutra 1.1 'atha yogānuśāsanam'.
+
+        Asserts against data/word_analysis.json, the precomputed artifact the
+        API actually serves (the live pipeline runs the ByT5-only engine
+        config from scripts/enrich_word_analysis.py, not the default adapter).
+        Every content word must show its root AND an English gloss for that
+        root; the particle must show neither — the whole feature in one line.
+        """
+        import json
+        import os
+
+        cache = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "data", "word_analysis.json",
+        )
+        if not os.path.exists(cache):
+            pytest.skip("word_analysis.json not precomputed")
+        with open(cache, encoding="utf-8") as fh:
+            result = json.load(fh)["1.1"]
+        by_lemma = {w["lemma"]: w for w in result["words"]}
+
+        yoga = by_lemma.get("yoga")
+        assert yoga is not None, f"no 'yoga' in {list(by_lemma)}"
+        assert yoga["dhatu"] == "yuj"
+        # The root's meaning a reader can actually read.
+        assert yoga["dhatu_meaning_en"], "root √yuj has no English gloss"
+        assert "yoke" in yoga["dhatu_meaning_en"] or "join" in yoga["dhatu_meaning_en"]
+
+        anu = by_lemma.get("anuśāsana")
+        assert anu is not None, f"no 'anuśāsana' in {list(by_lemma)}"
+        assert anu["dhatu"] == "śās", f"expected √śās, got {anu['dhatu']}"
+        assert anu["dhatu_prefixes"] == ["anu"]
+        assert anu["dhatu_meaning_en"], "root √śās has no English gloss"
+
+        atha = by_lemma.get("atha")
+        assert atha is not None
+        assert atha["dhatu"] is None, "particle 'atha' must have no root"
 
     def test_analyze_block_matches_stored_schema(self, adapter):
         """Output is JSON-serializable, fit for the word_analysis column."""
