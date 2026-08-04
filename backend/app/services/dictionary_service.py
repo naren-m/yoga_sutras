@@ -207,6 +207,115 @@ class DictionaryService:
 
         return definitions
 
+    # MW states a derived word's origin as 'fr. √ 1. viṣ' or '(√ rañj)'. The
+    # homograph numerals that may precede the root are skipped, however many
+    # of them a cross-reference piles up ('See √ 1. 2. and 4. kṣi').
+    _CITED_ROOT = re.compile(r'√\s*(?:(?:\d+\.?|and)\s*)*([^\s,;)\]]+)')
+    # CDSL glues its own entry id onto some roots: 'sañj.228458'.
+    _CDSL_ID = re.compile(r'\.\d+$')
+
+    @staticmethod
+    def _cited_root_from_texts(texts) -> Optional[str]:
+        """The root MW names across a word's entries, in SLP1, or None.
+
+        A '?' after the root is MW flagging an etymology it is unsure of. That
+        is worth reporting, but a confident citation elsewhere in the same
+        word's entries beats it — kāla hedges 'fr. √ 3. kal?' in one entry and
+        states '√ 3. kal' outright in the next.
+        """
+        doubtful = None
+        for text in texts:
+            for match in DictionaryService._CITED_ROOT.finditer(text or ""):
+                cited = match.group(1).strip('.’\'"')
+                marked = cited.endswith('?')
+                cited = DictionaryService._CDSL_ID.sub('', cited.rstrip('?'))
+                # A capture that is not a word is a stray numeral or list
+                # punctuation the citation ran into, not a root.
+                if not cited or not cited.isalpha():
+                    continue
+                # Entry bodies are half-transliterated: tokens carrying
+                # diacritics came through as IAST, all-ASCII ones are still
+                # the raw SLP1 the CDSL file used ('√ kf').
+                root = (transliterate(cited, sanscript.IAST, sanscript.SLP1)
+                        if any(ord(c) > 127 for c in cited) else cited)
+                if not marked:
+                    return root
+                doubtful = doubtful or root
+        return doubtful
+
+    def get_cited_root(self, word: str) -> Optional[str]:
+        """The root MW itself names for a word, in SLP1, or None.
+
+        Where several Kośa readings compete (rāga: √rāj? √rag? √rañj?) the
+        dictionary's own etymology settles it, and it also reaches words the
+        Kośa has no derivational entry for at all (karman -> √kṛ).
+        """
+        if word in self._cited_root_cache:
+            return self._cited_root_cache[word]
+        try:
+            root = self._cited_root_from_texts(
+                e.get("definition") or "" for e in self.get_definitions(word, fuzzy=False)
+            )
+        except Exception:
+            root = None
+        self._cited_root_cache[word] = root
+        return root
+
+    _cited_root_cache: Dict[str, Optional[str]] = {}
+
+    def get_root_gloss(self, root_slp1: str, gana: Optional[int] = None) -> Optional[str]:
+        """English gloss for a verbal root, e.g. 'yuj' -> 'to yoke or join'.
+
+        The Dhātupāṭha's own artha ('saṃyamane') is Sanskrit, so it tells an
+        English reader nothing. MW's root entries open with the conjugation
+        class and then the sense run — 'cl. 7. P. Ā. ... ruṇaddhi ... to
+        obstruct, check, arrest' — so we take the first 'to ...' clause.
+
+        Homographic roots are distinguished by class: √rudh 1 is 'to sprout'
+        but √rudh 7 (the one behind nirodha) is 'to obstruct'. When ``gana``
+        is known we prefer the MW entry declaring that class.
+        """
+        cache_key = (root_slp1, gana)
+        if cache_key in self._root_gloss_cache:
+            return self._root_gloss_cache[cache_key]
+
+        gloss = None
+        try:
+            entries = self.get_definitions(root_slp1, fuzzy=False)
+        except Exception:
+            entries = []
+
+        texts = [e.get("definition") or "" for e in entries]
+        if gana is not None:
+            marker = f"cl. {gana}."
+            texts.sort(key=lambda t: marker not in t)
+
+        for text in texts:
+            gloss = self._extract_sense_run(text)
+            if gloss:
+                break
+
+        self._root_gloss_cache[cache_key] = gloss
+        return gloss
+
+    # Sense runs open with 'to' and end at the first citation or bracket.
+    _SENSE_RUN = re.compile(r'\b(to\s+[a-z][a-z ,\-]{3,150})')
+    # Grammatical apparatus that means we matched a citation, not a sense.
+    _SENSE_JUNK = re.compile(r'\b(?:Dh[aā]tup|accord|ib|cf)\b', re.IGNORECASE)
+    _root_gloss_cache: Dict[Any, Optional[str]] = {}
+
+    @classmethod
+    def _extract_sense_run(cls, text: str) -> Optional[str]:
+        """First readable 'to X, Y, Z' sense run in an MW/Apte root entry."""
+        for match in cls._SENSE_RUN.finditer(text or ''):
+            run = match.group(1).strip().rstrip(' ,')
+            if cls._SENSE_JUNK.search(run) or len(run) < 6:
+                continue
+            # Keep it short enough for a gloss line: first few senses only.
+            senses = [s.strip() for s in run.split(',') if s.strip()]
+            return ', '.join(senses[:4])
+        return None
+
     def get_dictionaries(self) -> List[Dict[str, Any]]:
         """Get list of all available dictionaries."""
         dictionaries = db.session.query(Dictionary).all()
