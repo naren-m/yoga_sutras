@@ -1,0 +1,42 @@
+# Keep build context small and keep host-built artifacts out of images.
+#
+# Without this, `COPY backend/ .` pulled the local macOS virtualenv into the
+# backend image — 1.3 GB of dead weight that is also the wrong platform, since
+# the image installs its own dependencies from requirements.txt. Likewise the
+# frontend image runs `npm ci` itself and must not inherit a host node_modules.
+
+# Virtualenvs and Python build artifacts
+backend/venv/
+backend/.venv/
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+*.egg-info/
+
+# Node: the frontend image runs `npm ci` from package-lock.json
+frontend/node_modules/
+frontend/dist/
+frontend/dev-dist/
+
+# VCS and tooling
+.git/
+.github/
+.claude/
+.serena/
+.superpowers/
+.playwright-mcp/
+
+# Local data. The backend reads its SQLite DB from the mounted PVC at runtime,
+# not from the image; data/ here is multi-GB of dictionaries and scratch DBs.
+data/
+graphify-out/
+experiments/
+*.db
+*.sqlite3
+
+# Scratch
+*.log
+.DS_Store
+venv/
