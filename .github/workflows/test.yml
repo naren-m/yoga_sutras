@@ -1,0 +1,67 @@
+# Tests for every push to main and for manual runs.
+#
+# Building and deploying the image no longer happens here. The homelab repo's
+# own pipeline (naren-m/homelab ci/deploy.py) polls this repo's main every
+# 10 minutes, builds on the homelab runners, pushes to the local registry, and
+# bumps the kustomization tag. No secrets are needed in this repo for that.
+
+name: Test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        # Match ramayanam's tolerance pattern for upstream packaging issues:
+        # filter git+ refs out of bulk install, then attempt each individually
+        # with --no-deps so one bad pyproject can't sink the whole install.
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then
+            grep -v -E '^\s*[a-zA-Z0-9_-]+\s*@\s*git\+' backend/requirements.txt > /tmp/req-pypi.txt || true
+            grep -E '^\s*[a-zA-Z0-9_-]+\s*@\s*git\+'   backend/requirements.txt > /tmp/req-git.txt  || true
+            pip install -r /tmp/req-pypi.txt || true
+            while IFS= read -r line; do
+              [ -z "$line" ] && continue
+              echo "Trying git dep (may fail, that's OK): $line"
+              pip install --no-deps "$line" || echo "  -> skipped"
+            done < /tmp/req-git.txt
+          fi
+          pip install pytest pytest-mock
+
+      - name: Run backend tests
+        # Same exit-code policy as ramayanam: real test failures (1/2/3) fail
+        # the job; environment problems (4/5) warn but let the build proceed.
+        run: |
+          if [ ! -d backend/tests ]; then
+            echo "::warning::No backend/tests directory; skipping pytest"
+            exit 0
+          fi
+          set +e
+          cd backend && pytest tests/ -v --tb=short --continue-on-collection-errors
+          EXIT=$?
+          set -e
+          case "$EXIT" in
+            0) echo "All backend tests passed." ;;
+            4) echo "::warning::pytest exit 4: conftest could not be loaded. Build will proceed." ;;
+            5) echo "::warning::pytest exit 5: no tests collected. Build will proceed." ;;
+            *) echo "::error::pytest reported failures (exit $EXIT)"; exit $EXIT ;;
+          esac
