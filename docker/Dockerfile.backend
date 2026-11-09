@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements and install dependencies
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir gunicorn
 
 # Copy the backend application code
 COPY backend/ .
@@ -36,5 +35,6 @@ EXPOSE 5001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5001/api/health || exit 1
 
-# Run with gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "2", "--timeout", "120", "run:app"]
+# Run with gunicorn for production. Worker/thread settings live in
+# backend/gunicorn.conf.py (single worker so metrics counters stay monotonic).
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "run:app"]
