@@ -33,13 +33,11 @@ class TestSanskritAdapter:
 
     def test_singleton_instance(self):
         """Test get_sanskrit_adapter returns same instance."""
-        import app.services.sanskrit_adapter as mod
-
-        mod._adapter_instance = None
+        get_sanskrit_adapter.cache_clear()
         a1 = get_sanskrit_adapter()
         a2 = get_sanskrit_adapter()
         assert a1 is a2
-        mod._adapter_instance = None
+        get_sanskrit_adapter.cache_clear()
 
     def test_split_returns_backwards_compatible_dict(self, adapter):
         """Test split() returns the old SandhiService response format."""
