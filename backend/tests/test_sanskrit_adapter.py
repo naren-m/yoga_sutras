@@ -319,3 +319,30 @@ class TestSanskritAdapter:
         json.dumps(result, ensure_ascii=False)  # must not raise
         surfaces = [w["surface_devanagari"] for w in result["words"]]
         assert any("योग" in s or "अनुशासन" in s for s in surfaces)
+
+
+def _boom(*_args, **_kwargs):
+    raise ValueError("converter broke")
+
+
+@pytest.mark.parametrize(
+    "helper, patched, expected",
+    [
+        ("_slp1_to_devanagari", "to_devanagari", "yoga"),
+        ("_slp1_to_iast", "to_iast", "yoga"),
+        ("_display_forms", "to_iast", ("yoga", "yoga")),
+    ],
+)
+def test_script_helpers_fall_back_and_log(monkeypatch, caplog, helper, patched, expected):
+    """A converter failure keeps the input as the fallback and logs it at debug."""
+    import logging
+
+    from app.services import sanskrit_adapter
+
+    monkeypatch.setattr(sanskrit_adapter, patched, _boom)
+    with caplog.at_level(logging.DEBUG, logger=sanskrit_adapter.__name__):
+        assert getattr(sanskrit_adapter, helper)("yoga") == expected
+
+    record = caplog.records[-1]
+    assert record.levelno == logging.DEBUG
+    assert record.exc_info is not None

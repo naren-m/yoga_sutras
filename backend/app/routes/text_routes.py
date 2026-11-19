@@ -1,7 +1,11 @@
+import logging
+
 from flask import Blueprint, jsonify, request
 from app.services.text_service import TextService
 from app.services.search_service import get_search_service
 from app import db
+
+logger = logging.getLogger(__name__)
 
 text_bp = Blueprint('texts', __name__, url_prefix='/api')
 service = TextService()
@@ -23,7 +27,8 @@ def health_check():
             "status": "healthy",
             "service": "yoga-sutras-backend"
         }), 200
-    except Exception as e:
+    except Exception as e:  # health probe: any failure means unhealthy
+        logger.warning("health check failed", exc_info=True)
         return jsonify({
             "success": False,
             "status": "unhealthy",

@@ -1,3 +1,5 @@
+import logging
+
 from app.models.dictionary import Dictionary, DictionaryEntry
 from app import db
 from typing import List, Dict, Any, Optional
@@ -5,6 +7,8 @@ from indic_transliteration import sanscript
 from indic_transliteration.sanscript import transliterate
 from rapidfuzz import fuzz, process
 import re
+
+logger = logging.getLogger(__name__)
 
 
 # CDSL entry bodies interleave English prose with SLP1 Sanskrit tokens and
@@ -47,6 +51,7 @@ class DictionaryService:
                 try:
                     return transliterate(core, sanscript.SLP1, sanscript.IAST)
                 except Exception:
+                    logger.debug("SLP1->IAST failed for token %r", core, exc_info=True)
                     return token
             return token
 
@@ -256,7 +261,8 @@ class DictionaryService:
             root = self._cited_root_from_texts(
                 e.get("definition") or "" for e in self.get_definitions(word, fuzzy=False)
             )
-        except Exception:
+        except Exception:  # best-effort: no app context / dictionaries not seeded
+            logger.debug("cited-root lookup failed for %r", word, exc_info=True)
             root = None
         self._cited_root_cache[word] = root
         return root
@@ -282,7 +288,8 @@ class DictionaryService:
         gloss = None
         try:
             entries = self.get_definitions(root_slp1, fuzzy=False)
-        except Exception:
+        except Exception:  # best-effort: no app context / dictionaries not seeded
+            logger.debug("root gloss lookup failed for %r", root_slp1, exc_info=True)
             entries = []
 
         texts = [e.get("definition") or "" for e in entries]

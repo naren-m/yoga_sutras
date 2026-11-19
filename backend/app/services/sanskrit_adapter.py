@@ -37,6 +37,7 @@ def _to_slp1(text: str) -> str:
         src = sanscript.IAST if script == Script.IAST else sanscript.DEVANAGARI
         return transliterate(text, src, sanscript.SLP1)
     except Exception:
+        logger.debug("SLP1 conversion failed for %r", text, exc_info=True)
         return text
 
 
@@ -45,6 +46,7 @@ def _slp1_to_devanagari(text: str) -> str:
     try:
         return to_devanagari(text, Script.SLP1)
     except Exception:
+        logger.debug("SLP1->Devanagari failed for %r", text, exc_info=True)
         return text
 
 
@@ -53,6 +55,7 @@ def _slp1_to_iast(text: str) -> str:
     try:
         return to_iast(text, Script.SLP1)
     except Exception:
+        logger.debug("SLP1->IAST failed for %r", text, exc_info=True)
         return text
 
 
@@ -70,6 +73,7 @@ def _display_forms(text: str) -> tuple[str, str]:
         script = detect_script(text, plain_ascii_default=_ascii_default(text))
         return to_iast(text, script), to_devanagari(text, script)
     except Exception:
+        logger.debug("display-form conversion failed for %r", text, exc_info=True)
         return text, text
 
 
@@ -99,7 +103,8 @@ class SanskritAdapter:
         """Check if the analyzer is available."""
         try:
             return self.analyzer is not None
-        except Exception:
+        except Exception:  # the analyzer property already logged the init error
+            logger.debug("analyzer unavailable", exc_info=True)
             return False
 
     async def split_sandhi(self, compound: str) -> list[SandhiGroup]:
@@ -136,6 +141,7 @@ class SanskritAdapter:
                 original_dev = to_devanagari(compound, input_script)
                 original_iast = to_iast(compound, input_script)
             except Exception:
+                logger.debug("display forms failed for %r", compound, exc_info=True)
                 original_dev = original_iast = compound
 
             return {
@@ -282,6 +288,7 @@ class SanskritAdapter:
 
             return DictionaryService().get_cited_root(_to_slp1(word))
         except Exception:  # no app context / dictionaries not seeded
+            logger.debug("cited root unavailable for %r", word, exc_info=True)
             return None
 
     @staticmethod
@@ -298,6 +305,7 @@ class SanskritAdapter:
 
             return DictionaryService().get_root_gloss(root_slp1, gana)
         except Exception:  # no app context / dictionaries not seeded
+            logger.debug("root gloss unavailable for %r", root_slp1, exc_info=True)
             return None
 
     @staticmethod
