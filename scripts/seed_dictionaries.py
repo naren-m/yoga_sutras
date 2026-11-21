@@ -9,6 +9,7 @@ This script:
 
 Dictionary keys are stored in SLP1 encoding for standardized lookup.
 """
+import logging
 import os
 import sys
 import requests
@@ -16,6 +17,8 @@ import zipfile
 import io
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # Add backend to path for imports
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -56,17 +59,17 @@ def ensure_dir(path: str):
 
 def download_and_extract(url: str, target_dir: str) -> bool:
     """Download a ZIP file and extract it to target directory."""
-    print(f"Downloading {url}...")
+    logger.info(f"Downloading {url}...")
     try:
         response = requests.get(url, headers=HEADERS, stream=True, timeout=120)
         response.raise_for_status()
 
         z = zipfile.ZipFile(io.BytesIO(response.content))
         z.extractall(target_dir)
-        print(f"  Extracted to {target_dir}")
+        logger.info(f"  Extracted to {target_dir}")
         return True
     except Exception as e:
-        print(f"  Error: {e}")
+        logger.error(f"  Error: {e}", exc_info=True)
         return False
 
 
@@ -84,7 +87,7 @@ def parse_mw_xml(xml_path: str) -> list:
     Parse Monier-Williams XML format.
     Returns list of (key, value) tuples.
     """
-    print(f"  Parsing {xml_path}...")
+    logger.info(f"  Parsing {xml_path}...")
     entries = []
 
     try:
@@ -109,16 +112,16 @@ def parse_mw_xml(xml_path: str) -> list:
                         count += 1
 
                         if count % 10000 == 0:
-                            print(f"    Processed {count} entries...")
+                            logger.info(f"    Processed {count} entries...")
 
                 # Clear element to save memory
                 elem.clear()
 
-        print(f"  Found {len(entries)} entries")
+        logger.info(f"  Found {len(entries)} entries")
         return entries
 
     except ET.ParseError as e:
-        print(f"  XML Parse Error: {e}")
+        logger.warning(f"  XML Parse Error: {e}")
         # Try alternative approach with string parsing
         return parse_xml_fallback(xml_path)
 
@@ -128,7 +131,7 @@ def parse_apte_xml(xml_path: str) -> list:
     Parse Apte dictionary XML format.
     Returns list of (key, value) tuples.
     """
-    print(f"  Parsing {xml_path}...")
+    logger.info(f"  Parsing {xml_path}...")
     entries = []
 
     try:
@@ -149,15 +152,15 @@ def parse_apte_xml(xml_path: str) -> list:
                         count += 1
 
                         if count % 10000 == 0:
-                            print(f"    Processed {count} entries...")
+                            logger.info(f"    Processed {count} entries...")
 
                 elem.clear()
 
-        print(f"  Found {len(entries)} entries")
+        logger.info(f"  Found {len(entries)} entries")
         return entries
 
     except ET.ParseError as e:
-        print(f"  XML Parse Error: {e}")
+        logger.warning(f"  XML Parse Error: {e}")
         return parse_xml_fallback(xml_path)
 
 
@@ -166,7 +169,7 @@ def parse_xml_fallback(xml_path: str) -> list:
     Fallback XML parser using regex for malformed XML.
     """
     import re
-    print(f"  Using fallback parser...")
+    logger.info(f"  Using fallback parser...")
     entries = []
 
     try:
@@ -186,11 +189,11 @@ def parse_xml_fallback(xml_path: str) -> list:
                 value = ' '.join(value.split())
                 entries.append((key.strip(), value))
 
-        print(f"  Found {len(entries)} entries (fallback)")
+        logger.info(f"  Found {len(entries)} entries (fallback)")
         return entries
 
     except Exception as e:
-        print(f"  Fallback parser error: {e}")
+        logger.error(f"  Fallback parser error: {e}", exc_info=True)
         return []
 
 
@@ -214,13 +217,13 @@ def populate_database(dictionary_config: dict, entries: list):
             )
             db.session.add(dictionary)
             db.session.commit()
-            print(f"  Created dictionary: {dictionary_config['title']}")
+            logger.info(f"  Created dictionary: {dictionary_config['title']}")
         else:
-            print(f"  Using existing dictionary: {dictionary_config['title']}")
+            logger.info(f"  Using existing dictionary: {dictionary_config['title']}")
             # Clear existing entries for fresh load
             db.session.query(DictionaryEntry).filter_by(dictionary_id=dictionary.id).delete()
             db.session.commit()
-            print(f"  Cleared existing entries")
+            logger.info(f"  Cleared existing entries")
 
         # Batch insert entries
         batch_size = 1000
@@ -237,16 +240,16 @@ def populate_database(dictionary_config: dict, entries: list):
                 db.session.add(entry)
 
             db.session.commit()
-            print(f"    Inserted {min(i + batch_size, total)}/{total} entries")
+            logger.info(f"    Inserted {min(i + batch_size, total)}/{total} entries")
 
-        print(f"  Completed: {total} entries for {dictionary_config['slug']}")
+        logger.info(f"  Completed: {total} entries for {dictionary_config['slug']}")
 
 
 def process_dictionary(config: dict) -> bool:
     """Process a single dictionary: download, parse, and populate."""
-    print(f"\n{'=' * 60}")
-    print(f"Processing: {config['name']}")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"Processing: {config['name']}")
+    logger.info(f"{'=' * 60}")
 
     # Ensure directories exist
     dict_path = os.path.join(DICT_DIR, config['slug'])
@@ -256,15 +259,15 @@ def process_dictionary(config: dict) -> bool:
     xml_file = find_xml_file(dict_path, config['xml_pattern'])
     if not xml_file:
         if not download_and_extract(config['url'], dict_path):
-            print(f"  Failed to download {config['name']}")
+            logger.error(f"  Failed to download {config['name']}")
             return False
         xml_file = find_xml_file(dict_path, config['xml_pattern'])
 
     if not xml_file:
-        print(f"  Could not find XML file for {config['name']}")
+        logger.error(f"  Could not find XML file for {config['name']}")
         return False
 
-    print(f"  Using XML file: {xml_file}")
+    logger.info(f"  Using XML file: {xml_file}")
 
     # Parse XML
     if config['slug'] == 'mw':
@@ -273,7 +276,7 @@ def process_dictionary(config: dict) -> bool:
         entries = parse_apte_xml(xml_file)
 
     if not entries:
-        print(f"  No entries found for {config['name']}")
+        logger.warning(f"  No entries found for {config['name']}")
         return False
 
     # Populate database
@@ -283,9 +286,9 @@ def process_dictionary(config: dict) -> bool:
 
 def main():
     """Main function to process all dictionaries."""
-    print("=" * 60)
-    print("Sanskrit Dictionary Seeder")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Sanskrit Dictionary Seeder")
+    logger.info("=" * 60)
 
     # Ensure data directories exist
     ensure_dir(DATA_DIR)
@@ -297,17 +300,16 @@ def main():
             if process_dictionary(config):
                 success_count += 1
         except Exception as e:
-            print(f"Error processing {config['name']}: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Error processing {config['name']}: {e}", exc_info=True)
 
-    print(f"\n{'=' * 60}")
-    print(f"Completed: {success_count}/{len(DICTIONARIES)} dictionaries processed")
-    print(f"{'=' * 60}")
+    logger.info(f"\n{'=' * 60}")
+    logger.info(f"Completed: {success_count}/{len(DICTIONARIES)} dictionaries processed")
+    logger.info(f"{'=' * 60}")
 
     return success_count == len(DICTIONARIES)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     success = main()
     sys.exit(0 if success else 1)

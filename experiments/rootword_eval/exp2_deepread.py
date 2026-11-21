@@ -34,6 +34,7 @@ timeout so a network hang cannot kill the run.
 import concurrent.futures
 import json
 import os
+import sys
 import time
 import traceback
 
@@ -172,16 +173,16 @@ def main():
                         "predictions": {str(k): v for k, v in preds.items()},
                     }
                     s = rep["summary"]
-                    print(f"{run_key:16s} {strat:9s} f1={s['mean_f1']:.3f} "
-                          f"exact={s['exact_match_rate']:.3f} "
-                          f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})")
+                    sys.stdout.write(f"{run_key:16s} {strat:9s} f1={s['mean_f1']:.3f} "
+                                     f"exact={s['exact_match_rate']:.3f} "
+                                     f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})" + "\n")
 
                 mlat = _median(latencies)
                 dhatu_any_acc = (round(dhatu_any_hit / dhatu_any_total, 4)
                                  if dhatu_any_total else None)
-                print(f"{run_key:16s} {'--':9s} median_lat={mlat:.3f}s "
-                      f"max_lat={max(latencies):.3f}s engines={engines} "
-                      f"dhatu_any_acc={dhatu_any_acc}")
+                sys.stdout.write(f"{run_key:16s} {'--':9s} median_lat={mlat:.3f}s "
+                                 f"max_lat={max(latencies):.3f}s engines={engines} "
+                                 f"dhatu_any_acc={dhatu_any_acc}" + "\n")
                 all_results[run_key] = {
                     "config": cfg_name,
                     "script": script,
@@ -199,7 +200,7 @@ def main():
     out = {"experiment": "exp2_deepread", "results": all_results, "errors": errors}
     with open(os.path.join(EVAL_DIR, "exp2_results.json"), "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"\nErrors/timeouts: {len(errors)}")
+    sys.stdout.write(f"\nErrors/timeouts: {len(errors)}" + "\n")
     return out
 
 
