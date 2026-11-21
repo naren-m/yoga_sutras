@@ -30,9 +30,11 @@ jobs:
           cache-dependency-path: backend/requirements.txt
 
       - name: Install backend dependencies
-        # Match ramayanam's tolerance pattern for upstream packaging issues:
-        # filter git+ refs out of bulk install, then attempt each individually
-        # with --no-deps so one bad pyproject can't sink the whole install.
+        # Filter git+ refs out of the bulk install, then install each one on its
+        # own. Install WITH deps first: --no-deps left sanskrit-analyzer without
+        # aiohttp / indic_transliteration, so 3 of 6 test files never collected
+        # and CI was red without running them (#19). --no-deps stays as the
+        # fallback, so one bad pyproject can't sink the whole install.
         run: |
           python -m pip install --upgrade pip
           if [ -f backend/requirements.txt ]; then
@@ -42,7 +44,7 @@ jobs:
             while IFS= read -r line; do
               [ -z "$line" ] && continue
               echo "Trying git dep (may fail, that's OK): $line"
-              pip install --no-deps "$line" || echo "  -> skipped"
+              pip install "$line" || pip install --no-deps "$line" || echo "  -> skipped"
             done < /tmp/req-git.txt
           fi
           pip install pytest pytest-mock
