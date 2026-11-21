@@ -1,11 +1,1 @@
-{
- "backend/app/routes/text_routes.py": {
-  "SML003": 1
- },
- "backend/app/services/dictionary_service.py": {
-  "SML003": 3
- },
- "backend/app/services/sanskrit_adapter.py": {
-  "SML003": 8
- }
-}
+{}
