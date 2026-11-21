@@ -26,8 +26,7 @@ GOLDEN_TERMS = [
     ("anuSAsana", "SAs"),     # anu + to instruct
     # --- the kleśas and their kin (2.3ff) ---
     ("avidyA", "vid"),        # not-knowing; NOT vi + √dā
-    pytest.param("rAga", "raYj", marks=pytest.mark.xfail(  # attachment <- to be coloured
-        reason="yoga_sutras#19: resolver returns the wrong root", strict=True)),
+    ("rAga", "raYj"),         # attachment <- to be coloured
     ("dveza", "dviz"),        # aversion
     ("kleSa", "kliS"),        # affliction
     ("aBiniveSa", "viS"),     # abhi + ni + to enter
@@ -44,15 +43,13 @@ GOLDEN_TERMS = [
         strict=False)),
     ("saMyama", "yam"),       # sam + to restrain
     ("tapas", "tap"),         # to burn, austerity
-    pytest.param("karman", "kf", marks=pytest.mark.xfail(  # to do
-        reason="yoga_sutras#19: resolver returns the wrong root", strict=True)),
+    ("karman", "kf"),         # to do
     ("jAti", "jan"),          # birth <- to be born
     pytest.param("BOga", "Buj", marks=pytest.mark.xfail(
         reason="no Kosa derivation for bhoga, MW cites no root",
         strict=False)),
     ("jYAna", "jYA"),         # knowledge
-    pytest.param("viveka", "vic", marks=pytest.mark.xfail(  # vi + to separate: discernment
-        reason="yoga_sutras#19: resolver returns the wrong root", strict=True)),
+    ("viveka", "vic"),        # vi + to separate: discernment
     ("KyAti", "KyA"),         # to declare, discernment
     pytest.param("Ananda", "nand", marks=pytest.mark.xfail(
         reason="Kosa cites this root as tunadi~; restoring the idit nasal "

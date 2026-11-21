@@ -12,11 +12,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCANNED = ("backend/app", "backend/run.py", "scripts")
 BANNED = ("indic_transliteration", "vidyut", "dharmamitra", "sanskrit_parser")
 
-# Known violations awaiting the dictionary_service CDSL cleanup (#10).
-# Shrink this, never grow it.
-ALLOWED = {
-    ("backend/app/services/dictionary_service.py", "indic_transliteration"),
-}
+# Known violations. Shrink this, never grow it.
+ALLOWED: set = set()
 
 
 def _py_files():

@@ -66,10 +66,10 @@ _MW_CITE = re.compile(r',?\s*(?:[A-ZĀĪŚṚ][A-Za-zĀīāūṛŚś]{0,8}\.|&c|
 
 
 def short_gloss(value: str) -> str | None:
-    """Extract a short English gloss from a raw MW entry value.
+    """Extract a short English gloss from an MW entry body.
 
-    MW rows look like:
-      'anuSAsanaanu-SA/sana... n. instruction, direction, command, RV. x, 32...'
+    MW bodies look like:
+      'n. instruction, direction, command, RV. x, 32...'
     Take the text after the first part-of-speech marker, cut before the
     first citation/reference, and cap the length.
     """
@@ -102,35 +102,30 @@ def apte_gloss(value: str) -> str | None:
     return m.group(1).strip(' ,;')
 
 
-def attach_meanings(analysis: dict, db) -> None:
-    """Fill empty word meanings from the seeded dictionaries.
+def attach_meanings(analysis: dict, db=None) -> None:
+    """Fill empty word meanings from the dictionaries (sanskrit_analyzer.lexicon).
 
     Monier-Williams first; entries that are only cross-references
-    ('see a-citta') fall through to Apte's numbered senses.
+    ('see a-citta') fall through to Apte's numbered senses when AP90 is
+    installed. ``db`` is unused and kept for the existing call site.
     """
-    from sanskrit_analyzer.models.scripts import Script
-    from sanskrit_analyzer.utils.transliterate import to_slp1
-    from app.models.dictionary import DictionaryEntry
+    from app.services.dictionary_service import DictionaryService
 
+    service = DictionaryService()
     for word in analysis.get('words', []):
         if word.get('meanings'):
             continue
         lemma = word.get('lemma')
         if not lemma:
             continue
-        key = to_slp1(lemma, Script.IAST)
-        rows = (
-            db.session.query(DictionaryEntry.value, DictionaryEntry.dictionary_id)
-            .filter(DictionaryEntry.key == key)
-            .order_by(DictionaryEntry.dictionary_id)
-            .limit(10)
-            .all()
-        )
-        for value, dict_id in rows:
-            gloss = short_gloss(value) if dict_id == 1 else apte_gloss(value)
+        entries = service.get_definitions(lemma, fuzzy=False)[:10]
+        entries.sort(key=lambda e: e['dictionary_code'] != 'mw')
+        for e in entries:
+            is_mw = e['dictionary_code'] == 'mw'
+            gloss = short_gloss(e['definition']) if is_mw else apte_gloss(e['definition'])
             if gloss and 'see ' not in gloss.lower()[:40]:
                 word['meanings'] = [gloss]
-                word['meaning_source'] = 'mw' if dict_id == 1 else 'apte'
+                word['meaning_source'] = e['dictionary_code']
                 break
 
 

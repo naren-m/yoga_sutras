@@ -48,8 +48,8 @@ pip install requests beautifulsoup4
 # 2. Scrape Yoga Sutras (Creates data/yoga_sutras.json)
 python scripts/scrape_text.py
 
-# 3. Download Dictionaries (Creates data/dictionaries/...)
-python scripts/seed_dictionaries.py
+# Dictionaries need no setup. Monier-Williams ships at backend/app/data/lexicon/mw.sqlite
+# (CC BY-SA 4.0, see LICENSE-CDSL there). Apte is optional: set SANSKRIT_AP90_DB.
 ```
 
 *Note: Currently, these scripts download the raw data. A future update will import this data into the SQLite database.*
