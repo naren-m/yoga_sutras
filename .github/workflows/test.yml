@@ -1,4 +1,4 @@
-# Tests for every push to main and for manual runs.
+# Tests for every PR into main, every push to main, and manual runs.
 #
 # Building and deploying the image no longer happens here. The homelab repo's
 # own pipeline (naren-m/homelab ci/deploy.py) polls this repo's main every
@@ -8,6 +8,8 @@
 name: Test
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
