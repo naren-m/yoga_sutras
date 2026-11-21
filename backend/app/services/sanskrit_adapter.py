@@ -30,13 +30,12 @@ def _ascii_default(text: str) -> Script:
 def _to_slp1(text: str) -> str:
     """Convert an engine-produced word to SLP1 for Kośa/dhātu lookup."""
     try:
-        from indic_transliteration import sanscript
-        from indic_transliteration.sanscript import transliterate
+        from sanskrit_analyzer.utils.transliterate import to_slp1
         script = detect_script(text, plain_ascii_default=_ascii_default(text))
         if script == Script.SLP1:
             return text
-        src = sanscript.IAST if script == Script.IAST else sanscript.DEVANAGARI
-        return transliterate(text, src, sanscript.SLP1)
+        src = Script.IAST if script == Script.IAST else Script.DEVANAGARI
+        return to_slp1(text, src)
     except Exception:
         logger.debug("SLP1 conversion failed for %r", text, exc_info=True)
         return text
