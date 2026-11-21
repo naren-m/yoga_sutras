@@ -3,6 +3,8 @@
 Uses rapidfuzz for fuzzy matching across Devanagari, IAST, and English content.
 """
 
+import functools
+
 from rapidfuzz import fuzz, process
 from app.models.text import TextBlock, TextSection
 from app import db
@@ -169,13 +171,7 @@ class SearchService:
         self._cache = None
 
 
-# Singleton instance
-_search_service = None
-
-
+@functools.cache
 def get_search_service() -> SearchService:
     """Get or create the search service singleton."""
-    global _search_service
-    if _search_service is None:
-        _search_service = SearchService()
-    return _search_service
+    return SearchService()

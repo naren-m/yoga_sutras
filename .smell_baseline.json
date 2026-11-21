@@ -1,8 +1,1 @@
-{
- "backend/app/services/sanskrit_adapter.py": {
-  "SML005": 1
- },
- "backend/app/services/search_service.py": {
-  "SML005": 1
- }
-}
+{}
