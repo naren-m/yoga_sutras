@@ -35,11 +35,11 @@ PADAS = [
 def itx_to_iast(text: str) -> str:
     """
     Convert ITX (ITRANS variant used by sanskritdocuments.org) to IAST transliteration.
-    Uses indic-transliteration library for proper conversion.
+    Uses sanskrit_analyzer's transliteration for proper conversion.
     """
     try:
-        from indic_transliteration import sanscript
-        from indic_transliteration.sanscript import transliterate
+        from sanskrit_analyzer.models.scripts import Script
+        from sanskrit_analyzer.utils.transliterate import transliterate
 
         # Remove LaTeX-style accent markers from the ITX file
         text = re.sub(r"\\['`]", "", text)
@@ -47,23 +47,23 @@ def itx_to_iast(text: str) -> str:
 
         # The sanskritdocuments.org uses ITRANS format
         # Convert ITRANS to IAST
-        return transliterate(text, sanscript.ITRANS, sanscript.IAST)
+        return transliterate(text, Script.ITRANS, Script.IAST)
     except ImportError:
-        print("Warning: indic-transliteration not installed")
+        print("Warning: sanskrit_analyzer not installed")
         # Basic fallback cleanup
         text = re.sub(r"\\['`]", "", text)
         return text.lower()
 
 
 def iast_to_devanagari(text: str) -> str:
-    """Convert IAST to Devanagari using indic-transliteration."""
+    """Convert IAST to Devanagari using sanskrit_analyzer."""
     try:
-        from indic_transliteration import sanscript
-        from indic_transliteration.sanscript import transliterate
-        return transliterate(text, sanscript.IAST, sanscript.DEVANAGARI)
+        from sanskrit_analyzer.models.scripts import Script
+        from sanskrit_analyzer.utils.transliterate import to_devanagari
+        return to_devanagari(text, Script.IAST)
     except ImportError:
         # Fallback: return IAST if library not available
-        print("Warning: indic-transliteration not installed, using IAST")
+        print("Warning: sanskrit_analyzer not installed, using IAST")
         return text
 
 
