@@ -5,6 +5,7 @@ and sync interfaces for integration with the Yoga Sutras application.
 """
 
 import asyncio
+import functools
 import logging
 
 from sanskrit_analyzer import Analyzer, Config, AnalysisMode
@@ -447,13 +448,7 @@ class SanskritAdapter:
         return self.analyzer.dictionary_lookup(word)
 
 
-# Global singleton instance for easy import
-_adapter_instance = None
-
-
+@functools.cache
 def get_sanskrit_adapter() -> SanskritAdapter:
-    """Get or create the global SanskritAdapter instance."""
-    global _adapter_instance
-    if _adapter_instance is None:
-        _adapter_instance = SanskritAdapter()
-    return _adapter_instance
+    """Get or create the process-wide SanskritAdapter instance."""
+    return SanskritAdapter()
