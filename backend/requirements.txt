@@ -10,7 +10,11 @@ rapidfuzz
 python-dotenv
 
 # Sanskrit Processing - unified analyzer (replaces vidyut + dharmamitra)
-sanskrit-analyzer @ git+https://github.com/naren-m/sanskrit_analyser.git@main
+# Pinned by commit SHA, never @main (#10). pip treats a moving @main ref as
+# already satisfied, so a cached build silently keeps an old analyzer, and
+# every upstream landing should be a deliberate bump.
+# tests/test_requirements_pins.py enforces this.
+sanskrit-analyzer @ git+https://github.com/naren-m/sanskrit_analyser.git@83b82a3138b628e1f92dbfecfd756d3c91a4afe7
 
 # Observability via shared homelab-observability lib. Bundles OTel SDK,
 # exporters, and Loki handler; reads HOMELAB_* env vars set by the
