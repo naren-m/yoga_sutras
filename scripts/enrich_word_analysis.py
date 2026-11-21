@@ -108,8 +108,8 @@ def attach_meanings(analysis: dict, db) -> None:
     Monier-Williams first; entries that are only cross-references
     ('see a-citta') fall through to Apte's numbered senses.
     """
-    from indic_transliteration import sanscript
-    from indic_transliteration.sanscript import transliterate
+    from sanskrit_analyzer.models.scripts import Script
+    from sanskrit_analyzer.utils.transliterate import to_slp1
     from app.models.dictionary import DictionaryEntry
 
     for word in analysis.get('words', []):
@@ -118,7 +118,7 @@ def attach_meanings(analysis: dict, db) -> None:
         lemma = word.get('lemma')
         if not lemma:
             continue
-        key = transliterate(lemma, sanscript.IAST, sanscript.SLP1)
+        key = to_slp1(lemma, Script.IAST)
         rows = (
             db.session.query(DictionaryEntry.value, DictionaryEntry.dictionary_id)
             .filter(DictionaryEntry.key == key)
