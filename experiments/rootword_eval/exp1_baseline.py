@@ -7,6 +7,7 @@ three AnalysisMode values across both input scripts (dev + iast).
 import asyncio
 import json
 import os
+import sys
 import traceback
 
 from sanskrit_analyzer import Analyzer, Config, AnalysisMode
@@ -86,13 +87,13 @@ async def main():
                 "predictions": {str(k): v for k, v in preds.items()},
             }
             s = report["summary"]
-            print(f"{run_key:28s} f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
-                  f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})")
+            sys.stdout.write(f"{run_key:28s} f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
+                             f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})" + "\n")
 
     out = {"results": all_results, "errors": errors}
     with open(os.path.join(EVAL_DIR, "exp1_results.json"), "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"\nErrors/timeouts: {len(errors)}")
+    sys.stdout.write(f"\nErrors/timeouts: {len(errors)}" + "\n")
     return out
 
 

@@ -24,6 +24,7 @@ Options:
 """
 import argparse
 import json
+import logging
 import os
 import sys
 import time
@@ -36,6 +37,8 @@ sys.path.insert(0, BACKEND_DIR)
 DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
 CACHE_FILE = os.path.join(DATA_DIR, 'word_analysis.json')
 DEFAULT_SLM_PATH = os.path.join(os.path.dirname(PROJECT_ROOT), 'sanskrit_model')
+
+logger = logging.getLogger(__name__)
 
 
 def build_adapter(use_byt5: bool):
@@ -138,7 +141,7 @@ def enrich(limit: int | None, dry_run: bool, use_byt5: bool, slm_path: str) -> b
     from app import create_app, db
     from app.models.text import TextBlock
 
-    print("Initializing sanskrit_analyzer...")
+    logger.info("Initializing sanskrit_analyzer...")
     adapter = build_adapter(use_byt5)
     _ = adapter.analyzer  # trigger init up front so failures are loud
 
@@ -154,22 +157,22 @@ def enrich(limit: int | None, dry_run: bool, use_byt5: bool, slm_path: str) -> b
         )
         if limit:
             blocks = blocks[:limit]
-        print(f"Analyzing {len(blocks)} blocks...")
+        logger.info(f"Analyzing {len(blocks)} blocks...")
 
         start = time.time()
         for i, block in enumerate(blocks, 1):
             content = (block.content or '').strip()
             if not content:
-                print(f"  [{block.slug}] no content, skipped")
+                logger.info(f"  [{block.slug}] no content, skipped")
                 continue
             try:
                 analysis = adapter.analyze_block_sync(content)
             except Exception as e:
-                print(f"  [{block.slug}] FAILED: {e}")
+                logger.warning(f"  [{block.slug}] FAILED: {e}", exc_info=True)
                 failed += 1
                 continue
             if not analysis:
-                print(f"  [{block.slug}] no parse")
+                logger.warning(f"  [{block.slug}] no parse")
                 failed += 1
                 continue
 
@@ -185,27 +188,28 @@ def enrich(limit: int | None, dry_run: bool, use_byt5: bool, slm_path: str) -> b
 
             if i % 20 == 0 or i == len(blocks):
                 rate = i / (time.time() - start)
-                print(f"  {i}/{len(blocks)} ({rate:.1f} blocks/s)")
+                logger.info(f"  {i}/{len(blocks)} ({rate:.1f} blocks/s)")
 
         if not dry_run:
             db.session.commit()
-            print(f"Committed word_analysis for {ok} blocks")
+            logger.info(f"Committed word_analysis for {ok} blocks")
 
     if not dry_run:
         with open(CACHE_FILE, 'w', encoding='utf-8') as f:
             json.dump(cache, f, ensure_ascii=False, indent=1)
-        print(f"Cache written: {CACHE_FILE} ({len(cache)} entries)")
+        logger.info(f"Cache written: {CACHE_FILE} ({len(cache)} entries)")
     else:
         sample_slug = next(iter(cache), None)
         if sample_slug:
-            print(f"\n--- sample ({sample_slug}) ---")
-            print(json.dumps(cache[sample_slug], ensure_ascii=False, indent=2))
+            sys.stdout.write(f"\n--- sample ({sample_slug}) ---\n")
+            sys.stdout.write(json.dumps(cache[sample_slug], ensure_ascii=False, indent=2) + "\n")
 
-    print(f"\nDone: {ok} analyzed, {failed} failed")
+    logger.info(f"\nDone: {ok} analyzed, {failed} failed")
     return failed == 0 and ok > 0
 
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--limit', type=int, default=None)
     parser.add_argument('--dry-run', action='store_true')

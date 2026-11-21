@@ -16,6 +16,7 @@ cache can never leak one engine's answer into another config).
 import asyncio
 import json
 import os
+import sys
 import traceback
 
 from sanskrit_analyzer import Analyzer, Config, AnalysisMode
@@ -141,32 +142,72 @@ async def run_config(name, flags, cases, script, errors):
     return preds
 
 
-async def main():
-    gold = load_gold()
-    cases = gold["cases"]
-    errors = []
-
-    # 1. Probe availability of every engine (one call each).
+async def probe_all():
+    """Probe every single engine once; return the availability table."""
     availability = {}
-    print("== Engine availability probes ==")
+    sys.stdout.write("== Engine availability probes ==" + "\n")
     for name in SINGLE_ENGINE_CONFIGS:
         ok, detail = await probe_engine(name)
         availability[name] = {"available": ok, "detail": detail}
-        print(f"  {name:12s} available={ok!s:5s} {detail}")
+        sys.stdout.write(f"  {name:12s} available={ok!s:5s} {detail}" + "\n")
     # The runner is usable if any member engine is available.
     availability["runner"] = {
         "available": any(availability[m]["available"] for m in SINGLE_ENGINE_CONFIGS),
         "detail": "members available: " + ", ".join(
             m for m in SINGLE_ENGINE_CONFIGS if availability[m]["available"]) or "none",
     }
+    return availability
+
+
+def oracle_union(cases, single_preds, gold):
+    """Score the per-case union of lemmas from every single-engine run."""
+    oracle_preds = {}
+    for case in cases:
+        cid = case["id"]
+        union = []
+        seen = set()
+        dhatu = None
+        for cfg_name in SINGLE_ENGINE_CONFIGS:
+            p = single_preds.get(cfg_name, {}).get(cid)
+            if not p:
+                continue
+            for lem in p.get("lemmas", []):
+                if lem not in seen:
+                    seen.add(lem)
+                    union.append(lem)
+            if dhatu is None and p.get("dhatu"):
+                dhatu = p["dhatu"]
+        oracle_preds[cid] = {"lemmas": union, "dhatu": dhatu}
+    oracle_report = score_run(oracle_preds, gold)
+    os_ = oracle_report["summary"]
+    sys.stdout.write(f"\n  {'ORACLE_union':12s} f1={os_['mean_f1']:.3f} "
+                     f"exact={os_['exact_match_rate']:.3f} "
+                     f"dhatu_acc={os_['dhatu_accuracy']} (n={os_['dhatu_n']}) "
+                     f"[union of {list(single_preds.keys())}]" + "\n")
+    return {
+        "note": "per-case union of lemmas from all available single-engine runs (dev)",
+        "engines_unioned": list(single_preds.keys()),
+        "summary": os_,
+        "rows": oracle_report["rows"],
+        "predictions": {str(k): v for k, v in oracle_preds.items()},
+    }
+
+
+async def main():
+    gold = load_gold()
+    cases = gold["cases"]
+    errors = []
+
+    # 1. Probe availability of every engine (one call each).
+    availability = await probe_all()
 
     # 2. Run each config (Devanagari) whose engine(s) are available.
     all_results = {}
     single_preds = {}  # config -> {case_id: pred}  (for oracle union)
-    print("\n== Config runs (devanagari) ==")
+    sys.stdout.write("\n== Config runs (devanagari) ==" + "\n")
     for name, flags in CONFIGS.items():
         if not availability[name]["available"]:
-            print(f"  {name:12s} SKIPPED (unavailable)")
+            sys.stdout.write(f"  {name:12s} SKIPPED (unavailable)" + "\n")
             all_results[name] = {"skipped": True, "availability": availability[name]}
             continue
         preds = await run_config(name, flags, cases, "dev", errors)
@@ -181,42 +222,12 @@ async def main():
         }
         if name in SINGLE_ENGINE_CONFIGS:
             single_preds[name] = preds
-        print(f"  {name:12s} f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
-              f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})")
+        sys.stdout.write(f"  {name:12s} f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
+                         f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})" + "\n")
 
     # 3. ORACLE union: per case, union of lemmas from all available single engines.
-    oracle_report = None
     if single_preds:
-        oracle_preds = {}
-        for case in cases:
-            cid = case["id"]
-            union = []
-            seen = set()
-            dhatu = None
-            for cfg_name in SINGLE_ENGINE_CONFIGS:
-                p = single_preds.get(cfg_name, {}).get(cid)
-                if not p:
-                    continue
-                for lem in p.get("lemmas", []):
-                    if lem not in seen:
-                        seen.add(lem)
-                        union.append(lem)
-                if dhatu is None and p.get("dhatu"):
-                    dhatu = p["dhatu"]
-            oracle_preds[cid] = {"lemmas": union, "dhatu": dhatu}
-        oracle_report = score_run(oracle_preds, gold)
-        os_ = oracle_report["summary"]
-        all_results["ORACLE_union"] = {
-            "note": "per-case union of lemmas from all available single-engine runs (dev)",
-            "engines_unioned": list(single_preds.keys()),
-            "summary": os_,
-            "rows": oracle_report["rows"],
-            "predictions": {str(k): v for k, v in oracle_preds.items()},
-        }
-        print(f"\n  {'ORACLE_union':12s} f1={os_['mean_f1']:.3f} "
-              f"exact={os_['exact_match_rate']:.3f} "
-              f"dhatu_acc={os_['dhatu_accuracy']} (n={os_['dhatu_n']}) "
-              f"[union of {list(single_preds.keys())}]")
+        all_results["ORACLE_union"] = oracle_union(cases, single_preds, gold)
 
     # 4. Best available config -> also run IAST input.
     scored = {n: r for n, r in all_results.items()
@@ -234,8 +245,8 @@ async def main():
             "rows": report_iast["rows"],
             "predictions": {str(k): v for k, v in preds_iast.items()},
         }
-        print(f"\n  {best_name}__iast  f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
-              f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})")
+        sys.stdout.write(f"\n  {best_name}__iast  f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
+                         f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})" + "\n")
 
     out = {
         "availability": availability,
@@ -245,7 +256,7 @@ async def main():
     }
     with open(os.path.join(EVAL_DIR, "exp3_results.json"), "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"\nErrors/timeouts: {len(errors)}")
+    sys.stdout.write(f"\nErrors/timeouts: {len(errors)}" + "\n")
     return out
 
 

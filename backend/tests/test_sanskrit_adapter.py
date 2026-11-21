@@ -4,9 +4,13 @@ Tests use the real sanskrit_analyzer library to verify the adapter
 actually works end-to-end. Tests skip gracefully if engines aren't available.
 """
 
+import logging
+
 import pytest
 
 from app.services.sanskrit_adapter import SanskritAdapter, get_sanskrit_adapter
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -16,7 +20,8 @@ def adapter():
         a = SanskritAdapter()
         _ = a.analyzer  # Trigger lazy init
         return a
-    except Exception as e:
+    except Exception as e:  # skip, don't fail: the env may lack the engines
+        logger.warning("SanskritAdapter init failed; skipping", exc_info=True)
         pytest.skip(f"sanskrit_analyzer not available: {e}")
 
 
