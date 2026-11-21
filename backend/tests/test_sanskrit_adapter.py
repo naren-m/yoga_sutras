@@ -20,6 +20,20 @@ def adapter():
         pytest.skip(f"sanskrit_analyzer not available: {e}")
 
 
+@pytest.fixture
+def kosha_adapter(adapter):
+    """``adapter``, skipped when the vidyut Kośa data is absent (e.g. on CI).
+
+    Same guard as ``test_dhatu_golden_terms.resolve_root``. Without the Kośa,
+    dhatu resolution returns None, which tests the environment, not the code.
+    """
+    from sanskrit_analyzer.dhatu import get_dhatu_resolver
+
+    if not get_dhatu_resolver()._ensure():
+        pytest.skip("vidyut Kośa unavailable")
+    return adapter
+
+
 class TestSanskritAdapter:
     """Tests for SanskritAdapter with real Analyzer."""
 
@@ -102,10 +116,10 @@ class TestSanskritAdapter:
 
         assert result["original"]["iast"] == "yogaścittavṛttinirodhaḥ"
 
-    def test_morphology_iast_verb_keeps_aspirate(self, adapter):
+    def test_morphology_iast_verb_keeps_aspirate(self, kosha_adapter):
         """Regression: 'bhavati' was mangled to 'bavati' by double script
         detection (title-case SLP1 'Bavati' misread as IAST in engines)."""
-        result = adapter.get_morphology_sync("bhavati")
+        result = kosha_adapter.get_morphology_sync("bhavati")
 
         assert result is not None
         assert result["lemma"] == "bhū"
@@ -199,11 +213,11 @@ class TestSanskritAdapter:
         assert entry.get("dhatu") == bare.get("dhatu")
         assert entry.get("dhatu") != "siv"
 
-    def test_finite_verb_still_resolves_from_its_surface(self, adapter):
+    def test_finite_verb_still_resolves_from_its_surface(self, kosha_adapter):
         """A finite verb has no case, and only its surface carries the root
         (the lemma of gacchati is no help — √gam is in the inflected form)."""
         entry = {}
-        SanskritAdapter._attach_dhatu(adapter, entry, "gacCati", "gacCati")
+        SanskritAdapter._attach_dhatu(kosha_adapter, entry, "gacCati", "gacCati")
         assert entry.get("dhatu") == "gam"
 
     def test_merge_suffix_rejoins_abstract_tva(self):
@@ -250,11 +264,11 @@ class TestSanskritAdapter:
                   "lemma": "tā", "lemma_devanagari": "ता", "meanings": []}]
         assert SanskritAdapter._merge_suffix(words) == words
 
-    def test_analyze_block_resolves_dhatu_for_derived_nouns(self, adapter):
+    def test_analyze_block_resolves_dhatu_for_derived_nouns(self, kosha_adapter):
         """The headline feature: every content word shows its root, not just
         finite verbs. yoga -> √yuj, nirodha -> ni + √rudh, with the root's
         own Sanskrit gloss."""
-        result = adapter.analyze_block_sync("योगश्चित्तवृत्तिनिरोधः")
+        result = kosha_adapter.analyze_block_sync("योगश्चित्तवृत्तिनिरोधः")
         assert result is not None
         by_lemma = {w["lemma"]: w for w in result["words"]}
 
