@@ -13,11 +13,15 @@ and prints the numbers + which cases changed vs the "nominal" strategy.
 """
 import concurrent.futures
 import json
+import logging
 import os
+import sys
 import time
 
 from sanskrit_analyzer.deep_read import DeepRead
 from score import load_gold, score_run
+
+logger = logging.getLogger(__name__)
 
 EVAL_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(EVAL_DIR, "exp2_results.json")
@@ -90,7 +94,7 @@ def main():
             try:
                 per_case[case["id"]] = fut.result(timeout=TIMEOUT_S)
             except Exception as e:  # noqa: BLE001
-                print(f"  id{case['id']} error: {type(e).__name__}: {e}")
+                logger.warning(f"  id{case['id']} error: {type(e).__name__}: {e}")
                 per_case[case["id"]] = None
 
     preds_ka, preds_nom = {}, {}
@@ -102,14 +106,14 @@ def main():
     rep_ka = score_run(preds_ka, gold)
     rep_nom = score_run(preds_nom, gold)
     s = rep_ka["summary"]
-    print("kind_aware  f1=%.3f exact=%.3f dhatu_acc=%s (n=%d)"
-          % (s["mean_f1"], s["exact_match_rate"], s["dhatu_accuracy"], s["dhatu_n"]))
+    sys.stdout.write("kind_aware  f1=%.3f exact=%.3f dhatu_acc=%s (n=%d)"
+                     % (s["mean_f1"], s["exact_match_rate"], s["dhatu_accuracy"], s["dhatu_n"]) + "\n")
     sn = rep_nom["summary"]
-    print("nominal     f1=%.3f exact=%.3f dhatu_acc=%s (n=%d)"
-          % (sn["mean_f1"], sn["exact_match_rate"], sn["dhatu_accuracy"], sn["dhatu_n"]))
+    sys.stdout.write("nominal     f1=%.3f exact=%.3f dhatu_acc=%s (n=%d)"
+                     % (sn["mean_f1"], sn["exact_match_rate"], sn["dhatu_accuracy"], sn["dhatu_n"]) + "\n")
 
     # cases whose lemma prediction changed vs nominal
-    print("\nCASES CHANGED vs nominal:")
+    sys.stdout.write("\nCASES CHANGED vs nominal:" + "\n")
     ka_rows = {r["id"]: r for r in rep_ka["rows"]}
     nom_rows = {r["id"]: r for r in rep_nom["rows"]}
     changed = []
@@ -118,11 +122,11 @@ def main():
         if preds_ka[cid]["lemmas"] != preds_nom[cid]["lemmas"]:
             kr, nr = ka_rows[cid], nom_rows[cid]
             changed.append(cid)
-            print(f"  id{cid:>2} {case['iast']:<16} gold={nr['gold_slots']}")
-            print(f"        nominal   lemmas={preds_nom[cid]['lemmas']} f1={nr['f1']}")
-            print(f"        kind_aware lemmas={preds_ka[cid]['lemmas']} f1={kr['f1']}")
+            sys.stdout.write(f"  id{cid:>2} {case['iast']:<16} gold={nr['gold_slots']}" + "\n")
+            sys.stdout.write(f"        nominal   lemmas={preds_nom[cid]['lemmas']} f1={nr['f1']}" + "\n")
+            sys.stdout.write(f"        kind_aware lemmas={preds_ka[cid]['lemmas']} f1={kr['f1']}" + "\n")
     if not changed:
-        print("  (none)")
+        sys.stdout.write("  (none)" + "\n")
 
     # append to exp2_results.json
     out = json.load(open(RESULTS))
@@ -133,9 +137,10 @@ def main():
     }
     with open(RESULTS, "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"\nAppended strategy 'kind_aware' to {RESULTS}")
+    sys.stdout.write(f"\nAppended strategy 'kind_aware' to {RESULTS}" + "\n")
     return rep_ka["summary"], changed
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     main()

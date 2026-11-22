@@ -24,12 +24,16 @@ lemma-or-surface_form for every base_word; dhatu = first base_word with one.
 """
 import asyncio
 import json
+import logging
 import os
+import sys
 import time
 import traceback
 
 from sanskrit_analyzer import Analyzer, Config, AnalysisMode
 from score import load_gold, score_run
+
+logger = logging.getLogger(__name__)
 
 EVAL_DIR = os.path.dirname(os.path.abspath(__file__))
 FIRST_TIMEOUT = 120.0
@@ -209,43 +213,8 @@ def summarize_latency(ctor_s, lat_by_id):
     }
 
 
-async def main():
-    import requests
-    gold = load_gold()
-    cases = gold["cases"]
-    errors = []
-    out = {"vidyut_baseline_f1": VIDYUT_BASELINE_F1, "results": {}, "notes": {}, "errors": errors}
-
-    def record(key, preds, script, extra=None):
-        rep = score_run(preds, gold)
-        s = rep["summary"]
-        entry = {"script": script, "summary": s, "rows": rep["rows"],
-                 "predictions": {str(k): v for k, v in preds.items()}}
-        if extra:
-            entry.update(extra)
-        out["results"][key] = entry
-        print(f"  {key:26s} f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
-              f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})")
-        return s
-
-    # ---- E. vidyut baseline reproduction (also supplies lemmas for ensembles) ----
-    print("== vidyut baseline (library) ==")
-    vidyut_preds, vlat, vctor = await run_library("vidyut", cases, errors, "dev")
-    record("vidyut__dev", vidyut_preds, "dev", {"latency": summarize_latency(vctor, vlat)})
-
-    # ---- A. local_byt5 through the library, as-is (buggy parser) ----
-    print("\n== local_byt5 (library, as-is) ==")
-    try:
-        b_lib_preds, blat, bctor = await run_library("local_byt5", cases, errors, "dev")
-        record("local_byt5_lib__dev", b_lib_preds, "dev",
-               {"latency": summarize_latency(bctor, blat),
-                "note": "library path; _parse_combined drops compound-member lemmas"})
-    except Exception as e:  # noqa: BLE001
-        out["results"]["local_byt5_lib__dev"] = {"error": f"{type(e).__name__}: {e}"}
-        print(f"  local_byt5 library run failed: {e}")
-
-    # ---- B. local_byt5 corrected SLM parse (true model ceiling), dev + iast ----
-    print("\n== local_byt5 (corrected SLM parse) ==")
+def run_byt5_corrected(cases, errors, record, out):
+    """Path B: local_byt5 with the corrected SLM parse, dev + iast."""
     byt5_corr_dev = {}
     seg_dump = {}
     try:
@@ -283,21 +252,77 @@ async def main():
         out["notes"]["byt5_segment_dump"] = seg_dump
     except Exception as e:  # noqa: BLE001
         out["results"]["byt5_corrected__dev"] = {"error": f"{type(e).__name__}: {e}"}
-        print(f"  local_byt5 corrected run failed: {e}")
+        logger.warning(f"  local_byt5 corrected run failed: {e}")
         traceback.print_exc()
+    return byt5_corr_dev
+
+
+def union_preds(a, b):
+    """Per-case lemma union of two prediction maps; first dhatu wins."""
+    preds = {}
+    for cid in a:
+        seen, lemmas = set(), []
+        for src in (a.get(cid, {}), b.get(cid, {})):
+            for lem in src.get("lemmas", []) or []:
+                if lem not in seen:
+                    seen.add(lem)
+                    lemmas.append(lem)
+        dhatu = a.get(cid, {}).get("dhatu") or b.get(cid, {}).get("dhatu")
+        preds[cid] = {"lemmas": lemmas, "dhatu": dhatu}
+    return preds
+
+
+async def main():
+    import requests
+    gold = load_gold()
+    cases = gold["cases"]
+    errors = []
+    out = {"vidyut_baseline_f1": VIDYUT_BASELINE_F1, "results": {}, "notes": {}, "errors": errors}
+
+    def record(key, preds, script, extra=None):
+        rep = score_run(preds, gold)
+        s = rep["summary"]
+        entry = {"script": script, "summary": s, "rows": rep["rows"],
+                 "predictions": {str(k): v for k, v in preds.items()}}
+        if extra:
+            entry.update(extra)
+        out["results"][key] = entry
+        sys.stdout.write(f"  {key:26s} f1={s['mean_f1']:.3f} exact={s['exact_match_rate']:.3f} "
+                         f"dhatu_acc={s['dhatu_accuracy']} (n={s['dhatu_n']})" + "\n")
+        return s
+
+    # ---- E. vidyut baseline reproduction (also supplies lemmas for ensembles) ----
+    sys.stdout.write("== vidyut baseline (library) ==" + "\n")
+    vidyut_preds, vlat, vctor = await run_library("vidyut", cases, errors, "dev")
+    record("vidyut__dev", vidyut_preds, "dev", {"latency": summarize_latency(vctor, vlat)})
+
+    # ---- A. local_byt5 through the library, as-is (buggy parser) ----
+    sys.stdout.write("\n== local_byt5 (library, as-is) ==" + "\n")
+    try:
+        b_lib_preds, blat, bctor = await run_library("local_byt5", cases, errors, "dev")
+        record("local_byt5_lib__dev", b_lib_preds, "dev",
+               {"latency": summarize_latency(bctor, blat),
+                "note": "library path; _parse_combined drops compound-member lemmas"})
+    except Exception as e:  # noqa: BLE001
+        out["results"]["local_byt5_lib__dev"] = {"error": f"{type(e).__name__}: {e}"}
+        logger.warning(f"  local_byt5 library run failed: {e}")
+
+    # ---- B. local_byt5 corrected SLM parse (true model ceiling), dev + iast ----
+    sys.stdout.write("\n== local_byt5 (corrected SLM parse) ==" + "\n")
+    byt5_corr_dev = run_byt5_corrected(cases, errors, record, out)
 
     # ---- C. dharmamitra through the library: no longer possible ----
     # The engine was deleted from sanskrit_analyzer, so there is no library path
     # left to measure. Recorded explicitly rather than silently scoring a default
     # Analyzer under a "dharmamitra" label, which is what this block used to do.
-    print("\n== dharmamitra (library) == skipped: engine removed upstream")
+    sys.stdout.write("\n== dharmamitra (library) == skipped: engine removed upstream" + "\n")
     out["results"]["dharmamitra_lib__dev"] = {
         "skipped": "sanskrit_analyzer.engines.dharmamitra_engine was removed; "
                    "use the direct API path (D) below"
     }
 
     # ---- D. dharmamitra via corrected live API (segmentation-only) ----
-    print("\n== dharmamitra (corrected live API, segmentation) ==")
+    sys.stdout.write("\n== dharmamitra (corrected live API, segmentation) ==" + "\n")
     dm_seg_dev = {}
     try:
         session = requests.Session()
@@ -316,38 +341,26 @@ async def main():
         dm_seg_dev = preds
     except Exception as e:  # noqa: BLE001
         out["results"]["dharmamitra_seg__iast"] = {"error": f"{type(e).__name__}: {e}"}
-        print(f"  dharmamitra direct API run failed: {e}")
+        logger.warning(f"  dharmamitra direct API run failed: {e}")
 
     # ---- F/G. union ensembles: vidyut ∪ neural (ceiling of combining) ----
-    print("\n== union ensembles ==")
-    def union(a, b):
-        preds = {}
-        for cid in a:
-            seen, lemmas = set(), []
-            for src in (a.get(cid, {}), b.get(cid, {})):
-                for lem in src.get("lemmas", []) or []:
-                    if lem not in seen:
-                        seen.add(lem)
-                        lemmas.append(lem)
-            dhatu = a.get(cid, {}).get("dhatu") or b.get(cid, {}).get("dhatu")
-            preds[cid] = {"lemmas": lemmas, "dhatu": dhatu}
-        return preds
-
+    sys.stdout.write("\n== union ensembles ==" + "\n")
     if byt5_corr_dev:
-        record("union_vidyut+byt5corr__dev", union(vidyut_preds, byt5_corr_dev), "dev",
+        record("union_vidyut+byt5corr__dev", union_preds(vidyut_preds, byt5_corr_dev), "dev",
                {"note": "per-case lemma union; ceiling if byt5 parser were fixed"})
     if dm_seg_dev:
         # dm_seg used iast input but lemmas are script-normalized by scorer; union with vidyut dev
-        record("union_vidyut+dmseg__dev", union(vidyut_preds, dm_seg_dev), "dev",
+        record("union_vidyut+dmseg__dev", union_preds(vidyut_preds, dm_seg_dev), "dev",
                {"note": "vidyut lemmas ∪ dharmamitra split forms"})
 
     with open(os.path.join(EVAL_DIR, "exp5_results.json"), "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"\nErrors/timeouts: {len(errors)}")
+    sys.stdout.write(f"\nErrors/timeouts: {len(errors)}" + "\n")
     return out
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     try:
         asyncio.run(main())
     except Exception:

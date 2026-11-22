@@ -27,6 +27,7 @@ Everything is scored with score_run() so numbers are comparable across experimen
 import asyncio
 import json
 import os
+import sys
 import traceback
 
 from sanskrit_analyzer import Analyzer, Config, AnalysisMode
@@ -178,6 +179,79 @@ async def analyze(analyzer, text, mode=AnalysisMode.ACADEMIC):
         return None, f"{type(e).__name__}: {e}"
 
 
+def diagnose_forest(cases, raw, forest_lengths, best_not_first, later_parse_recovers):
+    """Fill the forest / best-parse diagnostics from the dev-input analyses."""
+    gold_by_id = {}
+    for case in cases:
+        accepts = set()
+        for slot in case["expected"]:
+            for alt in slot:
+                accepts.add(canonical_slp1(alt))
+        gold_by_id[case["id"]] = accepts
+    for case in cases:
+        r = raw[case["id"]]
+        forest = getattr(r, "parse_forest", None) or []
+        forest_lengths[case["id"]] = len(forest)
+        if not forest:
+            continue
+        _, idx, is_first = best_parse_of(r)
+        if not is_first:
+            best_not_first.append({"id": case["id"], "best_index": idx})
+        # does any non-first parse contribute a gold lemma the first parse missed?
+        first_lemmas = {canonical_slp1(bw_lemma(bw)) for bw in iter_base_words(forest[0]) if bw_lemma(bw)}
+        gold_set = gold_by_id[case["id"]]
+        missed = gold_set - first_lemmas
+        if missed and len(forest) > 1:
+            for p in forest[1:]:
+                other = {canonical_slp1(bw_lemma(bw)) for bw in iter_base_words(p) if bw_lemma(bw)}
+                recovered = missed & other
+                if recovered:
+                    later_parse_recovers.append({"id": case["id"], "recovered": sorted(recovered)})
+                    break
+
+
+async def run_routed(get_result, cases, gold, all_results, errors):
+    """Strategy D: analyze routed input and score it with strat_A."""
+    for router_name, router in (("D_route", route_to_dev_correct), ("D_naive", auto_to_devanagari)):
+        for script in ("dev", "iast"):
+            preds = {}
+            for case in cases:
+                routed = router(case[script])
+                r, err = await get_result(routed)
+                preds[case["id"]] = strat_A(r)
+                if err:
+                    errors.append({"run": f"{router_name}__{script}", "id": case["id"],
+                                   "input": routed, "error": err})
+            report = score_run(preds, gold)
+            all_results[f"{router_name}__{script}"] = {
+                "strategy": router_name, "script": script,
+                "summary": report["summary"],
+                "predictions": {str(k): v for k, v in preds.items()},
+            }
+
+
+def write_summary(all_results, out, best_not_first, later_parse_recovers,
+                  dhatu_defined, dhatu_populated, errors):
+    """Write the console summary table to stdout."""
+    sys.stdout.write(f"{'run':32s} {'mean_f1':>8s} {'exact':>7s} {'dhatu_acc':>10s} {'dhatu_n':>8s}" + "\n")
+    order = ["A_first", "B_union", "C_best", "E_filtered", "D_route", "D_naive"]
+    for sname in order:
+        for script in ("dev", "iast"):
+            key = f"{sname}__{script}"
+            if key in all_results:
+                s = all_results[key]["summary"]
+                sys.stdout.write(f"{key:32s} {s['mean_f1']:8.3f} {s['exact_match_rate']:7.3f} "
+                                 f"{str(s['dhatu_accuracy']):>10s} {s['dhatu_n']:8d}" + "\n")
+    fk = all_results["FOLDED_canonical_key__dev"]["summary"]
+    sys.stdout.write(f"{'FOLDED_canonical_key__dev':32s} {fk['mean_f1']:8.3f} {fk['exact_match_rate']:7.3f}" + "\n")
+    sys.stdout.write(f"\nmax forest len: {out['diagnostics']['max_forest_len']}, "
+                     f"cases with forest>1: {out['diagnostics']['n_cases_forest_gt1']}" + "\n")
+    sys.stdout.write(f"best_parse != first: {len(best_not_first)} cases -> {best_not_first}" + "\n")
+    sys.stdout.write(f"later parse recovers gold: {later_parse_recovers}" + "\n")
+    sys.stdout.write(f"dhatu defined in gold: {len(dhatu_defined)}, populated by analyzer: {len(dhatu_populated)} -> {dhatu_populated}" + "\n")
+    sys.stdout.write(f"errors/timeouts: {len(errors)}" + "\n")
+
+
 async def main():
     gold = load_gold()
     cases = gold["cases"]
@@ -211,33 +285,7 @@ async def main():
 
         # diagnostics only on dev pass
         if script == "dev":
-            gold_by_id = {}
-            for case in cases:
-                accepts = set()
-                for slot in case["expected"]:
-                    for alt in slot:
-                        accepts.add(canonical_slp1(alt))
-                gold_by_id[case["id"]] = accepts
-            for case in cases:
-                r = raw[case["id"]]
-                forest = getattr(r, "parse_forest", None) or []
-                forest_lengths[case["id"]] = len(forest)
-                if not forest:
-                    continue
-                _, idx, is_first = best_parse_of(r)
-                if not is_first:
-                    best_not_first.append({"id": case["id"], "best_index": idx})
-                # does any non-first parse contribute a gold lemma the first parse missed?
-                first_lemmas = {canonical_slp1(bw_lemma(bw)) for bw in iter_base_words(forest[0]) if bw_lemma(bw)}
-                gold_set = gold_by_id[case["id"]]
-                missed = gold_set - first_lemmas
-                if missed and len(forest) > 1:
-                    for p in forest[1:]:
-                        other = {canonical_slp1(bw_lemma(bw)) for bw in iter_base_words(p) if bw_lemma(bw)}
-                        recovered = missed & other
-                        if recovered:
-                            later_parse_recovers.append({"id": case["id"], "recovered": sorted(recovered)})
-                            break
+            diagnose_forest(cases, raw, forest_lengths, best_not_first, later_parse_recovers)
 
         # score each lemma strategy
         for sname, fn in lemma_strats.items():
@@ -250,22 +298,7 @@ async def main():
             }
 
     # ---- strategy D: routed input (analyze routed text), score with strat_A ----
-    for router_name, router in (("D_route", route_to_dev_correct), ("D_naive", auto_to_devanagari)):
-        for script in ("dev", "iast"):
-            preds = {}
-            for case in cases:
-                routed = router(case[script])
-                r, err = await get_result(routed)
-                preds[case["id"]] = strat_A(r)
-                if err:
-                    errors.append({"run": f"{router_name}__{script}", "id": case["id"],
-                                   "input": routed, "error": err})
-            report = score_run(preds, gold)
-            all_results[f"{router_name}__{script}"] = {
-                "strategy": router_name, "script": script,
-                "summary": report["summary"],
-                "predictions": {str(k): v for k, v in preds.items()},
-            }
+    await run_routed(get_result, cases, gold, all_results, errors)
 
     # ---- entity-key folding probe: does canonical_key on lemmas help/hurt vs A? ----
     # Apply canonical_key to strat_A lemmas (dev input) and score.
@@ -314,23 +347,8 @@ async def main():
         json.dump(out, f, ensure_ascii=False, indent=2)
 
     # console summary table
-    print(f"{'run':32s} {'mean_f1':>8s} {'exact':>7s} {'dhatu_acc':>10s} {'dhatu_n':>8s}")
-    order = ["A_first", "B_union", "C_best", "E_filtered", "D_route", "D_naive"]
-    for sname in order:
-        for script in ("dev", "iast"):
-            key = f"{sname}__{script}"
-            if key in all_results:
-                s = all_results[key]["summary"]
-                print(f"{key:32s} {s['mean_f1']:8.3f} {s['exact_match_rate']:7.3f} "
-                      f"{str(s['dhatu_accuracy']):>10s} {s['dhatu_n']:8d}")
-    fk = all_results["FOLDED_canonical_key__dev"]["summary"]
-    print(f"{'FOLDED_canonical_key__dev':32s} {fk['mean_f1']:8.3f} {fk['exact_match_rate']:7.3f}")
-    print(f"\nmax forest len: {out['diagnostics']['max_forest_len']}, "
-          f"cases with forest>1: {out['diagnostics']['n_cases_forest_gt1']}")
-    print(f"best_parse != first: {len(best_not_first)} cases -> {best_not_first}")
-    print(f"later parse recovers gold: {later_parse_recovers}")
-    print(f"dhatu defined in gold: {len(dhatu_defined)}, populated by analyzer: {len(dhatu_populated)} -> {dhatu_populated}")
-    print(f"errors/timeouts: {len(errors)}")
+    write_summary(all_results, out, best_not_first, later_parse_recovers,
+                  dhatu_defined, dhatu_populated, errors)
     return out
 
 

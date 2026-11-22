@@ -1,5 +1,5 @@
 # Code-smell gate (naren-m/smell-lint v0.1.0). Baseline: .smell_baseline.json.
-# Scan the Flask backend. Out of scope: backend/tests, scripts/ (one-off data
-# tools) and experiments/ (throwaway research code).
-paths = ["backend"]
-exclude = ["backend/tests"]
+# Gates the whole repo: backend/ (app + tests), scripts/ and experiments/.
+# No excludes: the repo has no vendored or generated Python, and smell-lint
+# already skips venv/, node_modules/ and the other built-in dirs.
+paths = ["."]

@@ -17,6 +17,7 @@ normalized to SLP1 before comparison.
 
 import json
 import re
+import sys
 import unicodedata
 from pathlib import Path
 
@@ -127,6 +128,6 @@ if __name__ == "__main__":
     # sanity: gold matches itself perfectly
     perfect = {c["id"]: {"lemmas": [a[0] for a in c["expected"]], "dhatu": c.get("dhatu")} for c in g["cases"]}
     rep = score_run(perfect, g)
-    print(json.dumps(rep["summary"], indent=2))
+    sys.stdout.write(json.dumps(rep["summary"], indent=2) + "\n")
     assert rep["summary"]["mean_f1"] == 1.0, "self-test failed"
-    print("self-test OK")
+    sys.stdout.write("self-test OK" + "\n")
