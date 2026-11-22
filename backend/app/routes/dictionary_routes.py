@@ -3,9 +3,8 @@
 Provides REST endpoints for dictionary lookups, sandhi splitting,
 and morphological analysis using the unified sanskrit_analyzer.
 
-Note: DictionaryService is kept because it wraps the project's own
-MW/Apte dictionary SQLite database with fuzzy matching — this is
-project-specific, not part of the old Vidyut/Dharmamitra NLP code.
+DictionaryService shapes sanskrit_analyzer.lexicon results (MW, optional
+Apte) for the frontend and adds fuzzy matching for typos.
 """
 
 from flask import Blueprint, jsonify, request

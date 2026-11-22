@@ -1,56 +1,10 @@
-"""Tests for DictionaryService.clean_definition — raw CDSL entry cleanup."""
+"""Tests for DictionaryService: MW etymology parsing, sense runs, lexicon lookup."""
+
+import pytest
 
 from app.services.dictionary_service import DictionaryService
 
-clean = DictionaryService.clean_definition
 sense_run = DictionaryService._extract_sense_run
-
-
-class TestCleanDefinition:
-    def test_transliterates_embedded_slp1_tokens(self):
-        raw = ('niroDaH niroDanaM 1 Confinement, locking up; '
-               'yogaScittavfttiniroDaH Yoga S.')
-        out = clean(raw)
-        # leading headword echoes stripped, quoted Sanskrit transliterated
-        assert out.startswith('1 Confinement, locking up')
-        assert 'yogaścittavṛttinirodhaḥ' in out
-        assert 'niroDaH' not in out
-
-    def test_collapses_doubled_headword_echo(self):
-        assert clean('cittacitta mfn. observed').startswith('mfn. observed')
-
-    def test_collapses_triple_echo_and_accent_marks(self):
-        # 'yogayogayoga' (triple) and accent-marked 'yo/ga' variants collapse,
-        # then the leading echo is dropped at the POS-marker boundary
-        out = clean('yogayo/gayo/ga m. the act of yoking')
-        assert out.startswith('m. the act of yoking')
-
-    def test_strips_lowercase_slp1_echo(self):
-        # 'vftti' has no capitals for the transliterator to spot; the leading
-        # echo run must still be dropped at the 'f.' POS marker
-        out = clean('vfttivf/ttivf/tti f. rolling, rolling down (of tears), MBh.')
-        assert out.startswith('f. rolling, rolling down')
-        assert 'vftti' not in out
-
-    def test_strips_trailing_scan_reference(self):
-        out = clean('instruction, direction, command168960631-c')
-        assert out == 'instruction, direction, command'
-
-    def test_leaves_english_and_citations_alone(self):
-        raw = 'Restraint, check; Ms. 8. 310, 375; MBh.; the Buddhists'
-        out = clean(raw)
-        assert 'Ms.' in out
-        assert 'MBh.' in out
-        assert 'Buddhists' in out
-
-    def test_real_apte_nirodha_row(self):
-        raw = ('niroDaHniroDaH niroDanaMniroDaH niroDanaM 1 Confinement, '
-               'locking up, imprisonment; Ms. 8. 310, 375. 2 Enclosing, '
-               'covering up; Amaru. 87.168960631-c')
-        out = clean(raw)
-        assert out.startswith('1 Confinement')
-        assert 'niroDa' not in out
-        assert '168960631' not in out
 
 
 class TestCitedRootParsing:
@@ -105,3 +59,42 @@ class TestRootSenseRun:
 
     def test_returns_none_when_no_sense_run(self):
         assert sense_run("m. permission, consent, TBr.") is None
+
+
+_SERVICE = DictionaryService()
+
+
+@pytest.mark.parametrize(
+    "word, fuzzy, expect_key, expect_fuzzy",
+    [
+        ("rAga", False, "rAga", False),          # SLP1 input
+        ("राग", False, "rAga", False),            # Devanagari input
+        ("nirodha", False, "niroDa", False),      # IAST input
+        ("nirodhaḥ", False, None, False),         # inflected form: not a headword
+        ("niroDa", True, "niroDa", False),        # exact hit never reports fuzzy
+        ("niroDx", True, "niroDa", True),         # typo, fuzzy on
+        ("niroDx", False, None, False),           # typo, fuzzy off
+    ],
+)
+def test_get_definitions(word, fuzzy, expect_key, expect_fuzzy):
+    defs = _SERVICE.get_definitions(word, fuzzy=fuzzy)
+    if expect_key is None:
+        assert defs == []
+        return
+    hits = [d for d in defs if d["key"] == expect_key]
+    assert hits, f"no {expect_key} entry for {word!r}: {[d['key'] for d in defs][:5]}"
+    d = hits[0]
+    assert d["dictionary_code"] == "mw" and d["licence"] == "CC BY-SA 4.0"
+    assert d["key_devanagari"] and d["key_iast"] and d["definition"]
+    assert d["is_fuzzy_match"] is expect_fuzzy
+
+
+@pytest.mark.parametrize(
+    "word, root",
+    [
+        ("rAga", "raYj"),     # 'fr. √ rañj'
+        ("karman", "kf"),     # '(√ kf, Uṇ. iv, 144)' keeps raw SLP1
+    ],
+)
+def test_cited_root_from_lexicon(word, root):
+    assert _SERVICE.get_cited_root(word) == root

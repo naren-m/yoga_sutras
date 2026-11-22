@@ -21,7 +21,6 @@ python run.py  # Runs on localhost:5001 (port 5000 blocked by macOS AirPlay)
 # Data population (run from project root)
 pip install requests beautifulsoup4
 python scripts/scrape_text.py      # Creates data/yoga_sutras.json
-python scripts/seed_dictionaries.py # Downloads MW and Apte dictionaries to data/dictionaries/
 
 # Precompute word-by-word gloss (TextBlock.word_analysis) for all sutras.
 # --byt5 needs torch+transformers; Dhatupatha verification uses the
@@ -59,7 +58,7 @@ This generic structure supports any Sanskrit text (Ramayana slokas, Bhagavad Git
 
 ### Key Services
 - `SandhiService`: Wraps Vidyut Cheda for compound word splitting
-- `DictionaryService`: Lookup in MW/Apte dictionaries (SLP1-keyed)
+- `DictionaryService`: MW/Apte lookup over `sanskrit_analyzer.lexicon` (SLP1-keyed). MW ships at `backend/app/data/lexicon/mw.sqlite`; Apte is opt-in via `SANSKRIT_AP90_DB` or `/app/data/lexicon/ap90.sqlite` (GPL-3.0, never committed)
 - `DharmamitraMorphologyService`: Sanskrit morphological analysis (lemma, case, gender, number, verb roots)
 - `TextService`: CRUD for Text/Section/Block entities
 
@@ -89,5 +88,4 @@ This generic structure supports any Sanskrit text (Ramayana slokas, Bhagavad Git
 ## File Locations
 - Database: `data/yoga_sutras.db`
 - Scraped text: `data/yoga_sutras.json`
-- Dictionary XML: `data/dictionaries/{mw,apte}/`
 - Vidyut data: `data/vidyut-data/`
